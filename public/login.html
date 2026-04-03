@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Valhalla Grooming House - Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Fuente elegante -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      height: 100vh;
+      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      padding: 20px;
+    }
+
+    .card {
+      backdrop-filter: blur(15px);
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 215, 0, 0.2);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+    }
+
+    .title {
+      text-align: center;
+      margin-bottom: 25px;
+      font-size: 24px;
+      font-weight: 600;
+      color: gold;
+    }
+
+    .input-group {
+      margin-bottom: 15px;
+    }
+
+    .input-group label {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 10px;
+      border: none;
+      outline: none;
+      background: rgba(255,255,255,0.08);
+      color: white;
+    }
+
+    .input-group input:focus {
+      border: 1px solid gold;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(45deg, #c9a23f, #ffd700);
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px gold;
+    }
+
+    .error {
+      margin-top: 10px;
+      color: #ff4d4d;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 15px;
+      font-size: 12px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="card">
+
+      <div class="title">
+        Valhalla Grooming House
+      </div>
+
+      <div class="input-group">
+        <label>Usuario</label>
+        <input type="text" id="username" placeholder="Ingresa tu usuario">
+      </div>
+
+      <div class="input-group">
+        <label>Contraseña</label>
+        <input type="password" id="password" placeholder="••••••••">
+      </div>
+
+      <button class="btn" onclick="login()">
+        Iniciar sesión
+      </button>
+
+      <div class="error" id="errorMsg"></div>
+
+      <div class="footer">
+        Sistema interno
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+   async function login() {
+  const username = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
+
+  console.log("Enviando:", username, password);
+
+  const res = await fetch('http://localhost:3000/api/login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ username, password })
+  });
+
+  const data = await res.json();
+
+  console.log("Respuesta del servidor:", data);
+
+if (res.ok) {
+
+  // 🔐 Guardar usuario en el navegador
+  localStorage.setItem("user", JSON.stringify(data.user));
+
+  // 🔍 Ver qué rol tiene
+  const role = data.user.role;
+
+  console.log("Rol detectado:", role);
+
+  // 🔁 Redirección según rol
+  if (role === "admin") {
+    window.location.href = "/admin.html";
+  } else if (role === "employee") {
+    window.location.href = "/employee.html";
+  } else if (role === "reception") {
+    window.location.href = "/reception.html";
+  }
+
+} else {
+  document.getElementById('errorMsg').innerText = data.message;
+}
+
+}
+
+  </script>
+  </body>
+</html> 

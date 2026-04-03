@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Valhalla Grooming House
+  Dueño
+</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+    .input {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  background: rgba(255,255,255,0.08);
+  color: white;
+  outline: none;
+}
+
+.input:focus {
+  border: 1px solid gold;
+}
+
+.btn-gold {
+  margin-top: 15px;
+  padding: 10px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(45deg, #c9a23f, #ffd700);
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.btn-gold:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 10px gold;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  display: flex;
+  height: 100vh;
+  background-image: linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), url("fondo.jpg");
+  background-size: cover;
+  background-attachment: fixed;
+  color: white;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 260px;
+  background: rgba(20,20,20,0.7);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255,255,255,0.05);
+  padding: 20px;
+}
+
+.sidebar h2 {
+  color: gold;
+  margin-bottom: 40px;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar ul li {
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.sidebar ul li:hover {
+  background: rgba(255,215,0,0.1);
+  transform: translateX(5px);
+}
+
+/* MAIN */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOPBAR */
+.topbar {
+  height: 70px;
+  background: rgba(20,20,20,0.6);
+  backdrop-filter: blur(15px);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 30px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+/* CONTENT */
+.content {
+  padding: 25px;
+  display: grid;
+ grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+}
+
+/* CARDS */
+.card {
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 20px;
+  padding: 20px;
+  transition: 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 0 20px rgba(255,215,0,0.2);
+}
+
+/* TABLE */
+.table {
+  grid-column: span 3;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  color: gold;
+  text-align: left;
+  padding-bottom: 10px;
+}
+
+td {
+  padding: 10px 0;
+}
+
+tr {
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.user {
+  color: gold;
+}
+.card {
+  animation: fadeUp 0.6s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+tr:hover {
+  background: rgba(255,215,0,0.08);
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+<ul>
+  <li onclick="showSection('dashboard')">⚔️ Panel de Inicio</li>
+  <li onclick="showSection('citas')">📅 Citas</li>
+  <li onclick="showSection('clientes')">👥 Clientes</li>
+  <li onclick="showSection('inventario')">📦 Inventario</li>
+  <li onclick="showSection('empleados')">👤 Empleados</li>
+  <li onclick="showSection('finanzas')">💰 Finanzas</li>
+</ul>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+ <div class="topbar">
+  <h3>Dashboard</h3>
+
+  <div>
+    <span id="userInfo"></span>
+    <button onclick="logout()" style="
+      margin-left:15px;
+      padding:6px 12px;
+      background: gold;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+    ">
+      cerrar sesion 
+    </button>
+  </div>
+</div>
+
+  <!-- CONTENT -->
+ <div class="content">
+
+  <!-- DASHBOARD -->
+  <div id="dashboard">
+<div class="card">
+  <h3>🚨 Emergencia</h3>
+  <div id="alertsBox"></div>
+</div>
+    <div class="card">
+      <h3>💰 Ingresos</h3>
+      <p>₡0</p>
+    </div>
+
+    <div class="card">
+      <h3>📅 Citas para Hoy</h3>
+      <p>0</p>
+    </div>
+
+    <div class="card">
+      <h3>👥 Clientes</h3>
+      <p>0</p>
+    </div>
+
+    <div class="card table">
+      <h3>Citas del día</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Hora</th>
+            <th>Cliente</th>
+            <th>Servicio</th>
+            <th>Barbero</th>
+          </tr>
+        </thead>
+        <tbody id="appointmentsTable"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- CITAS -->
+ <div id="citas" style="display:none;">
+   <div class="card" style="margin-bottom:20px;">
+
+  <h3>➕ Nueva Cita</h3>
+
+  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
+
+    <input id="newName" placeholder="Nombre cliente" class="input" />
+    <input id="newPhone" placeholder="Teléfono" class="input" />
+
+    <input id="newDate" type="date" class="input" />
+    <input id="newTime" type="time" class="input" />
+
+    <select id="newEmployee" class="input"></select>
+    <select id="newService" class="input"></select>
+
+  </div>
+
+  <button onclick="createCita()" class="btn-gold">
+    Crear Cita
+  </button>
+
+</div>
+  <div class="card">
+
+    <h3>📅 Gestión de Citas</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Hora</th>
+          <th>Cliente</th>
+          <th>Servicio</th>
+          <th>Barbero</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+
+      <tbody id="citasTable"></tbody>
+    </table>
+
+  </div>
+</div>
+
+  <!-- CLIENTES -->
+ <div id="clientes" style="display:none;">
+  <div class="card">
+    <h3>👥 Clientes</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Teléfono</th>
+          <th>Citas</th>
+        </tr>
+      </thead>
+
+      <tbody id="clientesTable"></tbody>
+    </table>
+
+  </div>
+</div>
+
+  <!-- INVENTARIO -->
+<div id="inventario" style="display:none;">
+  
+  <div class="card">
+
+    <h3>🛠 Gestión de Servicios</h3>
+
+    <!-- FORM -->
+    <div style="margin-bottom:20px;">
+      <input id="servName" placeholder="Nombre servicio" class="input" />
+      <input id="servPrice" placeholder="Precio" class="input" />
+      
+      <select id="servCat" class="input">
+        <option value="barbero">Barbero</option>
+        <option value="masajista">Masajista</option>
+        <option value="facial">Facial</option>
+        <option value="nutricion">Nutrición</option>
+        <option value="psicologia">Psicología</option>
+        <option value="gym">Gym</option>
+      </select>
+
+      <button onclick="createService()" class="btn-gold">
+        Crear Servicio
+      </button>
+    </div>
+
+    <!-- TABLA -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Precio</th>
+          <th>Categoría</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+
+      <tbody id="servicesTable"></tbody>
+    </table>
+
+  </div>
+
+</div>
+  <!-- EMPLEADOS -->
+  <div id="empleados" style="display:none;">
+  
+  <div class="card">
+
+    <h3>👤 Gestión de Empleados</h3>
+<div style="margin-bottom:20px;">
+
+  <select id="goalEmployee" class="input"></select>
+
+  <input id="goalCantidad" placeholder="Meta mensual (ej: 100)" class="input">
+
+  <input id="goalMes" placeholder="Mes (1-12)" class="input">
+
+  <input id="goalAnio" placeholder="Año (2026)" class="input">
+
+  <button onclick="createGoal()">Crear Meta</button>
+
+</div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Empleado</th>
+      <th>Meta</th>
+      <th>Mes</th>
+      <th>Año</th>
+    </tr>
+  </thead>
+
+  <tbody id="goalsTable"></tbody>
+</table>
+    <!-- FORM -->
+    <div style="margin-bottom:20px;">
+      <input id="empName" placeholder="Nombre del empleado" class="input" />
+      <input id="empUser" placeholder="Usuario" class="input" />
+<input id="empPass" placeholder="Contraseña" class="input" />
+      <button onclick="createEmployee()" class="btn-gold">
+        Crear
+      </button>
+    </div>
+
+    <!-- TABLA -->
+    <table>
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+
+      <tbody id="employeesTable"></tbody>
+    </table>
+
+  </div>
+
+</div>
+<h3>📊 Progreso de Metas</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>Empleado</th>
+      <th>Realizadas</th>
+      <th>Meta</th>
+      <th>Estado</th>
+    </tr>
+  </thead>
+
+  <tbody id="progressTable"></tbody>
+</table>
+
+  <!-- FINANZAS -->
+  <div id="finanzas" style="display:none;">
+  <div class="card">
+    <h3>💰 Finanzas por empleado</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Barbero</th>
+          <th>Citas</th>
+          <th>Ingresos</th>
+        </tr>
+      </thead>
+
+      <tbody id="finanzasTable"></tbody>
+    </table>
+
+  </div>
+</div>
+
+<script>
+
+// 🔐 Validar sesión
+const user = JSON.parse(localStorage.getItem("user"));
+
+if (!user || user.role !== "admin") {
+  window.location.href = "/login.html";
+}
+
+// 👤 Mostrar usuario
+document.getElementById("userInfo").innerText =
+  user.username + " (" + user.role + ")";
+
+
+// 📡 DASHBOARD
+async function loadAppointments() {
+  try {
+
+    const res = await fetch("http://localhost:3000/api/appointments");
+    const data = await res.json();
+
+    const table = document.getElementById("appointmentsTable");
+    table.innerHTML = "";
+
+    let totalCitas = 0;
+    let totalIngresos = 0;
+
+    data.forEach(app => {
+
+      totalCitas++;
+      totalIngresos += Number(app.precio);
+
+      const row = `
+        <tr>
+          <td>${app.hora}</td>
+          <td>${app.cliente_nombre}</td>
+          <td>${app.servicio}</td>
+          <td>${app.barbero}</td>
+        </tr>
+      `;
+
+      table.innerHTML += row;
+    });
+
+    if (table.innerHTML === "") {
+      table.innerHTML = `
+        <tr>
+          <td colspan="4">No hay citas registradas</td>
+        </tr>
+      `;
+    }
+
+    // métricas
+    document.querySelectorAll(".card p")[0].innerText = "₡" + totalIngresos;
+    document.querySelectorAll(".card p")[1].innerText = totalCitas;
+    document.querySelectorAll(".card p")[2].innerText = totalCitas;
+
+    // 📊 GRÁFICO
+    const horas = {};
+
+    data.forEach(app => {
+      const hora = app.hora;
+      if (!horas[hora]) horas[hora] = 0;
+      horas[hora]++;
+    });
+
+    const labels = Object.keys(horas);
+    const valores = Object.values(horas);
+
+    const ctx = document.getElementById('myChart');
+
+    if (ctx) {
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Citas por hora',
+            data: valores,
+            borderColor: 'gold',
+            backgroundColor: 'rgba(255,215,0,0.2)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { labels: { color: 'white' } }
+          },
+          scales: {
+            x: { ticks: { color: 'white' } },
+            y: { ticks: { color: 'white' } }
+          }
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+  }
+}
+
+
+// 📅 CITAS
+async function loadCitasAdmin() {
+  const res = await fetch("http://localhost:3000/api/appointments");
+  const data = await res.json();
+
+  const table = document.getElementById("citasTable");
+  table.innerHTML = "";
+
+  data.forEach(app => {
+    table.innerHTML += `
+      <tr>
+        <td>${app.hora}</td>
+        <td>${app.cliente_nombre}</td>
+        <td>${app.servicio}</td>
+        <td>${app.barbero}</td>
+        <td>
+          <button onclick="deleteCita(${app.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    `;
+  });
+}
+
+
+// ❌ ELIMINAR
+async function deleteCita(id) {
+  if (!confirm("¿Eliminar esta cita?")) return;
+
+  await fetch(`http://localhost:3000/api/appointments/${id}`, {
+    method: "DELETE"
+  });
+
+  loadCitasAdmin();
+  loadAppointments();
+}
+
+
+// 👥 CLIENTES
+async function loadClientes() {
+  const res = await fetch("http://localhost:3000/api/appointments");
+  const data = await res.json();
+
+  const clientes = {};
+
+  data.forEach(app => {
+    if (!clientes[app.cliente_nombre]) {
+      clientes[app.cliente_nombre] = {
+        telefono: app.cliente_telefono,
+        citas: 0
+      };
+    }
+    clientes[app.cliente_nombre].citas++;
+  });
+
+  const table = document.getElementById("clientesTable");
+  table.innerHTML = "";
+
+  for (let nombre in clientes) {
+    table.innerHTML += `
+      <tr>
+        <td>${nombre}</td>
+        <td>${clientes[nombre].telefono}</td>
+        <td>${clientes[nombre].citas}</td>
+      </tr>
+    `;
+  }
+}
+
+
+// 💰 FINANZAS
+async function loadFinanzas() {
+  const res = await fetch("http://localhost:3000/api/appointments");
+  const data = await res.json();
+
+  const resumen = {};
+
+  data.forEach(app => {
+    if (!resumen[app.barbero]) {
+      resumen[app.barbero] = { citas: 0, ingresos: 0 };
+    }
+    resumen[app.barbero].citas++;
+    resumen[app.barbero].ingresos += Number(app.precio);
+  });
+
+  const table = document.getElementById("finanzasTable");
+  table.innerHTML = "";
+
+  for (let barbero in resumen) {
+    table.innerHTML += `
+      <tr>
+        <td>${barbero}</td>
+        <td>${resumen[barbero].citas}</td>
+        <td>₡${resumen[barbero].ingresos}</td>
+      </tr>
+    `;
+  }
+}
+
+
+// 🔄 NAVEGACIÓN
+function showSection(section) {
+    if (section === "inventario") {
+  loadServices();
+}
+if (section === "citas") {
+  loadFormData();
+}
+if (section === "empleados") {
+  loadEmployees();
+}
+if (section === "empleados") {
+  loadEmployeesForGoals();
+  loadGoals();
+}
+if (section === "empleados") {
+  loadEmployeesForGoals();
+  loadGoals();
+  loadProgress();
+}
+  const sections = ["dashboard","citas","clientes","inventario","empleados","finanzas"];
+
+  sections.forEach(sec => {
+    document.getElementById(sec).style.display = "none";
+  });
+
+  document.getElementById(section).style.display = "block";
+
+  if (section === "citas") loadCitasAdmin();
+  if (section === "clientes") loadClientes();
+  if (section === "finanzas") loadFinanzas();
+}
+
+
+// 🔐 LOGOUT
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "/login.html";
+}
+
+
+// 🚀 INIT
+loadAppointments();
+async function loadFormData() {
+
+  const empRes = await fetch("http://localhost:3000/api/employees");
+  const empleados = await empRes.json();
+
+  const empSelect = document.getElementById("newEmployee");
+  empSelect.innerHTML = "";
+
+  empleados.forEach(e => {
+    empSelect.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+  });
+
+  const servRes = await fetch("http://localhost:3000/api/services");
+  const servicios = await servRes.json();
+
+  const servSelect = document.getElementById("newService");
+  servSelect.innerHTML = "";
+
+  servicios.forEach(s => {
+    servSelect.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
+  });
+
+}
+async function createCita() {
+
+  const data = {
+    name: document.getElementById("newName").value,
+    phone: document.getElementById("newPhone").value,
+    servicio_id: document.getElementById("newService").value,
+    empleado_id: document.getElementById("newEmployee").value,
+    date: document.getElementById("newDate").value,
+    time: document.getElementById("newTime").value
+  };
+
+  const res = await fetch("http://localhost:3000/api/appointments", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  });
+
+  const result = await res.json();
+
+  alert(result.message);
+
+  loadCitasAdmin();
+  loadAppointments();
+  loadAlerts();
+}
+createEmployee
+async function createEmployee() {
+
+  const nombre = document.getElementById("empName").value;
+  const username = document.getElementById("empUser").value;
+  const password = document.getElementById("empPass").value;
+
+  // 1. crear empleado
+  const empRes = await fetch("http://localhost:3000/api/employees", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre })
+  });
+
+  const empData = await empRes.json();
+
+  // 2. crear usuario
+  const userRes = await fetch("http://localhost:3000/api/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username,
+      password,
+      role: "employee"
+    })
+  });
+
+  const userData = await userRes.json();
+
+  alert("Empleado y usuario creados");
+
+  loadEmployees();
+}
+loadEmployees
+async function loadEmployees() {
+
+  // 1. pedir empleados
+  const res = await fetch("http://localhost:3000/api/employees");
+  const data = await res.json();
+
+  const table = document.getElementById("employeesTable");
+
+  // 2. limpiar tabla
+  table.innerHTML = "";
+
+  // 3. recorrer empleados
+  data.forEach(emp => {
+
+    table.innerHTML += `
+      <tr>
+        <td>${emp.nombre}</td>
+        <td>
+          <button onclick="deleteEmployee(${emp.id})">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    `;
+
+  });
+}
+    crear.servicio 
+deleteEmployee
+async function deleteEmployee(id) {
+
+  // confirmar
+  if (!confirm("¿Eliminar empleado?")) return;
+
+  // eliminar
+  await fetch(`http://localhost:3000/api/employees/${id}`, {
+    method: "DELETE"
+  });
+
+  // recargar
+  loadEmployees();
+}
+async function createService() {
+
+  const nombre = document.getElementById("servName").value;
+  const precio = document.getElementById("servPrice").value;
+  const categoria = document.getElementById("servCat").value;
+
+  const res = await fetch("http://localhost:3000/api/services", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ nombre, precio, categoria })
+  });
+
+  const data = await res.json();
+
+  alert(data.message);
+
+  loadServices();
+}
+Cargar.servicios
+async function loadServices() {
+
+  const res = await fetch("http://localhost:3000/api/services");
+  const data = await res.json();
+
+  const table = document.getElementById("servicesTable");
+
+  table.innerHTML = "";
+
+  data.forEach(serv => {
+
+    table.innerHTML += `
+      <tr>
+        <td>${serv.nombre}</td>
+        <td>₡${serv.precio}</td>
+        <td>${serv.categoria}</td>
+        <td>
+          <button onclick="deleteService(${serv.id})">Eliminar</button>
+        </td>
+      </tr>
+    `;
+
+  });
+}
+Cargar.empleados.en.el.select
+async function loadEmployeesForGoals() {
+
+  const res = await fetch("http://localhost:3000/api/employees");
+  const data = await res.json();
+
+  const select = document.getElementById("goalEmployee");
+
+  select.innerHTML = "";
+
+  data.forEach(emp => {
+    select.innerHTML += `<option value="${emp.id}">${emp.nombre}</option>`;
+  });
+
+}
+Crear.meta
+async function createGoal() {
+
+  const empleado_id = document.getElementById("goalEmployee").value;
+  const cantidad = document.getElementById("goalCantidad").value;
+  const mes = document.getElementById("goalMes").value;
+  const anio = document.getElementById("goalAnio").value;
+
+  const res = await fetch("http://localhost:3000/api/goals", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ empleado_id, cantidad, mes, anio })
+  });
+
+  const data = await res.json();
+
+  alert(data.message);
+
+  loadGoals();
+}
+Cargar.metas
+async function loadGoals() {
+
+  const res = await fetch("http://localhost:3000/api/goals");
+  const data = await res.json();
+
+  const table = document.getElementById("goalsTable");
+
+  table.innerHTML = "";
+
+  data.forEach(g => {
+
+    table.innerHTML += `
+      <tr>
+        <td>${g.nombre}</td>
+        <td>${g.cantidad}</td>
+        <td>${g.mes}</td>
+        <td>${g.anio}</td>
+      </tr>
+    `;
+
+  });
+
+}
+async function loadProgress() {
+
+  const res = await fetch("http://localhost:3000/api/goals-progress");
+  const data = await res.json();
+
+  const table = document.getElementById("progressTable");
+
+  table.innerHTML = "";
+
+  data.forEach(p => {
+
+    const estado = p.realizadas >= p.meta 
+      ? "✅ Cumplida" 
+      : "❌ En progreso";
+
+    table.innerHTML += `
+      <tr>
+        <td>${p.nombre}</td>
+        <td>${p.realizadas}</td>
+        <td>${p.meta}</td>
+        <td>${estado}</td>
+      </tr>
+    `;
+
+  });
+
+}
+async function loadAlerts() {
+
+  const res = await fetch("http://localhost:3000/api/alerts");
+  const data = await res.json();
+
+  const box = document.getElementById("alertsBox");
+
+  box.innerHTML = "";
+
+  data.forEach(emp => {
+
+    let mensaje = "";
+
+    if (emp.estado === "riesgo") {
+      mensaje = `⚠️ ${emp.nombre} no estas alcanzado la meta (${emp.realizadas}/${emp.meta})`;
+    }
+
+    if (emp.estado === "cumplida") {
+      mensaje = `🔥 ${emp.nombre} meta alcanzada(${emp.realizadas}/${emp.meta})`;
+    }
+
+    if (mensaje !== "") {
+      box.innerHTML += `<p>${mensaje}</p>`;
+    }
+
+  });
+
+}
+</script>
+
+</body>
+</html>
