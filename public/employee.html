@@ -50,7 +50,7 @@ if (user.role !== "employee") {
 
 async function loadMyAppointments() {
 
-  const res = await fetch("http://localhost:3000/api/appointments");
+  const res = await fetch("/api/appointments");
   const data = await res.json();
 
   const container = document.getElementById("appointments");

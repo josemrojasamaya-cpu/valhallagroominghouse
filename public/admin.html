@@ -666,7 +666,7 @@ document.getElementById("userInfo").innerText =
 async function loadAppointments() {
   try {
 
-    const res = await fetch("http://localhost:3000/api/appointments");
+    const res = await fetch("/api/appointments");
     const data = await res.json();
 
     const table = document.getElementById("appointmentsTable");
@@ -753,7 +753,7 @@ async function loadAppointments() {
 
 // 📅 CITAS
 async function loadCitasAdmin() {
-  const res = await fetch("http://localhost:3000/api/appointments");
+  const res = await fetch("/api/appointments");
   const data = await res.json();
 
   const table = document.getElementById("citasTable");
@@ -781,7 +781,7 @@ async function loadCitasAdmin() {
 async function deleteCita(id) {
   if (!confirm("¿Eliminar esta cita?")) return;
 
-  await fetch(`http://localhost:3000/api/appointments/${id}`, {
+  await fetch(`/api/appointments/${id}`, {
     method: "DELETE"
   });
 
@@ -792,7 +792,7 @@ async function deleteCita(id) {
 
 // 👥 CLIENTES
 async function loadClientes() {
-  const res = await fetch("http://localhost:3000/api/appointments");
+  const res = await fetch("/api/appointments");
   const data = await res.json();
 
   const clientes = {};
@@ -828,7 +828,7 @@ let financeChartInstance = null;
 
 async function loadERPFinanzas() {
   try {
-    const res = await fetch("http://localhost:3000/api/finanzas/resumen");
+    const res = await fetch("/api/finanzas/resumen");
     const data = await res.json();
 
     document.getElementById("erpGross").innerText = "₡" + Number(data.ingresoBruto).toFixed(2);
@@ -858,7 +858,7 @@ async function loadERPFinanzas() {
 
 async function loadPredictiveAnalytics() {
   try {
-    const res = await fetch("http://localhost:3000/api/finanzas/analitica/prevision");
+    const res = await fetch("/api/finanzas/analitica/prevision");
     const data = await res.json();
     
     document.getElementById("fcDays").innerText = data.remainingDays + " días (" + data.daysIntoMonth + " transcurridos)";
@@ -889,7 +889,7 @@ async function loadPredictiveAnalytics() {
 
 async function loadLedger() {
   try {
-    const res = await fetch("http://localhost:3000/api/finanzas/ledger");
+    const res = await fetch("/api/finanzas/ledger");
     const data = await res.json();
     const table = document.getElementById("ledgerTable");
     table.innerHTML = "";
@@ -946,7 +946,7 @@ function updateChart(data) {
 }
 
 async function loadExpenses() {
-  const res = await fetch("http://localhost:3000/api/finanzas/gastos");
+  const res = await fetch("/api/finanzas/gastos");
   const data = await res.json();
   const table = document.getElementById("expensesTable");
   table.innerHTML = "";
@@ -969,7 +969,7 @@ async function createExpense() {
     dia_pago: document.getElementById("expDay").value,
     categoria: "general"
   };
-  await fetch("http://localhost:3000/api/finanzas/gastos", {
+  await fetch("/api/finanzas/gastos", {
     method: "POST", headers: {"Content-Type": "application/json"},
     body: JSON.stringify(data)
   });
@@ -979,13 +979,13 @@ async function createExpense() {
 
 async function deleteExpense(id) {
   if(!confirm("¿Eliminar gasto fijo?")) return;
-  await fetch(`http://localhost:3000/api/finanzas/gastos/${id}`, {method: "DELETE"});
+  await fetch(`/api/finanzas/gastos/${id}`, {method: "DELETE"});
   loadExpenses();
   loadERPFinanzas();
 }
 
 async function loadLoans() {
-  const res = await fetch("http://localhost:3000/api/finanzas/prestamos");
+  const res = await fetch("/api/finanzas/prestamos");
   const data = await res.json();
   const container = document.getElementById("loansContainer");
   container.innerHTML = "";
@@ -1017,7 +1017,7 @@ async function createLoan() {
   };
   
   try {
-    const res = await fetch("http://localhost:3000/api/finanzas/prestamos", {
+    const res = await fetch("/api/finanzas/prestamos", {
       method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)
     });
@@ -1044,7 +1044,7 @@ async function createLoan() {
 
 async function payLoan(id, cuota, isExtra) {
   if(!confirm("¿Registrar pago?")) return;
-  await fetch(`http://localhost:3000/api/finanzas/prestamos/${id}/pagos`, {
+  await fetch(`/api/finanzas/prestamos/${id}/pagos`, {
     method: "POST", headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ monto_pagado: cuota, es_extraordinario: isExtra })
   });
@@ -1092,7 +1092,7 @@ function logout() {
 loadAppointments();
 async function loadFormData() {
 
-  const empRes = await fetch("http://localhost:3000/api/employees");
+  const empRes = await fetch("/api/employees");
   const empleados = await empRes.json();
 
   const empSelect = document.getElementById("newEmployee");
@@ -1102,7 +1102,7 @@ async function loadFormData() {
     empSelect.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
   });
 
-  const servRes = await fetch("http://localhost:3000/api/services");
+  const servRes = await fetch("/api/services");
   const servicios = await servRes.json();
 
   const servSelect = document.getElementById("newService");
@@ -1124,7 +1124,7 @@ async function createCita() {
     time: document.getElementById("newTime").value
   };
 
-  const res = await fetch("http://localhost:3000/api/appointments", {
+  const res = await fetch("/api/appointments", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data)
@@ -1145,7 +1145,7 @@ async function createEmployee() {
   const password = document.getElementById("empPass").value;
 
   // 1. crear empleado
-  const empRes = await fetch("http://localhost:3000/api/employees", {
+  const empRes = await fetch("/api/employees", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre })
@@ -1154,7 +1154,7 @@ async function createEmployee() {
   const empData = await empRes.json();
 
   // 2. crear usuario
-  const userRes = await fetch("http://localhost:3000/api/users", {
+  const userRes = await fetch("/api/users", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -1173,7 +1173,7 @@ async function createEmployee() {
 async function loadEmployees() {
 
   // 1. pedir empleados
-  const res = await fetch("http://localhost:3000/api/employees");
+  const res = await fetch("/api/employees");
   const data = await res.json();
 
   const table = document.getElementById("employeesTable");
@@ -1205,7 +1205,7 @@ async function deleteEmployee(id) {
   if (!confirm("¿Eliminar empleado?")) return;
 
   // eliminar
-  await fetch(`http://localhost:3000/api/employees/${id}`, {
+  await fetch(`/api/employees/${id}`, {
     method: "DELETE"
   });
 
@@ -1218,7 +1218,7 @@ async function createService() {
   const precio = document.getElementById("servPrice").value;
   const categoria = document.getElementById("servCat").value;
 
-  const res = await fetch("http://localhost:3000/api/services", {
+  const res = await fetch("/api/services", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ nombre, precio, categoria })
@@ -1233,7 +1233,7 @@ async function createService() {
 Cargar.servicios
 async function loadServices() {
 
-  const res = await fetch("http://localhost:3000/api/services");
+  const res = await fetch("/api/services");
   const data = await res.json();
 
   const table = document.getElementById("servicesTable");
@@ -1258,7 +1258,7 @@ async function loadServices() {
 Cargar.empleados.en.el.select
 async function loadEmployeesForGoals() {
 
-  const res = await fetch("http://localhost:3000/api/employees");
+  const res = await fetch("/api/employees");
   const data = await res.json();
 
   const select = document.getElementById("goalEmployee");
@@ -1278,7 +1278,7 @@ async function createGoal() {
   const mes = document.getElementById("goalMes").value;
   const anio = document.getElementById("goalAnio").value;
 
-  const res = await fetch("http://localhost:3000/api/goals", {
+  const res = await fetch("/api/goals", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ empleado_id, cantidad, mes, anio })
@@ -1293,7 +1293,7 @@ async function createGoal() {
 Cargar.metas
 async function loadGoals() {
 
-  const res = await fetch("http://localhost:3000/api/goals");
+  const res = await fetch("/api/goals");
   const data = await res.json();
 
   const table = document.getElementById("goalsTable");
@@ -1322,14 +1322,14 @@ async function loadGoals() {
 
 async function deleteGoal(id) {
   if (!confirm("¿Eliminar esta meta?")) return;
-  await fetch(`http://localhost:3000/api/goals/${id}`, { method: "DELETE" });
+  await fetch(`/api/goals/${id}`, { method: "DELETE" });
   loadGoals();
   loadProgress();
   loadAlerts();
 }
 async function loadProgress() {
 
-  const res = await fetch("http://localhost:3000/api/goals-progress");
+  const res = await fetch("/api/goals-progress");
   const data = await res.json();
 
   const table = document.getElementById("progressTable");
@@ -1356,7 +1356,7 @@ async function loadProgress() {
 }
 async function loadAlerts() {
 
-  const res = await fetch("http://localhost:3000/api/alerts");
+  const res = await fetch("/api/alerts");
   const data = await res.json();
 
   const box = document.getElementById("alertsBox");
