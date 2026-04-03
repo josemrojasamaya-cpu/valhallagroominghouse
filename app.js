@@ -6,6 +6,8 @@ const app = express();
 
 // importar rutas
 const appointmentRoutes = require("./routes/appointments.routes");
+const finanzasRoutes = require("./routes/finanzas.routes");
+const analiticaRoutes = require("./routes/analitica.routes");
 
 // permitir JSON
 app.use(express.json());
@@ -15,6 +17,8 @@ app.use(express.static(path.join(__dirname, "public")));
 
 // usar rutas
 app.use("/api", appointmentRoutes);
+app.use("/api/finanzas", finanzasRoutes);
+app.use("/api/finanzas/analitica", analiticaRoutes);
 
 // prueba API
 app.get("/api", (req, res) => {

@@ -8,37 +8,23 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    .input {
-  padding: 10px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255,255,255,0.08);
-  color: white;
-  outline: none;
+:root {
+  /* Lux Dashboard Palette */
+  --gold-primary: #d4af37;
+  --gold-gradient: linear-gradient(135deg, #f3e5ab, #d4af37, #aa7c11);
+  --bg-color: #0b0f14;
+  --panel-bg: rgba(22, 28, 36, 0.5);
+  --panel-hover: rgba(30, 38, 48, 0.65);
+  --glass-border: rgba(255, 255, 255, 0.05);
+  --text-primary: #f8f9fa;
+  --text-secondary: #9aa0a6;
+  --success: #00b894;
+  --danger: #ff7675;
 }
 
-.input:focus {
-  border: 1px solid gold;
-}
-
-.btn-gold {
-  margin-top: 15px;
-  padding: 10px;
-  border: none;
-  border-radius: 10px;
-  background: linear-gradient(45deg, #c9a23f, #ffd700);
-  color: black;
-  font-weight: bold;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-gold:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 10px gold;
-}
 * {
   margin: 0;
   padding: 0;
@@ -46,132 +32,215 @@
   font-family: 'Poppins', sans-serif;
 }
 
+/* Custom Webkit Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37, #8e680c); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #f3e5ab; }
+
 body {
   display: flex;
   height: 100vh;
-  background-image: linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), url("fondo.jpg");
+  background-color: var(--bg-color);
+  background-image: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%), url("fondo.jpg");
   background-size: cover;
   background-attachment: fixed;
-  color: white;
+  color: var(--text-primary);
+  overflow: hidden;
 }
 
-/* SIDEBAR */
+/* SIDEBAR LUXURY */
 .sidebar {
-  width: 260px;
-  background: rgba(20,20,20,0.7);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(255,255,255,0.05);
-  padding: 20px;
+  width: 280px;
+  background: var(--panel-bg);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border-right: 1px solid var(--glass-border);
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 5px 0 25px rgba(0,0,0,0.5);
+  z-index: 10;
 }
 
 .sidebar h2 {
-  color: gold;
-  margin-bottom: 40px;
+  background: var(--gold-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 45px;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-align: center;
 }
 
-.sidebar ul {
-  list-style: none;
-}
+.sidebar ul { list-style: none; flex: 1; }
 
 .sidebar ul li {
-  padding: 12px;
+  padding: 14px 20px;
   margin-bottom: 12px;
   border-radius: 12px;
-  transition: 0.3s;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
   cursor: pointer;
+  color: var(--text-secondary);
+  font-weight: 400;
+  border: 1px solid transparent;
 }
 
 .sidebar ul li:hover {
-  background: rgba(255,215,0,0.1);
-  transform: translateX(5px);
+  background: rgba(212, 175, 55, 0.08);
+  color: var(--gold-primary);
+  border: 1px solid rgba(212, 175, 55, 0.2);
+  transform: translateX(8px);
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.05);
 }
 
-/* MAIN */
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
+/* MAIN AREA */
+.main { flex: 1; display: flex; flex-direction: column; height: 100vh; }
 
-/* TOPBAR */
+/* TOPBAR GLASS */
 .topbar {
-  height: 70px;
-  background: rgba(20,20,20,0.6);
+  height: 80px;
+  background: rgba(11, 15, 20, 0.7);
   backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 30px;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
+  padding: 0 40px;
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
+  z-index: 5;
 }
 
-/* CONTENT */
+.user { color: var(--gold-primary); font-weight: 600; letter-spacing: 0.5px; }
+
+/* CONTENT & GRID */
 .content {
-  padding: 25px;
-  display: grid;
- grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
+  padding: 30px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+  padding-bottom: 80px;
+  flex: 1;
 }
 
-/* CARDS */
+/* HIGHLIGHT CARDS (GLASSMORPHISM) */
 .card {
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,215,0,0.15);
-  border-radius: 20px;
-  padding: 20px;
-  transition: 0.3s;
+  background: var(--panel-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 24px;
+  padding: 25px;
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  opacity: 0;
 }
 
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 0 20px rgba(255,215,0,0.2);
+  background: var(--panel-hover);
+  transform: translateY(-4px);
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
 }
 
-/* TABLE */
-.table {
-  grid-column: span 3;
+.card h3 { color: var(--gold-primary); margin-bottom: 15px; font-weight: 400; font-size: 1.2rem; }
+
+/* INPUTS SLEEK */
+.input {
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(0, 0, 0, 0.2);
+  color: white;
+  outline: none;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  width: 100%;
 }
+.input::placeholder { color: rgba(255,255,255,0.3); }
+
+.input:focus {
+  border: 1px solid var(--gold-primary);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
+}
+
+/* BUTTON PREMIUM */
+.btn-gold {
+  margin-top: 5px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 10px;
+  background: var(--gold-gradient);
+  color: #000;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
+  filter: brightness(1.1);
+}
+
+.btn-gold:active { transform: translateY(1px); }
+
+/* TABLES MODERNIZED */
+.table { grid-column: 1 / -1; }
 
 table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0 8px;
 }
 
 th {
-  color: gold;
+  color: var(--text-secondary);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  padding: 15px;
   text-align: left;
-  padding-bottom: 10px;
+  border-bottom: 1px solid var(--glass-border);
 }
 
 td {
-  padding: 10px 0;
+  padding: 15px;
+  background: rgba(255,255,255,0.02);
+  transition: 0.3s ease;
 }
 
-tr {
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-}
+td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
+td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 
-.user {
-  color: gold;
-}
-.card {
-  animation: fadeUp 0.6s ease;
-}
+tr:hover td { background: rgba(212, 175, 55, 0.05); }
 
+/* ANIMATIONS */
 @keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  0% { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
 }
-tr:hover {
-  background: rgba(255,215,0,0.08);
-}
+
+/* STAGGERED ANIMATIONS FOR CARDS */
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+
+/* UTILITY HELPERS */
+h2, h3, h4 { margin: 0; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -195,19 +264,12 @@ tr:hover {
 
   <!-- TOPBAR -->
  <div class="topbar">
-  <h3>Dashboard</h3>
+  <h3>Valhalla Dashboard</h3>
 
   <div>
-    <span id="userInfo"></span>
-    <button onclick="logout()" style="
-      margin-left:15px;
-      padding:6px 12px;
-      background: gold;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-    ">
-      cerrar sesion 
+    <span id="userInfo" class="user"></span>
+    <button onclick="logout()" class="btn-gold" style="margin-left:20px; font-size:12px; padding:8px 15px;">
+      Cerrar Sesión 
     </button>
   </div>
 </div>
@@ -217,106 +279,94 @@ tr:hover {
 
   <!-- DASHBOARD -->
   <div id="dashboard">
-<div class="card">
-  <h3>🚨 Emergencia</h3>
-  <div id="alertsBox"></div>
-</div>
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:25px; margin-bottom:25px;">
+      <div class="card" style="border-left: 4px solid #ff7675;">
+        <h3>🚨 Centro de Emergencias</h3>
+        <div id="alertsBox" style="color:var(--text-secondary); font-size:14px;">Todo en orden...</div>
+      </div>
+      <div class="card" style="border-left: 4px solid var(--gold-primary);">
+        <h3>💰 Flujo de Caja Hoy</h3>
+        <h2 style="color:white; font-size:1.8rem;" id="dashIncome">₡0</h2>
+      </div>
+      <div class="card" style="border-left: 4px solid #4ecdc4;">
+        <h3>📅 Citas para Hoy</h3>
+        <h2 style="color:white; font-size:1.8rem;" id="dashAppts">0</h2>
+      </div>
+    </div>
     <div class="card">
-      <h3>💰 Ingresos</h3>
-      <p>₡0</p>
+      <h3 style="margin-bottom:15px;">🗓 Citas del Día</h3>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Hora</th><th>Cliente</th><th>Servicio</th><th>Barbero</th>
+            </tr>
+          </thead>
+          <tbody id="appointmentsTable"></tbody>
+        </table>
+      </div>
     </div>
-
-    <div class="card">
-      <h3>📅 Citas para Hoy</h3>
-      <p>0</p>
-    </div>
-
-    <div class="card">
-      <h3>👥 Clientes</h3>
-      <p>0</p>
-    </div>
-
-    <div class="card table">
-      <h3>Citas del día</h3>
-      <table>
-        <thead>
-          <tr>
-            <th>Hora</th>
-            <th>Cliente</th>
-            <th>Servicio</th>
-            <th>Barbero</th>
-          </tr>
-        </thead>
-        <tbody id="appointmentsTable"></tbody>
-      </table>
-    </div>
-
   </div>
 
   <!-- CITAS -->
- <div id="citas" style="display:none;">
-   <div class="card" style="margin-bottom:20px;">
+  <div id="citas" style="display:none; width: 100%;">
+    
+    <div class="card" style="margin-bottom:25px;">
+      <h3 style="margin-bottom:15px; color:var(--text-primary);">📝 Generar Nueva Cita (Recepción)</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px;">
+        <input id="newName" placeholder="👤 Nombre cliente" class="input" />
+        <input id="newPhone" placeholder="📱 Teléfono" class="input" />
+        <input id="newDate" type="date" class="input" />
+        <input id="newTime" type="time" class="input" />
+        <select id="newEmployee" class="input">
+           <option>Seleccionar Barbero</option>
+        </select>
+        <select id="newService" class="input">
+           <option>Seleccionar Servicio</option>
+        </select>
+      </div>
+      <button onclick="createCita()" class="btn-gold" style="margin-top:20px; width:100%;">Reservar y Guardar Cita</button>
+    </div>
 
-  <h3>➕ Nueva Cita</h3>
-
-  <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
-
-    <input id="newName" placeholder="Nombre cliente" class="input" />
-    <input id="newPhone" placeholder="Teléfono" class="input" />
-
-    <input id="newDate" type="date" class="input" />
-    <input id="newTime" type="time" class="input" />
-
-    <select id="newEmployee" class="input"></select>
-    <select id="newService" class="input"></select>
-
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h3 style="color:var(--text-primary);">📅 Calendario de Citas</h3>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Hora</th>
+              <th>Cliente</th>
+              <th>Servicio</th>
+              <th>Barbero</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="citasTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-
-  <button onclick="createCita()" class="btn-gold">
-    Crear Cita
-  </button>
-
-</div>
-  <div class="card">
-
-    <h3>📅 Gestión de Citas</h3>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Hora</th>
-          <th>Cliente</th>
-          <th>Servicio</th>
-          <th>Barbero</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-
-      <tbody id="citasTable"></tbody>
-    </table>
-
-  </div>
-</div>
 
   <!-- CLIENTES -->
- <div id="clientes" style="display:none;">
-  <div class="card">
-    <h3>👥 Clientes</h3>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Teléfono</th>
-          <th>Citas</th>
-        </tr>
-      </thead>
-
-      <tbody id="clientesTable"></tbody>
-    </table>
-
+  <div id="clientes" style="display:none; width: 100%;">
+    <div class="card">
+      <h3 style="margin-bottom:20px; color:var(--text-primary);">👥 Gestión de Clientes Frecuentes</h3>
+      <div style="overflow-x:auto;">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Visitas/Citas Totales</th>
+            </tr>
+          </thead>
+          <tbody id="clientesTable"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
-</div>
 
   <!-- INVENTARIO -->
 <div id="inventario" style="display:none;">
@@ -367,32 +417,6 @@ tr:hover {
   <div class="card">
 
     <h3>👤 Gestión de Empleados</h3>
-<div style="margin-bottom:20px;">
-
-  <select id="goalEmployee" class="input"></select>
-
-  <input id="goalCantidad" placeholder="Meta mensual (ej: 100)" class="input">
-
-  <input id="goalMes" placeholder="Mes (1-12)" class="input">
-
-  <input id="goalAnio" placeholder="Año (2026)" class="input">
-
-  <button onclick="createGoal()">Crear Meta</button>
-
-</div>
-
-<table>
-  <thead>
-    <tr>
-      <th>Empleado</th>
-      <th>Meta</th>
-      <th>Mes</th>
-      <th>Año</th>
-    </tr>
-  </thead>
-
-  <tbody id="goalsTable"></tbody>
-</table>
     <!-- FORM -->
     <div style="margin-bottom:20px;">
       <input id="empName" placeholder="Nombre del empleado" class="input" />
@@ -417,41 +441,212 @@ tr:hover {
 
   </div>
 
-</div>
-<h3>📊 Progreso de Metas</h3>
+  <div class="card" style="margin-top: 20px;">
 
-<table>
-  <thead>
-    <tr>
-      <th>Empleado</th>
-      <th>Realizadas</th>
-      <th>Meta</th>
-      <th>Estado</th>
-    </tr>
-  </thead>
+    <h3>🎯 Gestión de Metas</h3>
+    <div style="margin-bottom:20px;">
 
-  <tbody id="progressTable"></tbody>
-</table>
+      <select id="goalEmployee" class="input"></select>
 
-  <!-- FINANZAS -->
-  <div id="finanzas" style="display:none;">
-  <div class="card">
-    <h3>💰 Finanzas por empleado</h3>
+      <input id="goalCantidad" placeholder="Meta mensual (ej: 100)" class="input">
+
+      <input id="goalMes" placeholder="Mes (1-12)" class="input">
+
+      <input id="goalAnio" placeholder="Año (2026)" class="input">
+
+      <button onclick="createGoal()" class="btn-gold">Crear Meta</button>
+
+    </div>
 
     <table>
       <thead>
         <tr>
-          <th>Barbero</th>
-          <th>Citas</th>
-          <th>Ingresos</th>
+          <th>Empleado</th>
+          <th>Meta</th>
+          <th>Mes</th>
+          <th>Año</th>
+          <th>Acción</th>
         </tr>
       </thead>
 
-      <tbody id="finanzasTable"></tbody>
+      <tbody id="goalsTable"></tbody>
     </table>
-
   </div>
+
+  <div class="card" style="margin-top: 20px;">
+    <h3>📊 Progreso de Metas</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Empleado</th>
+          <th>Realizadas</th>
+          <th>Meta</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+
+      <tbody id="progressTable"></tbody>
+    </table>
+  </div>
+
 </div>
+
+  <!-- FINANZAS ERP ADVANCED -->
+  <div id="finanzas" style="display:none;">
+
+    <!-- 🤖 SISTEMA PREDICTIVO Y ALERTAS (RUNWAY) -->
+    <div class="card" style="margin-bottom:20px; border: 1px solid #4ecdc4;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3>🔮 Previsión a Fin de Mes (Runway Forecast)</h3>
+        <span id="forecastBadge" style="padding: 5px 15px; border-radius:20px; font-weight:bold; font-size:14px; background:gray; color:white;">Calculando...</span>
+      </div>
+      <p id="forecastMessage" style="color:#ddd; margin-top:10px; font-size: 14px; line-height:1.5;">El asistente de IA contable está evaluando el flujo de caja actual...</p>
+      
+      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; margin-top:20px;">
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+          <p style="color:#aaa; font-size:12px;">Días Restantes Mes</p>
+          <h3 id="fcDays">0 días</h3>
+        </div>
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+          <p style="color:#aaa; font-size:12px;">Velocidad de Ingreso</p>
+          <h3 id="fcVelocity">₡0 / día</h3>
+        </div>
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+          <p style="color:#aaa; font-size:12px;">Fijos a Cubrir</p>
+          <h3 id="fcBurnRate">₡0</h3>
+        </div>
+        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
+          <p style="color:#aaa; font-size:12px;">Previsión Cierre Mes</p>
+          <h3 id="fcProjected">₡0</h3>
+        </div>
+      </div>
+      
+      <!-- AI INSIGHTS TACTICS -->
+      <div style="margin-top:20px; background:rgba(46, 213, 115, 0.1); border-left: 4px solid #2ed573; padding:15px; border-radius:5px;">
+        <h4 style="color:#2ed573; margin-bottom: 5px;">🤖 Estrategia de IA Avanzada</h4>
+        <p id="aiTactics" style="font-size: 13px; color:#ddd; line-height: 1.6;">Recolectando datos históricos...</p>
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-bottom:20px;">
+      <h3>📊 Contaduría Financiera (Strict Flow)</h3>
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-top:20px;">
+        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
+          <h4 style="color:#aaa;">Ventas Brutas</h4>
+          <h2 id="erpGross">₡0</h2>
+        </div>
+        <div style="background:rgba(255,100,100,0.1); padding:15px; border-radius:10px; border-bottom: 2px solid #ff6b6b">
+          <h4 style="color:#ff6b6b;">Impuestos LEY (Retención)</h4>
+          <h2 id="erpTax">₡0</h2>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
+          <h4 style="color:#4ecdc4;">Operativa (Post-Imp)</h4>
+          <h2 id="erpPostTax">₡0</h2>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
+          <h4 style="color:#ff6b6b;">Costos Fijos & Préstamos</h4>
+          <h2 id="erpExpenses">₡0</h2>
+        </div>
+        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; border: 1px solid gold;">
+          <h4 style="color:gold;">Ganancia del Negocio (100%)</h4>
+          <h2 id="erpNet">₡0</h2>
+        </div>
+      </div>
+
+      <h3 style="margin-top:30px;">💼 Distribución de Ganancia & Bonos</h3>
+      <p style="font-size:12px; color:#aaa; margin-bottom: 10px;">Flujo estricto: 20% Ahorro | 20% Amortización Deuda | 60% Dueño (de donde se sacan los bonos).</p>
+      
+      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+        
+        <!-- MATEMÁTICA EN TARJETAS -->
+        <div style="display:grid; gap:10px;">
+          <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
+            <h4>Fondo Reserva Ahorro (20%)</h4>
+            <h3 id="erpFundSav" style="color:#4ecdc4;">₡0</h3>
+          </div>
+          <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
+            <h4>Fondo Préstamo Extra (20%)</h4>
+            <h3 id="erpFundLoan" style="color:#4ecdc4;">₡0</h3>
+          </div>
+          <div style="background:rgba(255,215,0,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border-left: 2px solid gold;">
+            <h4>Bolsa Bruta Accionista (60%)</h4>
+            <h3 id="erpOwnerGross" style="color:gold;">₡0</h3>
+          </div>
+          <div style="background:rgba(255,100,100,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
+            <h4>(-) Bonos Empleados Generados</h4>
+            <h3 id="erpComms" style="color:#ff6b6b;">₡0</h3>
+          </div>
+          <div style="background:rgba(255,215,0,0.3); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border: 1px solid gold;">
+            <h3 style="color:gold;">Ganancia Líquida Final Dueño</h3>
+            <h2 id="erpOwnerNet" style="color:gold; font-weight:bold;">₡0</h2>
+          </div>
+        </div>
+
+        <!-- GRÁFICO CIRCULAR -->
+        <div style="background:rgba(0,0,0,0.4); border-radius:10px; padding:20px; display:flex; justify-content:center; align-items:center;">
+          <canvas id="financeChart" style="max-width: 300px; max-height: 300px;"></canvas>
+        </div>
+
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+      <!-- Gastos Fijos -->
+      <div class="card">
+        <h3>📄 Gastos Fijos y Salarios</h3>
+        <div style="display:grid; gap:10px; margin-bottom:15px;">
+          <input id="expName" placeholder="Nombre (ej. Alquiler)" class="input">
+          <input id="expAmount" type="number" placeholder="Monto" class="input">
+          <input id="expDay" type="number" placeholder="Día de pago (1-31)" class="input">
+          <button onclick="createExpense()" class="btn-gold">Registrar Gasto</button>
+        </div>
+        <table>
+          <thead><tr><th>Gasto</th><th>Monto</th><th>Vence</th><th></th></tr></thead>
+          <tbody id="expensesTable"></tbody>
+        </table>
+      </div>
+
+      <!-- Préstamos -->
+      <div class="card">
+        <h3>🏦 Gestión de Préstamos</h3>
+        <div style="display:grid; gap:10px; margin-bottom:15px;">
+          <input id="loanDesc" placeholder="Descripción" class="input">
+          <input id="loanMonto" type="number" placeholder="Monto Inicial" class="input">
+          <input id="loanTasa" type="number" placeholder="Tasa % Anual" class="input">
+          <input id="loanMeses" type="number" placeholder="Meses Plazo" class="input">
+          <input id="loanCuota" type="number" placeholder="Cuota" class="input">
+          <input id="loanDay" type="number" placeholder="Día Pago" class="input">
+          <button onclick="createLoan()" class="btn-gold">Registrar Préstamo</button>
+        </div>
+        <div id="loansContainer"></div>
+      </div>
+    </div>
+
+    <!-- LIBRO MAYOR (LEDGER) TRIBUTACIÓN -->
+    <div class="card" style="margin-top:20px;">
+      <h3>📚 Libro Mayor Contable (Ledger Legal)</h3>
+      <p style="font-size:12px; color:#aaa; margin-bottom: 15px;">Registro histórico e inmutable de movimientos y auditoría.</p>
+      <div style="max-height: 300px; overflow-y: auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo de Movimiento</th>
+              <th>Descripción y Referencia</th>
+              <th>Monto</th>
+            </tr>
+          </thead>
+          <tbody id="ledgerTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- fin #finanzas -->
+
+  </div><!-- fin .content -->
+  </div><!-- fin .main -->
 
 <script>
 
@@ -505,10 +700,11 @@ async function loadAppointments() {
       `;
     }
 
-    // métricas
-    document.querySelectorAll(".card p")[0].innerText = "₡" + totalIngresos;
-    document.querySelectorAll(".card p")[1].innerText = totalCitas;
-    document.querySelectorAll(".card p")[2].innerText = totalCitas;
+    // métricas en el dashboard
+    const dashIncome = document.getElementById("dashIncome");
+    const dashAppts = document.getElementById("dashAppts");
+    if(dashIncome) dashIncome.innerText = "₡" + totalIngresos;
+    if(dashAppts) dashAppts.innerText = totalCitas;
 
     // 📊 GRÁFICO
     const horas = {};
@@ -626,67 +822,262 @@ async function loadClientes() {
 }
 
 
-// 💰 FINANZAS
-async function loadFinanzas() {
-  const res = await fetch("http://localhost:3000/api/appointments");
-  const data = await res.json();
+// 💰 FINANZAS ESTILO ERP ADVANCED
 
-  const resumen = {};
+let financeChartInstance = null;
 
-  data.forEach(app => {
-    if (!resumen[app.barbero]) {
-      resumen[app.barbero] = { citas: 0, ingresos: 0 };
+async function loadERPFinanzas() {
+  try {
+    const res = await fetch("http://localhost:3000/api/finanzas/resumen");
+    const data = await res.json();
+
+    document.getElementById("erpGross").innerText = "₡" + Number(data.ingresoBruto).toFixed(2);
+    document.getElementById("erpTax").innerText = "₡" + Number(data.totalRetencionTributaria).toFixed(2);
+    document.getElementById("erpPostTax").innerText = "₡" + Number(data.ingresoPostImpuestos).toFixed(2);
+    
+    document.getElementById("erpExpenses").innerText = "₡" + Number(data.totalGastosFijos).toFixed(2);
+    document.getElementById("erpNet").innerText = "₡" + Number(data.gananciaNegocio).toFixed(2);
+    
+    document.getElementById("erpFundSav").innerText = "₡" + Number(data.fondoAhorro).toFixed(2);
+    document.getElementById("erpFundLoan").innerText = "₡" + Number(data.fondoPrestamoExtra).toFixed(2);
+    
+    document.getElementById("erpOwnerGross").innerText = "₡" + Number(data.bolsaDuenoBruta).toFixed(2);
+    document.getElementById("erpComms").innerText = "₡" + Number(data.totalComisiones).toFixed(2);
+    document.getElementById("erpOwnerNet").innerText = "₡" + Number(data.gananciaFinalLiquidaDueno).toFixed(2);
+
+    updateChart(data);
+
+    loadExpenses();
+    loadLoans();
+    loadPredictiveAnalytics();
+    loadLedger();
+  } catch (error) {
+    console.error("Error ERP:", error);
+  }
+}
+
+async function loadPredictiveAnalytics() {
+  try {
+    const res = await fetch("http://localhost:3000/api/finanzas/analitica/prevision");
+    const data = await res.json();
+    
+    document.getElementById("fcDays").innerText = data.remainingDays + " días (" + data.daysIntoMonth + " transcurridos)";
+    document.getElementById("fcVelocity").innerText = "₡" + Number(data.dailyVelocity).toFixed(0);
+    document.getElementById("fcBurnRate").innerText = "₡" + Number(data.totalMonthlyBurnRate).toFixed(0);
+    document.getElementById("fcProjected").innerText = "₡" + Number(data.projectedPostTax).toFixed(0);
+
+    const badge = document.getElementById("forecastBadge");
+    const message = document.getElementById("forecastMessage");
+    
+    message.innerText = data.alert.message;
+    if (data.alert.status === "red") {
+      badge.innerText = "ALERTA ROJA - DÉFICIT";
+      badge.style.background = "#ff4757";
+    } else if (data.alert.status === "amber") {
+      badge.innerText = "PRECAUCIÓN - RIESGO";
+      badge.style.background = "#ffa502";
+    } else {
+      badge.innerText = "VERDE - SEGURO";
+      badge.style.background = "#2ed573";
     }
-    resumen[app.barbero].citas++;
-    resumen[app.barbero].ingresos += Number(app.precio);
-  });
 
-  const table = document.getElementById("finanzasTable");
+    // AI Tactics update
+    document.getElementById("aiTactics").innerText = data.aiDeepInsights.tips;
+
+  } catch(e) { console.error("Error Análisis:", e); }
+}
+
+async function loadLedger() {
+  try {
+    const res = await fetch("http://localhost:3000/api/finanzas/ledger");
+    const data = await res.json();
+    const table = document.getElementById("ledgerTable");
+    table.innerHTML = "";
+    data.forEach(entry => {
+      const fecha = new Date(entry.fecha).toLocaleString();
+      table.innerHTML += `
+        <tr>
+          <td style="font-size:12px; color:#aaa">${fecha}</td>
+          <td><span style="background:rgba(255,255,255,0.1); padding:3px 6px; border-radius:4px; font-size:11px;">${entry.tipo}</span></td>
+          <td>${entry.descripcion}</td>
+          <td style="color:${entry.monto < 0 ? '#ff6b6b' : '#2ed573'}"><b>${entry.monto < 0 ? '' : '+'}₡${Math.abs(entry.monto)}</b></td>
+        </tr>
+      `;
+    });
+  } catch(e) { console.error("Error Ledger:", e); }
+}
+
+function updateChart(data) {
+    const ctx = document.getElementById('financeChart');
+    if(!ctx) return;
+
+    if (financeChartInstance) {
+        financeChartInstance.destroy();
+    }
+
+    financeChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Impuestos (Hacienda)', 'Gastos Fijos', 'Fondos Reserva', 'Bonos (Comisiones)', 'Ganancia Dueño'],
+            datasets: [{
+                data: [
+                    data.totalRetencionTributaria, 
+                    data.totalGastosFijos, 
+                    data.fondoAhorro + data.fondoPrestamoExtra,
+                    data.totalComisiones,
+                    data.gananciaFinalLiquidaDueno > 0 ? data.gananciaFinalLiquidaDueno : 0
+                ],
+                backgroundColor: [
+                    '#ff4757', // Red Impuestos
+                    '#57606f', // Grey Fijos
+                    '#4bcffa', // Blue Reservas
+                    '#ffa502', // Orange Bonos
+                    '#2ed573'  // Green Ganancia Libre
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            plugins: {
+                legend: { labels: { color: 'white', font: { size: 10 } } }
+            }
+        }
+    });
+}
+
+async function loadExpenses() {
+  const res = await fetch("http://localhost:3000/api/finanzas/gastos");
+  const data = await res.json();
+  const table = document.getElementById("expensesTable");
   table.innerHTML = "";
-
-  for (let barbero in resumen) {
+  data.forEach(exp => {
     table.innerHTML += `
       <tr>
-        <td>${barbero}</td>
-        <td>${resumen[barbero].citas}</td>
-        <td>₡${resumen[barbero].ingresos}</td>
+        <td>${exp.nombre}</td>
+        <td>₡${exp.monto}</td>
+        <td>Día ${exp.dia_pago}</td>
+        <td><button onclick="deleteExpense(${exp.id})" style="background:red;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;">X</button></td>
       </tr>
     `;
+  });
+}
+
+async function createExpense() {
+  const data = {
+    nombre: document.getElementById("expName").value,
+    monto: document.getElementById("expAmount").value,
+    dia_pago: document.getElementById("expDay").value,
+    categoria: "general"
+  };
+  await fetch("http://localhost:3000/api/finanzas/gastos", {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify(data)
+  });
+  loadExpenses();
+  loadERPFinanzas();
+}
+
+async function deleteExpense(id) {
+  if(!confirm("¿Eliminar gasto fijo?")) return;
+  await fetch(`http://localhost:3000/api/finanzas/gastos/${id}`, {method: "DELETE"});
+  loadExpenses();
+  loadERPFinanzas();
+}
+
+async function loadLoans() {
+  const res = await fetch("http://localhost:3000/api/finanzas/prestamos");
+  const data = await res.json();
+  const container = document.getElementById("loansContainer");
+  container.innerHTML = "";
+  data.forEach(loan => {
+    container.innerHTML += `
+      <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid gold;">
+        <h4 style="color:gold;">${loan.descripcion}</h4>
+        <p>Deuda Restante: <b>₡${Number(loan.monto_actual).toFixed(2)}</b> (de ₡${loan.monto_inicial})</p>
+        <p>Cuota: ₡${loan.cuota_mensual} - Vence Día ${loan.dia_pago}</p>
+        <button onclick="payLoan(${loan.id}, ${loan.cuota_mensual}, false)" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px;">Pagar Cuota</button>
+        <button onclick="payLoanExtra(${loan.id})" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px; background:lightblue;">Abono Extra</button>
+      </div>
+    `;
+  });
+}
+
+async function createLoan() {
+  if(!document.getElementById("loanDesc").value || !document.getElementById("loanMonto").value) {
+    return alert("Por favor llena la descripción y el monto del préstamo.");
+  }
+
+  const data = {
+    descripcion: document.getElementById("loanDesc").value,
+    monto_inicial: document.getElementById("loanMonto").value || 0,
+    tasa_interes_anual: document.getElementById("loanTasa").value || 0,
+    plazo_meses: document.getElementById("loanMeses").value || 0,
+    cuota_mensual: document.getElementById("loanCuota").value || 0,
+    dia_pago: document.getElementById("loanDay").value || 1
+  };
+  
+  try {
+    const res = await fetch("http://localhost:3000/api/finanzas/prestamos", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify(data)
+    });
+
+    if (res.ok) {
+      alert("Préstamo registrado exitosamente ✅");
+      
+      // Limpiar campos
+      document.getElementById("loanDesc").value = "";
+      document.getElementById("loanMonto").value = "";
+      document.getElementById("loanTasa").value = "";
+      document.getElementById("loanMeses").value = "";
+      document.getElementById("loanCuota").value = "";
+      document.getElementById("loanDay").value = "";
+      
+      loadLoans();
+    } else {
+      alert("Error al registrar el préstamo en la base de datos.");
+    }
+  } catch(err) {
+    alert("Error de conexión al guardar el préstamo.");
+  }
+}
+
+async function payLoan(id, cuota, isExtra) {
+  if(!confirm("¿Registrar pago?")) return;
+  await fetch(`http://localhost:3000/api/finanzas/prestamos/${id}/pagos`, {
+    method: "POST", headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({ monto_pagado: cuota, es_extraordinario: isExtra })
+  });
+  loadLoans();
+}
+
+async function payLoanExtra(id) {
+  const monto = prompt("Ingrese el monto del abono EXTRAORDINARIO (100% a Capital):");
+  if(monto && !isNaN(monto) && Number(monto) > 0) {
+    payLoan(id, monto, true);
   }
 }
 
 
+
 // 🔄 NAVEGACIÓN
 function showSection(section) {
-    if (section === "inventario") {
-  loadServices();
-}
-if (section === "citas") {
-  loadFormData();
-}
-if (section === "empleados") {
-  loadEmployees();
-}
-if (section === "empleados") {
-  loadEmployeesForGoals();
-  loadGoals();
-}
-if (section === "empleados") {
-  loadEmployeesForGoals();
-  loadGoals();
-  loadProgress();
-}
+  // 1. Primero ocultar TODAS las secciones
   const sections = ["dashboard","citas","clientes","inventario","empleados","finanzas"];
-
   sections.forEach(sec => {
     document.getElementById(sec).style.display = "none";
   });
 
-  document.getElementById(section).style.display = "block";
+  // 2. Mostrar la sección seleccionada
+  const el = document.getElementById(section);
+  if(el) el.style.display = "block";
 
-  if (section === "citas") loadCitasAdmin();
+  // 3. Cargar datos según la sección
+  if (section === "inventario") loadServices();
+  if (section === "citas") { loadFormData(); loadCitasAdmin(); }
   if (section === "clientes") loadClientes();
-  if (section === "finanzas") loadFinanzas();
+  if (section === "empleados") { loadEmployees(); loadEmployeesForGoals(); loadGoals(); loadProgress(); }
+  if (section === "finanzas") loadERPFinanzas();
 }
 
 
@@ -747,7 +1138,6 @@ async function createCita() {
   loadAppointments();
   loadAlerts();
 }
-createEmployee
 async function createEmployee() {
 
   const nombre = document.getElementById("empName").value;
@@ -780,7 +1170,6 @@ async function createEmployee() {
 
   loadEmployees();
 }
-loadEmployees
 async function loadEmployees() {
 
   // 1. pedir empleados
@@ -919,11 +1308,24 @@ async function loadGoals() {
         <td>${g.cantidad}</td>
         <td>${g.mes}</td>
         <td>${g.anio}</td>
+        <td>
+          <button onclick="deleteGoal(${g.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;cursor:pointer;">
+            Eliminar
+          </button>
+        </td>
       </tr>
     `;
 
   });
 
+}
+
+async function deleteGoal(id) {
+  if (!confirm("¿Eliminar esta meta?")) return;
+  await fetch(`http://localhost:3000/api/goals/${id}`, { method: "DELETE" });
+  loadGoals();
+  loadProgress();
+  loadAlerts();
 }
 async function loadProgress() {
 

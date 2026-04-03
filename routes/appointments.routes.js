@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../middleware/auth");
 
 console.log("Rutas cargadas correctamente");
 
@@ -127,39 +130,64 @@ router.get("/available-times", async (req, res) => {
 router.get("/login", (req, res) => {
     res.send("Ruta login funcionando");
 });
-// LOGIN
+// LOGIN SEGURO CON BCRYPT + JWT
 router.post("/login", async (req, res) => {
-
     try {
-
         const { username, password } = req.body;
 
+        if (!username || !password) {
+            return res.status(400).json({ message: "Usuario y contraseña son requeridos" });
+        }
+
+        // Buscar solo por username (no por password, para poder comparar con bcrypt)
         const result = await pool.query(
-            "SELECT * FROM users WHERE username = $1 AND password = $2",
-            [username, password]
+            "SELECT * FROM users WHERE username = $1",
+            [username]
         );
 
-        if(result.rows.length === 0){
-            return res.status(401).json({
-                message: "Usuario o contraseña incorrectos"
-            });
+        if (result.rows.length === 0) {
+            return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
         }
+
+        const dbUser = result.rows[0];
+
+        // Comparar password: si está en bcrypt usa bcrypt, sino comparación directa (migración suave)
+        let isValidPassword = false;
+        if (dbUser.password && dbUser.password.startsWith('$2')) {
+            // Ya está hasheado con bcrypt
+            isValidPassword = await bcrypt.compare(password, dbUser.password);
+        } else {
+            // Aún en texto plano (usuario legacy) - comparación directa y migración automática
+            isValidPassword = (password === dbUser.password);
+            if (isValidPassword) {
+                // Migrar a bcrypt automáticamente
+                const hashed = await bcrypt.hash(password, 10);
+                await pool.query("UPDATE users SET password = $1 WHERE id = $2", [hashed, dbUser.id]);
+                console.log(`✅ Contraseña de '${username}' migrada a bcrypt`);
+            }
+        }
+
+        if (!isValidPassword) {
+            return res.status(401).json({ message: "Usuario o contraseña incorrectos" });
+        }
+
+        // Generar token JWT válido por 12 horas
+        const token = jwt.sign(
+            { id: dbUser.id, username: dbUser.username, role: dbUser.role },
+            JWT_SECRET,
+            { expiresIn: '12h' }
+        );
 
         res.json({
             message: "Login correcto",
-            user: result.rows[0]
+            token,
+            user: { id: dbUser.id, username: dbUser.username, role: dbUser.role }
         });
 
     } catch (error) {
-
         console.error(error);
-
-        res.status(500).json({
-            message: "Error en login"
-        });
-
+        res.status(500).json({ message: "Error en login" });
     }
-
 });
 // ============================
 // CREAR EMPLEADO
@@ -281,6 +309,18 @@ router.post("/goals", async (req, res) => {
 
   res.json({ message: "Meta creada", goal: result.rows[0] });
 
+});
+
+// ELIMINAR META
+router.delete("/goals/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM goals WHERE id = $1", [id]);
+    res.json({ message: "Meta eliminada" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error eliminando meta" });
+  }
 });
 
 // OBTENER METAS
