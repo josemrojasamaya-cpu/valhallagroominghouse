@@ -2,793 +2,402 @@
 <html lang="es">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Valhalla Grooming House | Premium</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-
-:root{
---gold:#c9a44c;
---gold-bright:#f0d082;
---glass:rgba(0,0,0,0.45);
-}
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Poppins;
-}
-
-body{
-background:black;
-color:white;
-overflow-x:hidden;
-}
-
-/* HERO CON VIDEO */
-
-.hero{
-position:relative;
-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-flex-direction:column;
-text-align:center;
-overflow:hidden;
-}
-
-.hero video{
-position:absolute;
-top:0;
-left:0;
-width:100%;
-height:100%;
-object-fit:cover;
-z-index:-1;
-}
-
-.hero::after{
-content:"";
-position:absolute;
-width:100%;
-height:100%;
-background:linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.9));
-top:0;
-left:0;
-}
-
-.hero h1{
-font-family:Cinzel;
-font-size:clamp(3rem,10vw,6rem);
-letter-spacing:10px;
-background:linear-gradient(to bottom,#f0d082,#c9a44c,#856a2a);
-background-clip:text;
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-animation:fadeIn 2s ease;
-}
-
-.hero p{
-margin-top:20px;
-font-size:18px;
-opacity:.8;
-max-width:600px;
-animation:fadeIn 3s ease;
-}
-
-.hero button{
-margin-top:40px;
-padding:18px 40px;
-background:var(--gold);
-border:none;
-font-weight:700;
-cursor:pointer;
-border-radius:10px;
-transition:.3s;
-animation:fadeIn 4s ease;
-}
-
-.hero button:hover{
-background:var(--gold-bright);
-transform:scale(1.05);
-}
-
-/* SCROLL ANIMATION */
-
-.fade-section{
-opacity:0;
-transform:translateY(40px);
-transition:1s;
-}
-
-.fade-section.visible{
-opacity:1;
-transform:translateY(0);
-}
-
-/* CONTENIDO ORIGINAL (NO TOCADO) */
-
-.main-content{
-padding:40px 20px;
-background-image:linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)),url("fondo.jpg");
-background-size:cover;
-background-attachment:fixed;
-}
-
-.logo-header{
-text-align:center;
-margin-bottom:60px;
-cursor:pointer;
-}
-
-.logo-text{
-font-family:Cinzel;
-font-size:clamp(3rem,12vw,6rem);
-font-weight:900;
-background:linear-gradient(to bottom,#f0d082,#c9a44c,#856a2a);
-background-clip:text;
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-letter-spacing:18px;
-}
-
-.subtitle{
-font-family:Cinzel;
-letter-spacing:10px;
-font-size:14px;
-margin-top:-10px;
-}
-
-.services-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-gap:30px;
-max-width:1200px;
-margin:auto;
-}
-
-.service-card{
-background:var(--glass);
-backdrop-filter:blur(15px);
-border:1px solid rgba(255,255,255,.08);
-border-radius:24px;
-padding:50px 30px;
-text-align:center;
-cursor:pointer;
-transition:.4s;
-}
-
-.service-card:hover{
-transform:translateY(-12px);
-border-color:var(--gold);
-}
-
-.service-card i{
-font-size:55px;
-color:var(--gold);
-margin-bottom:25px;
-}
-
-.service-card h3{
-font-family:Cinzel;
-letter-spacing:4px;
-}
-
-/* MODAL (INTACTO) */
-
-.modal{
-display:none;
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:rgba(0,0,0,.9);
-backdrop-filter:blur(10px);
-justify-content:center;
-align-items:center;
-}
-
-.modal-content{
-background:#0f0f0f;
-width:90%;
-max-width:480px;
-padding:45px;
-border-radius:30px;
-border:1px solid var(--gold);
-position:relative;
-}
-
-.close-modal{
-position:absolute;
-top:20px;
-right:25px;
-font-size:32px;
-cursor:pointer;
-}
-
-label{
-display:block;
-font-size:11px;
-color:var(--gold);
-margin-bottom:6px;
-text-transform:uppercase;
-}
-
-input,select{
-width:100%;
-padding:15px;
-margin-bottom:20px;
-border-radius:10px;
-border:1px solid #333;
-background:#1a1a1a;
-color:white;
-}
-
-.btn-confirm{
-width:100%;
-padding:18px;
-border:none;
-background:var(--gold);
-font-weight:700;
-border-radius:12px;
-cursor:pointer;
-}
-
-/* WHATSAPP */
-
-.whatsapp{
-position:fixed;
-bottom:20px;
-right:20px;
-background:#25D366;
-color:white;
-padding:15px;
-border-radius:50%;
-font-size:24px;
-z-index:999;
-box-shadow:0 0 15px rgba(0,0,0,.5);
-}
-
-@keyframes fadeIn{
-from{opacity:0;transform:translateY(20px);}
-to{opacity:1;transform:translateY(0);}
-}
-
-/* SLIDER PRESENTACIÓN */
-
-.story-slider{
-position:relative;
-width:100%;
-height:100vh;
-overflow:hidden;
-}
-
-.slide{
-position:absolute;
-width:100%;
-height:100%;
-top:0;
-left:0;
-opacity:0;
-transition:1s;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.slide.active{
-opacity:1;
-z-index:1;
-}
-
-.slide video{
-position:absolute;
-width:100%;
-height:100%;
-object-fit:cover;
-z-index:-1;
-}
-
-.slide-content{
-text-align:center;
-background:rgba(0,0,0,.5);
-padding:40px;
-border-radius:20px;
-backdrop-filter:blur(10px);
-}
-
-.slide-content h2{
-font-family:Cinzel;
-font-size:40px;
-color:#c9a44c;
-margin-bottom:20px;
-}
-
-.slide-content p{
-margin-bottom:20px;
-}
-
-.slide-content button{
-padding:15px 30px;
-background:#c9a44c;
-border:none;
-cursor:pointer;
-font-weight:700;
-border-radius:10px;
-}
-.audio-btn{
-position:fixed;
-top:20px;
-right:20px;
-z-index:999;
-background:rgba(0,0,0,0.6);
-color:white;
-border:none;
-padding:10px 15px;
-border-radius:10px;
-cursor:pointer;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- SEO Master Optimization -->
+    <title>Valhalla Grooming House | Barbería Premium en Costa Rica</title>
+    <meta name="description" content="Valhalla Grooming House: El ritual del guerrero. Barbería, SPA, Manicure y Bienestar. Reserva tu cita en línea.">
+    <meta name="keywords" content="Barbería, Valhalla, Grooming, Costa Rica, Masajes, SPA, Manicure, Citas Online">
+    <meta name="author" content="Valhalla Grooming House">
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- External Professional Styles -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
- <button id="audioBtn" class="audio-btn">
-🔊
-</button>   
-<audio id="bgMusic" loop>
-<source src="audio/vikingo.mp3" type="audio/mpeg">
-</audio>
 
-<!-- HERO VIDEO -->
-<section class="hero">
-<video autoplay muted loop>
-<source src="videos/inicio.mp4" type="video/mp4">
-</video>
+    <!-- NAVBAR PREMIUM -->
+    <nav class="navbar" id="navbar">
+        <div class="logo-text gold-gradient" style="font-size: 24px; letter-spacing: 5px;">VALHALLA</div>
+        <div class="nav-links">
+            <a href="#hero">INICIO</a>
+            <a href="#booking">RESERVAS</a>
+            <a href="https://wa.me/50663166151" target="_blank">SOPORTE</a>
+        </div>
+    </nav>
 
-<h1>VALHALLA</h1>
-<p>Donde los guerreros se forjan. Estilo, poder y presencia en cada detalle.</p>
-<button onclick="scrollToBooking()">RESERVAR AHORA</button>
-</section>
+    <!-- AUDIO CONTROL (GLASSMORPHISM) -->
+    <button id="audioBtn" class="audio-btn" title="Control de Audio">
+        <i id="audioIcon" class="fa-solid fa-volume-xmark"></i>
+    </button>   
 
-<!-- TU SISTEMA (NO TOCADO) -->
-<!-- ================= PRESENTACIÓN SLIDES ================= -->
+    <audio id="bgMusic" loop>
+        <source src="audio/vikingo.mp3" type="audio/mpeg">
+    </audio>
 
-<section class="story-slider">
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+        <video autoplay muted loop playsinline>
+            <source src="videos/inicio.mp4" type="video/mp4">
+        </video>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="gold-gradient">VALHALLA</h1>
+            <p>Donde los guerreros se forjan. Estilo, poder y presencia en cada detalle del ritual vikingo.</p>
+            <button class="btn-primary" onclick="scrollToBooking()">RESERVAR AHORA</button>
+        </div>
+    </section>
 
-<div class="slide active">
-<video autoplay muted loop>
-<source src="videos/barber.mp4" type="video/mp4">
-</video>
-<div class="slide-content">
-<h2>NO ES UN CORTE</h2>
-<p>Es un ritual de precisión, estilo y poder.</p>
-<button onclick="nextSlide()">SIGUIENTE</button>
-</div>
-</div>
+    <!-- STORY SLIDER (RESPONSIVE) -->
+    <section class="story-slider">
 
-<div class="slide">
-<video autoplay muted loop>
-<source src="videos/manicure.mp4" type="video/mp4">
-</video>
-<div class="slide-content">
-<h2>DETALLE PERFECTO</h2>
-<p>Elegancia en cada movimiento.</p>
-<button onclick="nextSlide()">SIGUIENTE</button>
-</div>
-</div>
+        <div class="slide active">
+            <video autoplay muted loop playsinline>
+                <source src="videos/barber.mp4" type="video/mp4">
+            </video>
+            <div class="slide-content">
+                <h2 class="gold-gradient">NO ES UN CORTE</h2>
+                <p>Es un ritual de precisión, estilo y poder ancestral.</p>
+                <button class="btn-primary" onclick="nextSlide()" style="padding: 10px 25px;">SIGUIENTE</button>
+            </div>
+        </div>
 
-<div class="slide">
-<video autoplay muted loop>
-<source src="videos/massage.mp4" type="video/mp4">
-</video>
-<div class="slide-content">
-<h2>RELÁJATE</h2>
-<p>Desconecta del mundo. Recupera tu energía.</p>
-<button onclick="nextSlide()">SIGUIENTE</button>
-</div>
-</div>
+        <div class="slide">
+            <video autoplay muted loop playsinline>
+                <source src="videos/manicure.mp4" type="video/mp4">
+            </video>
+            <div class="slide-content">
+                <h2 class="gold-gradient">DETALLE PERFECTO</h2>
+                <p>Elegancia en cada movimiento. Cuidado de manos de élite.</p>
+                <button class="btn-primary" onclick="nextSlide()" style="padding: 10px 25px;">SIGUIENTE</button>
+            </div>
+        </div>
 
-<div class="slide">
-<video autoplay muted loop>
-<source src="videos/gym.mp4" type="video/mp4">
-</video>
-<div class="slide-content">
-<h2>PODER</h2>
-<p>Disciplina. Fuerza. Evolución.</p>
-<button onclick="nextSlide()">SIGUIENTE</button>
-</div>
-</div>
+        <div class="slide">
+            <video autoplay muted loop playsinline>
+                <source src="videos/massage.mp4" type="video/mp4">
+            </video>
+            <div class="slide-content">
+                <h2 class="gold-gradient">RELÁJATE</h2>
+                <p>Desconecta del mundo. Recupera tu energía en nuestro SPA.</p>
+                <button class="btn-primary" onclick="nextSlide()" style="padding: 10px 25px;">SIGUIENTE</button>
+            </div>
+        </div>
 
-<div class="slide">
-<video autoplay muted loop>
-<source src="videos/final.mp4" type="video/mp4">
-</video>
+        <div class="slide">
+            <video autoplay muted loop playsinline>
+                <source src="videos/gym.mp4" type="video/mp4">
+            </video>
+            <div class="slide-content">
+                <h2 class="gold-gradient">PODER</h2>
+                <p>Disciplina. Fuerza. Evolución constante.</p>
+                <button class="btn-primary" onclick="nextSlide()" style="padding: 10px 25px;">SIGUIENTE</button>
+            </div>
+        </div>
 
-<div class="slide-content">
-<h2>¿LISTO PARA ENTRAR A VALHALLA?</h2>
-<p>Da el paso. Tu transformación comienza ahora.</p>
-<button onclick="scrollToBooking()">IR A RESERVAS</button>
-</div>
-</div>
+        <div class="slide">
+            <video autoplay muted loop playsinline>
+                <source src="videos/final.mp4" type="video/mp4">
+            </video>
+            <div class="slide-content">
+                <h2 class="gold-gradient">¿LISTO PARA ENTRAR?</h2>
+                <p>Da el paso. Tu transformación definitiva comienza aquí.</p>
+                <button class="btn-primary" onclick="scrollToBooking()">IR A RESERVAS</button>
+            </div>
+        </div>
 
-</section>
-<div class="main-content fade-section" id="booking">
+    </section>
 
-<header class="logo-header">
-<div class="logo-text">VALHALLA</div>
-<div class="subtitle">GROOMING HOUSE</div>
-</header>
+    <!-- BOOKING SECTION -->
+    <div class="main-content fade-section" id="booking">
 
-<h2 style="text-align:center;font-family:Cinzel;letter-spacing:5px;margin-bottom:40px">
-SERVICIOS PRINCIPALES
-</h2>
+        <h2 style="text-align:center;font-family:Cinzel;letter-spacing:5px;margin-bottom:40px" class="gold-gradient">
+            NUESTROS SERVICIOS
+        </h2>
 
-<div class="services-grid">
+        <div class="services-grid">
 
-<div class="service-card" onclick="openBooking('barbero')">
-<i class="fa-solid fa-scissors"></i>
-<h3>BARBERÍA</h3>
-<p>El ritual del guerrero.</p>
-</div>
+            <div class="service-card" onclick="openBooking('barbero')">
+                <i class="fa-solid fa-scissors"></i>
+                <h3>BARBERÍA</h3>
+                <p>El ritual del guerrero.</p>
+            </div>
 
-<div class="service-card" onclick="openBooking('manicurista')">
-<i class="fa-solid fa-hand-sparkles"></i>
-<h3>MANICURISTA</h3>
-<p>Cuidado de manos y pies.</p>
-</div>
+            <div class="service-card" onclick="openBooking('manicurista')">
+                <i class="fa-solid fa-hand-sparkles"></i>
+                <h3>MANICURISTA</h3>
+                <p>Cuidado de manos y pies.</p>
+            </div>
 
-<div class="service-card" onclick="openBooking('masajista')">
-<i class="fa-solid fa-spa"></i>
-<h3>SPA & MASAJE</h3>
-<p>Relajación profunda.</p>
-</div>
+            <div class="service-card" onclick="openBooking('masajista')">
+                <i class="fa-solid fa-spa"></i>
+                <h3>SPA & MASAJE</h3>
+                <p>Relajación profunda.</p>
+            </div>
 
-<div class="service-card" onclick="openBooking('psicologa')">
-<i class="fa-solid fa-brain"></i>
-<h3>BIENESTAR</h3>
-<p>Psicología y nutrición.</p>
-</div>
+            <div class="service-card" onclick="openBooking('psicologa')">
+                <i class="fa-solid fa-brain"></i>
+                <h3>BIENESTAR</h3>
+                <p>Psicología y nutrición.</p>
+            </div>
 
-<div class="service-card" onclick="openBooking('gym')">
-<i class="fa-solid fa-dumbbell"></i>
-<h3>GYM</h3>
-<p>Entrenamiento personal.</p>
-</div>
+            <div class="service-card" onclick="openBooking('gym')">
+                <i class="fa-solid fa-dumbbell"></i>
+                <h3>GYM</h3>
+                <p>Entrenamiento personal.</p>
+            </div>
 
-</div>
+        </div>
 
-</div>
+    </div>
 
-<!-- WHATSAPP -->
-<a href="https://wa.me/50663166151" target="_blank" class="whatsapp">
-<i class="fa-brands fa-whatsapp"></i>
-</a>
+    <!-- WHATSAPP FLOATING -->
+    <a href="https://wa.me/50663166151" target="_blank" class="whatsapp">
+        <i class="fa-brands fa-whatsapp"></i>
+    </a>
 
-<!-- MODAL (INTACTO) -->
-<div id="bookingModal" class="modal">
-<div class="modal-content">
+    <!-- RESERVATION MODAL -->
+    <div id="bookingModal" class="modal">
+        <div class="modal-content">
 
-<span class="close-modal" onclick="closeModal()">×</span>
+            <span class="close-modal" onclick="closeModal()">×</span>
 
-<h2 style="font-family:Cinzel;text-align:center;color:var(--gold);margin-bottom:25px">
-RESERVAR CITA
-</h2>
+            <h2 style="font-family:Cinzel;text-align:center;color:var(--gold);margin-bottom:25px">
+                RESERVAR CITA
+            </h2>
 
-<form id="appointmentForm">
+            <form id="appointmentForm">
 
-<label>Nombre</label>
-<input type="text" id="name" required>
+                <label>Nombre</label>
+                <input type="text" id="name" required placeholder="Tu nombre completo">
 
-<label>Teléfono</label>
-<input type="text" id="phone" required>
+                <label>Teléfono</label>
+                <input type="text" id="phone" required placeholder="Ej: 8888-8888">
 
-<label>Profesional</label>
-<select id="professional" onchange="updateServices()" required>
-<option value="barbero">Barbero</option>
-<option value="manicurista">Manicurista</option>
-<option value="masajista">Masajista</option>
-<option value="psicologa">Psicología / Nutrición</option>
-<option value="gym">Entrenador</option>
-</select>
+                <label>Profesional</label>
+                <select id="professional" onchange="updateServices()" required>
+                    <option value="barbero">Barbero</option>
+                    <option value="manicurista">Manicurista</option>
+                    <option value="masajista">Masajista</option>
+                    <option value="psicologa">Psicología / Nutrición</option>
+                    <option value="gym">Entrenador</option>
+                </select>
 
-<label>Servicio</label>
-<select id="service"></select>
+                <label>Servicio</label>
+                <select id="service"></select>
 
-<label id="barberoLabel">Barbero</label>
-<select id="employee"></select>
+                <label id="barberoLabel">Barbero Especialista</label>
+                <select id="employee"></select>
 
-<div style="display:flex;gap:10px">
-<div style="flex:1">
-<label>Fecha</label>
-<input type="date" id="date" required>
-</div>
+                <div style="display:flex;gap:15px">
+                    <div style="flex:1">
+                        <label>Fecha</label>
+                        <input type="date" id="date" required>
+                    </div>
 
-<div style="flex:1">
-<label>Hora</label>
-<select id="time" required></select>
-</div>
-</div>
+                    <div style="flex:1">
+                        <label>Hora</label>
+                        <select id="time" required></select>
+                    </div>
+                </div>
 
-<button class="btn-confirm">Confirmar Reserva</button>
+                <button type="submit" class="btn-confirm btn-primary" style="width:100%; letter-spacing: 2px;">CONFIRMAR RITUAL</button>
 
-</form>
+            </form>
 
-</div>
-</div>
+        </div>
+    </div>
 
-<script>
-const audio = document.getElementById("bgMusic");
-const audioBtn = document.getElementById("audioBtn");
+    <script>
+        const audio = document.getElementById("bgMusic");
+        const audioBtn = document.getElementById("audioBtn");
+        const audioIcon = document.getElementById("audioIcon");
+        const navbar = document.getElementById("navbar");
 
-let isPlaying = false;
+        let isPlaying = false;
 
-// =======================
-// RECORDAR ESTADO
-// =======================
+        // Navbar scroll effect
+        window.onscroll = () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add("scrolled");
+            } else {
+                navbar.classList.remove("scrolled");
+            }
+        };
 
-if(localStorage.getItem("audioActive") === "true"){
-    startAudio();
-}
-
-// =======================
-// ACTIVAR CON CLICK INICIAL
-// =======================
-
-document.addEventListener("click", () => {
-    if(!isPlaying){
-        startAudio();
-    }
-}, { once: true });
-
-// =======================
-// FUNCIÓN INICIAR AUDIO (FADE IN)
-// =======================
-
-function startAudio(){
-    audio.volume = 0;
-    audio.play();
-    isPlaying = true;
-
-    let vol = 0;
-    const fade = setInterval(() => {
-        if(vol < 0.3){
-            vol += 0.02;
-            audio.volume = vol;
-        } else {
-            clearInterval(fade);
+        // Audio Logic (Master Optimized)
+        if(localStorage.getItem("audioActive") === "true"){
+            startAudio();
         }
-    }, 200);
 
-    audioBtn.innerHTML = "🔊";
-    localStorage.setItem("audioActive", "true");
-}
+        document.addEventListener("click", () => {
+            if(!isPlaying){ startAudio(); }
+        }, { once: true });
 
-// =======================
-// FUNCIÓN PAUSAR AUDIO (FADE OUT)
-// =======================
-
-function stopAudio(){
-
-    let vol = audio.volume;
-
-    const fade = setInterval(() => {
-        if(vol > 0){
-            vol -= 0.02;
-            audio.volume = vol;
-        } else {
-            clearInterval(fade);
-            audio.pause();
+        function startAudio(){
+            audio.volume = 0;
+            audio.play().catch(() => {});
+            isPlaying = true;
+            let vol = 0;
+            const fade = setInterval(() => {
+                if(vol < 0.3){
+                    vol += 0.05;
+                    audio.volume = vol;
+                } else { clearInterval(fade); }
+            }, 200);
+            audioIcon.className = "fa-solid fa-volume-high";
+            localStorage.setItem("audioActive", "true");
         }
-    }, 200);
 
-    audioBtn.innerHTML = "🔇";
-    localStorage.setItem("audioActive", "false");
-}
+        function stopAudio(){
+            let vol = audio.volume;
+            const fade = setInterval(() => {
+                if(vol > 0.05){
+                    vol -= 0.05;
+                    audio.volume = vol;
+                } else {
+                    clearInterval(fade);
+                    audio.pause();
+                }
+            }, 100);
+            audioIcon.className = "fa-solid fa-volume-xmark";
+            localStorage.setItem("audioActive", "false");
+        }
 
-// =======================
-// BOTÓN ON/OFF
-// =======================
+        audioBtn.addEventListener("click", () => {
+            if(audio.paused){ startAudio(); } 
+            else { stopAudio(); }
+        });
 
-audioBtn.addEventListener("click", () => {
+        // Utils
+        function scrollToBooking(){
+            document.getElementById("booking").scrollIntoView({behavior:"smooth"});
+        }
 
-    if(audio.paused){
-        startAudio();
-    } else {
-        stopAudio();
-    }
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting){ entry.target.classList.add("visible"); }
+            });
+        });
 
-});
-// ACTIVAR AUDIO AL PRIMER CLICK
-document.addEventListener("click", function(){
-    const audio = document.getElementById("bgMusic");
-    audio.volume = 0.3; // volumen suave
-    audio.play();
-}, { once: true });
+        document.querySelectorAll(".fade-section").forEach(el => observer.observe(el));
 
-// SCROLL SUAVE
-function scrollToBooking(){
-document.getElementById("booking").scrollIntoView({behavior:"smooth"});
-}
+        // Slider
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(".slide");
 
-// ANIMACIÓN SCROLL
-const observer=new IntersectionObserver(entries=>{
-entries.forEach(entry=>{
-if(entry.isIntersecting){
-entry.target.classList.add("visible")
-}
-})
-})
+        function showSlide(index){
+            slides.forEach((s,i) => {
+                s.classList.toggle("active", i === index);
+            });
+        }
 
-document.querySelectorAll(".fade-section").forEach(el=>{
-observer.observe(el)
-})
-// SLIDER CONTROL
+        function nextSlide(){
+            currentSlide = (currentSlide + 1) % slides.length;
+            showSlide(currentSlide);
+        }
 
-let currentSlide = 0;
-const slides = document.querySelectorAll(".slide");
+        setInterval(() => {
+            if(currentSlide < slides.length - 1){ nextSlide(); }
+        }, 15000);
 
-function showSlide(index){
-slides.forEach((s,i)=>{
-s.classList.remove("active");
-if(i === index){
-s.classList.add("active");
-}
-});
-}
+        // Booking Logic
+        const modal = document.getElementById("bookingModal");
+        const professional = document.getElementById("professional");
+        const serviceSelect = document.getElementById("service");
+        const employeeSelect = document.getElementById("employee");
+        const barberoLabel = document.getElementById("barberoLabel");
 
-function nextSlide(){
-currentSlide++;
+        function openBooking(type){
+            modal.style.display = "flex";
+            professional.value = type;
+            updateServices();
+        }
 
-if(currentSlide >= slides.length){
-currentSlide = 0;
-}
+        function closeModal(){ modal.style.display = "none"; }
+        window.onclick = e => { if(e.target == modal) closeModal(); };
 
-showSlide(currentSlide);
-}
+        async function updateServices(){
+            const res = await fetch("/api/services");
+            const data = await res.json();
+            serviceSelect.innerHTML = "";
+            data.filter(s => s.categoria.toLowerCase() === professional.value.toLowerCase() || professional.value === "barbero").forEach(s => {
+                const option = document.createElement("option");
+                option.value = s.id;
+                option.textContent = `${s.nombre} - ₡${s.precio}`;
+                serviceSelect.appendChild(option);
+            });
 
-// AUTO PLAY (tipo cine)
-setInterval(() => {
-if(currentSlide < slides.length - 1){
-    nextSlide();
-}
-}, 15000);
+            const isBarber = professional.value === "barbero";
+            employeeSelect.style.display = isBarber ? "block" : "none";
+            barberoLabel.style.display = isBarber ? "block" : "none";
+        }
 
-// TU JS ORIGINAL (INTOCABLE)
-const modal=document.getElementById("bookingModal")
-const professional=document.getElementById("professional")
-const service=document.getElementById("service")
-const employee=document.getElementById("employee")
-const barberoLabel=document.getElementById("barberoLabel")
+        async function loadEmployees(){
+            const res = await fetch("/api/employees");
+            const data = await res.json();
+            employeeSelect.innerHTML = "";
+            data.forEach(e => {
+                const option = document.createElement("option");
+                option.value = e.id;
+                option.textContent = e.nombre;
+                employeeSelect.appendChild(option);
+            });
+        }
 
-const servicios={
-barbero:["Corte clásico ₡5000","Corte + barba ₡8000","Corte premium ₡10000"],
-manicurista:["Manicure ₡8000","Pedicure ₡9000"],
-masajista:["Masaje relajante ₡10000","Masaje deluxe ₡15000"],
-psicologa:["Consulta psicológica ₡15000","Consulta nutrición ₡15000"],
-gym:["Entrenamiento personal ₡20000","Membresía mensual ₡25000"]
-}
+        loadEmployees();
+        updateServices();
 
-function openBooking(type){
-modal.style.display="flex"
-professional.value=type
-updateServices()
-}
+        document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const appointment = {
+                name: document.getElementById("name").value,
+                phone: document.getElementById("phone").value,
+                servicio_id: serviceSelect.value,
+                empleado_id: professional.value === "barbero" ? employeeSelect.value : null,
+                date: document.getElementById("date").value,
+                time: document.getElementById("time").value
+            };
 
-function closeModal(){
-modal.style.display="none"
-}
+            const response = await fetch("/api/appointments", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(appointment)
+            });
 
-window.onclick=e=>{
-if(e.target==modal) closeModal()
-}
+            const result = await response.json();
+            alert(result.message);
+            closeModal();
+        });
 
-async function updateServices(){
+        document.getElementById("date").addEventListener("change", loadAvailableTimes);
+        document.getElementById("employee").addEventListener("change", loadAvailableTimes);
 
-const res = await fetch("/api/services");
-const data = await res.json();
+        async function loadAvailableTimes(){
+            const date = document.getElementById("date").value;
+            const empId = employeeSelect.value;
+            if(!date || !empId) return;
 
-service.innerHTML="";
-
-data.forEach(s=>{
-const option=document.createElement("option");
-option.value = s.id; // 🔥 ID REAL
-option.textContent = s.nombre + " ₡" + s.precio;
-service.appendChild(option);
-});
-
-// esto NO lo cambies
-if(professional.value==="barbero"){
-employee.style.display="block";
-barberoLabel.style.display="block";
-}else{
-employee.style.display="none";
-barberoLabel.style.display="none";
-}
-
-}
-
-async function loadEmployees(){
-const res=await fetch("/api/employees")
-const data=await res.json()
-employee.innerHTML=""
-data.forEach(e=>{
-const option=document.createElement("option")
-option.value=e.id
-option.textContent=e.nombre
-employee.appendChild(option)
-})
-}
-
-loadEmployees()
-updateServices()
-
-document.getElementById("appointmentForm").addEventListener("submit",async function(e){
-e.preventDefault()
-
-const appointment={
-name:document.getElementById("name").value,
-phone:document.getElementById("phone").value,
-servicio_id: document.getElementById("service").value,
-empleado_id: professional.value==="barbero" ? employee.value : null,
-date:document.getElementById("date").value,
-time:document.getElementById("time").value
-}
-
-const response = await fetch("/api/appointments", {
-method: "POST",
-headers: {"Content-Type":"application/json"},
-body: JSON.stringify(appointment)
-})
-
-const result=await response.json()
-alert(result.message)
-closeModal()
-})
-document.getElementById("date").addEventListener("change", loadAvailableTimes);
-document.getElementById("employee").addEventListener("change", loadAvailableTimes);
-
-async function loadAvailableTimes(){
-
-const date = document.getElementById("date").value;
-const employeeId = document.getElementById("employee").value;
-
-if(!date || !employeeId) return;
-
-const res = await fetch(`/api/available-times?empleado_id=${employeeId}&date=${date}`);
-const data = await res.json();
-
-// HORAS BASE
-const allHours = [
-"10:00","11:00","12:00","13:00",
-"14:00","15:00","16:00","17:00",
-"18:00","19:00","20:00"
-];
-
-// HORAS OCUPADAS
-const taken = data.map(a => a.hora.slice(0,5));
-
-// FILTRAR DISPONIBLES
-const available = allHours.filter(h => !taken.includes(h));
-
-// INSERTAR EN SELECT
-const timeSelect = document.getElementById("time");
-timeSelect.innerHTML = "";
-
-available.forEach(h=>{
-const option = document.createElement("option");
-option.value = h;
-option.textContent = h;
-timeSelect.appendChild(option);
-});
-
-}
-</script>
+            const res = await fetch(`/api/available-times?empleado_id=${empId}&date=${date}`);
+            const data = await res.json();
+            const allHours = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
+            const taken = data.map(a => a.hora.slice(0,5));
+            const available = allHours.filter(h => !taken.includes(h));
+            
+            const timeSelect = document.getElementById("time");
+            timeSelect.innerHTML = "";
+            available.forEach(h => {
+                const option = document.createElement("option");
+                option.value = h;
+                option.textContent = h;
+                timeSelect.appendChild(option);
+            });
+        }
+    </script>
 </body>
-</html> 
+</html>

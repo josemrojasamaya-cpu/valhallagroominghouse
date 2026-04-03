@@ -1,186 +1,126 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Valhalla Grooming House - Login</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla | Acceso Privado</title>
+    
+    <!-- Fonts & Master Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 
-  <!-- Fuente elegante -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
-    }
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('fondo.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+        }
 
-    body {
-      height: 100vh;
-      background: linear-gradient(135deg, #0a0a0a, #1a1a1a);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-    }
+        .login-card {
+            width: 100%;
+            max-width: 420px;
+            background: var(--glass);
+            backdrop-filter: blur(25px);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 50px 40px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            animation: fadeIn 1s ease;
+        }
 
-    .container {
-      width: 100%;
-      max-width: 400px;
-      padding: 20px;
-    }
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
 
-    .card {
-      backdrop-filter: blur(15px);
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
-    }
+        .login-header h2 {
+            font-size: 28px;
+            letter-spacing: 5px;
+            margin-bottom: 10px;
+        }
 
-    .title {
-      text-align: center;
-      margin-bottom: 25px;
-      font-size: 24px;
-      font-weight: 600;
-      color: gold;
-    }
-
-    .input-group {
-      margin-bottom: 15px;
-    }
-
-    .input-group label {
-      font-size: 14px;
-      color: #ccc;
-    }
-
-    .input-group input {
-      width: 100%;
-      padding: 10px;
-      margin-top: 5px;
-      border-radius: 10px;
-      border: none;
-      outline: none;
-      background: rgba(255,255,255,0.08);
-      color: white;
-    }
-
-    .input-group input:focus {
-      border: 1px solid gold;
-    }
-
-    .btn {
-      width: 100%;
-      padding: 12px;
-      border: none;
-      border-radius: 10px;
-      background: linear-gradient(45deg, #c9a23f, #ffd700);
-      color: black;
-      font-weight: bold;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: 0.3s;
-    }
-
-    .btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px gold;
-    }
-
-    .error {
-      margin-top: 10px;
-      color: #ff4d4d;
-      text-align: center;
-      font-size: 14px;
-    }
-
-    .footer {
-      text-align: center;
-      margin-top: 15px;
-      font-size: 12px;
-      color: #777;
-    }
-  </style>
+        .error-msg {
+            color: #ff6b6b;
+            text-align: center;
+            font-size: 14px;
+            margin-top: 20px;
+            min-height: 20px;
+        }
+    </style>
 </head>
 
 <body>
 
-  <div class="container">
-    <div class="card">
+    <div class="login-card">
+        <div class="login-header">
+            <h2 class="gold-gradient">VALHALLA</h2>
+            <p style="font-size: 11px; letter-spacing: 2px; color: var(--gold);">CONTROL DE ACCESO</p>
+        </div>
 
-      <div class="title">
-        Valhalla Grooming House
-      </div>
+        <div class="form-group">
+            <label><i class="fa-solid fa-user"></i> Usuario</label>
+            <input type="text" id="username" placeholder="Tu identificación" required>
+        </div>
 
-      <div class="input-group">
-        <label>Usuario</label>
-        <input type="text" id="username" placeholder="Ingresa tu usuario">
-      </div>
+        <div class="form-group" style="margin-top: 20px;">
+            <label><i class="fa-solid fa-lock"></i> Contraseña</label>
+            <input type="password" id="password" placeholder="••••••••" required>
+        </div>
 
-      <div class="input-group">
-        <label>Contraseña</label>
-        <input type="password" id="password" placeholder="••••••••">
-      </div>
+        <button class="btn-primary" style="width: 100%; margin-top: 40px;" onclick="handleLogin()">
+            ENTRAR AL RITUAL
+        </button>
 
-      <button class="btn" onclick="login()">
-        Iniciar sesión
-      </button>
-
-      <div class="error" id="errorMsg"></div>
-
-      <div class="footer">
-        Sistema interno
-      </div>
-
+        <div id="errorMsg" class="error-msg"></div>
+        <div style="text-align: center; margin-top: 30px;">
+             <a href="index.html" style="color: grey; font-size: 11px; text-decoration: none;">← Volver al sitio público</a>
+        </div>
     </div>
-  </div>
 
-  <script>
-   async function login() {
-  const username = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
+    <script>
+        async function handleLogin() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
 
-  console.log("Enviando:", username, password);
+            if(!username || !password) {
+                errorMsg.innerText = "Por favor, completa todos los campos.";
+                return;
+            }
 
-  const res = await fetch('/api/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ username, password })
-  });
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
 
-  const data = await res.json();
+                const data = await res.json();
 
-  console.log("Respuesta del servidor:", data);
+                if (res.ok) {
+                    localStorage.setItem("user", JSON.stringify(data.user));
+                    const role = data.user.role;
+                    
+                    if (role === "admin") window.location.href = "/admin.html";
+                    else if (role === "employee") window.location.href = "/employee.html";
+                    else window.location.href = "/index.html"; 
+                } else {
+                    errorMsg.innerText = data.message || "Credenciales incorrectas.";
+                }
+            } catch (err) {
+                errorMsg.innerText = "Error de conexión con el servidor de Valhalla.";
+            }
+        }
 
-if (res.ok) {
-
-  // 🔐 Guardar usuario en el navegador
-  localStorage.setItem("user", JSON.stringify(data.user));
-
-  // 🔍 Ver qué rol tiene
-  const role = data.user.role;
-
-  console.log("Rol detectado:", role);
-
-  // 🔁 Redirección según rol
-  if (role === "admin") {
-    window.location.href = "/admin.html";
-  } else if (role === "employee") {
-    window.location.href = "/employee.html";
-  } else if (role === "reception") {
-    window.location.href = "/reception.html";
-  }
-
-} else {
-  document.getElementById('errorMsg').innerText = data.message;
-}
-
-}
-
-  </script>
-  </body>
-</html> 
+        // Enter key to login
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+    </script>
+</body>
+</html>

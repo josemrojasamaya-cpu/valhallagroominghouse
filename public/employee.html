@@ -1,83 +1,140 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Empleado - Valhalla</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla | Portal del Guerrero</title>
+    
+    <!-- Fonts & Master Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-image: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('fondo.jpg');
+            background-size: cover;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
 
-<style>
-body {
-  height: 100vh;
-  background-image: linear-gradient(rgba(0,0,0,.6),rgba(0,0,0,.8)), url("fondo.jpg");
-  background-size: cover;
-  background-attachment: fixed;
-  color: white;
-}
+        .employee-container {
+            max-width: 800px;
+            margin: 0 auto;
+            animation: fadeIn 1s ease;
+        }
 
-h1 {
-  color: gold;
-}
+        .employee-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
 
-.card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,215,0,0.2);
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 10px;
-}
-</style>
+        .appointment-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+
+        .appointment-card:hover {
+            border-color: var(--gold);
+            transform: scale(1.02);
+            background: rgba(255, 215, 0, 0.05);
+        }
+
+        .time-badge {
+            background: var(--gold);
+            color: black;
+            padding: 5px 15px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .client-info i {
+            color: var(--gold);
+            margin-right: 10px;
+        }
+    </style>
 </head>
 
 <body>
 
-<h1>Agenda del Barbero</h1>
-
-<div id="appointments"></div>
-
-<script>
-
-const user = JSON.parse(localStorage.getItem("user"));
-
-if (!user || user.role !== "employee") {
-  window.location.href = "/login.html";
-}
-
-// SOLO empleados
-if (user.role !== "employee") {
-  alert("Acceso no autorizado");
-}
-
-async function loadMyAppointments() {
-
-  const res = await fetch("/api/appointments");
-  const data = await res.json();
-
-  const container = document.getElementById("appointments");
-
-  container.innerHTML = "";
-
-  data.forEach(app => {
-
-    if (true) {
-
-      const card = `
-        <div class="card">
-          <strong>${app.hora}</strong> - ${app.cliente_nombre}<br>
-          ${app.servicio}
+    <div class="employee-container">
+        <div class="employee-header">
+            <h1 class="gold-gradient logo-text" style="font-size: 40px; letter-spacing: 10px;">VALHALLA</h1>
+            <p id="welcomeMsg" style="color: grey; letter-spacing: 2px;">PANEL DEL ESPECIALISTA</p>
+            <div style="margin-top: 20px;">
+                <button onclick="logout()" class="btn-primary" style="padding: 10px 25px; font-size: 11px;">CERRAR SESIÓN</button>
+            </div>
         </div>
-      `;
 
-      container.innerHTML += card;
-    }
+        <h2 style="font-family: Cinzel; margin-bottom: 30px; letter-spacing: 3px;">📅 MI AGENDA DE HOY</h2>
+        <div id="appointmentsContainer"></div>
+    </div>
 
-  });
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
 
-}
+        if (!user || user.role !== "employee") {
+            window.location.href = "/login.html";
+        }
 
-loadMyAppointments();
+        document.getElementById("welcomeMsg").innerText = `BIENVENIDO, GUERRERO ${user.username.toUpperCase()}`;
 
-</script>
+        async function loadMyAppointments() {
+            try {
+                const res = await fetch("/api/appointments");
+                const data = await res.json();
+                const container = document.getElementById("appointmentsContainer");
+                container.innerHTML = "";
 
+                // Nota: En un sistema real filtraríamos por ID de empleado en el backend.
+                // Aquí filtramos por nombre de barbero para simplicidad.
+                const myAppts = data.filter(app => app.barbero.toLowerCase() === user.username.toLowerCase());
+
+                if(myAppts.length === 0) {
+                    container.innerHTML = `<div style="text-align:center; padding:50px; color:grey;">No tienes citas programadas para hoy.</div>`;
+                    return;
+                }
+
+                myAppts.sort((a,b) => a.hora.localeCompare(b.hora)).forEach(app => {
+                    const card = `
+                        <div class="appointment-card">
+                            <div class="client-info">
+                                <span class="time-badge">${app.hora}</span>
+                                <div style="margin-top: 10px;">
+                                    <strong><i class="fa-solid fa-user"></i> ${app.cliente_nombre}</strong>
+                                </div>
+                                <div style="font-size: 13px; color: grey; margin-top: 5px;">
+                                    <i class="fa-solid fa-scissors"></i> ${app.servicio}
+                                </div>
+                            </div>
+                            <div class="status-icon">
+                                <i class="fa-solid fa-circle-check" style="color: var(--gold); font-size: 24px;"></i>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } catch (err) {
+                console.error("Error al cargar citas:", err);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem("user");
+            window.location.href = "/login.html";
+        }
+
+        loadMyAppointments();
+    </script>
 </body>
 </html>

@@ -1,1388 +1,540 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<title>Valhalla Grooming House
-  Dueño
-</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valhalla | Master ERP Dashboard</title>
+    
+    <!-- Fonts & Master Styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--dark-grey);
+        }
+        .sidebar {
+            width: 260px;
+            background: var(--glass);
+            backdrop-filter: blur(30px);
+            border-right: 1px solid var(--glass-border);
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            z-index: 100;
+        }
+        .sidebar-logo { text-align: center; margin-bottom: 50px; }
+        .sidebar-nav { list-style: none; flex: 1; }
+        .sidebar-nav li {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-grey);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 14px;
+        }
+        .sidebar-nav li:hover, .sidebar-nav li.active {
+            background: rgba(201, 164, 76, 0.1);
+            color: var(--gold);
+            transform: translateX(10px);
+        }
+        .main-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background: radial-gradient(circle at top right, #1a1a1a, #000);
+            overflow: hidden;
+        }
+        .admin-topbar {
+            height: 80px;
+            padding: 0 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(0,0,0,0.3);
+        }
+        .admin-content {
+            flex: 1;
+            padding: 40px;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+        .erp-card {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            border-radius: 15px;
+            padding: 20px;
+            border-left: 4px solid var(--gold);
+        }
+        .stat-item h4 { color: var(--text-grey); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; }
+        .stat-item h2 { font-size: 22px; margin-top: 8px; }
+        
+        /* Table Styles */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { text-align: left; padding: 12px; color: var(--gold); font-size: 11px; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); }
+        td { padding: 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.02); }
+        tr:hover td { background: rgba(255,215,0,0.02); }
 
-<style>
-:root {
-  /* Lux Dashboard Palette */
-  --gold-primary: #d4af37;
-  --gold-gradient: linear-gradient(135deg, #f3e5ab, #d4af37, #aa7c11);
-  --bg-color: #0b0f14;
-  --panel-bg: rgba(22, 28, 36, 0.5);
-  --panel-hover: rgba(30, 38, 48, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.05);
-  --text-primary: #f8f9fa;
-  --text-secondary: #9aa0a6;
-  --success: #00b894;
-  --danger: #ff7675;
-}
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  font-family: 'Poppins', sans-serif;
-}
-
-/* Custom Webkit Scrollbar */
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
-::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #d4af37, #8e680c); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover { background: #f3e5ab; }
-
-body {
-  display: flex;
-  height: 100vh;
-  background-color: var(--bg-color);
-  background-image: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%), url("fondo.jpg");
-  background-size: cover;
-  background-attachment: fixed;
-  color: var(--text-primary);
-  overflow: hidden;
-}
-
-/* SIDEBAR LUXURY */
-.sidebar {
-  width: 280px;
-  background: var(--panel-bg);
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
-  border-right: 1px solid var(--glass-border);
-  padding: 30px 20px;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 5px 0 25px rgba(0,0,0,0.5);
-  z-index: 10;
-}
-
-.sidebar h2 {
-  background: var(--gold-gradient);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 45px;
-  font-weight: 600;
-  letter-spacing: 1px;
-  text-align: center;
-}
-
-.sidebar ul { list-style: none; flex: 1; }
-
-.sidebar ul li {
-  padding: 14px 20px;
-  margin-bottom: 12px;
-  border-radius: 12px;
-  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-weight: 400;
-  border: 1px solid transparent;
-}
-
-.sidebar ul li:hover {
-  background: rgba(212, 175, 55, 0.08);
-  color: var(--gold-primary);
-  border: 1px solid rgba(212, 175, 55, 0.2);
-  transform: translateX(8px);
-  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.05);
-}
-
-/* MAIN AREA */
-.main { flex: 1; display: flex; flex-direction: column; height: 100vh; }
-
-/* TOPBAR GLASS */
-.topbar {
-  height: 80px;
-  background: rgba(11, 15, 20, 0.7);
-  backdrop-filter: blur(15px);
-  -webkit-backdrop-filter: blur(15px);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  border-bottom: 1px solid var(--glass-border);
-  box-shadow: 0 4px 30px rgba(0,0,0,0.3);
-  z-index: 5;
-}
-
-.user { color: var(--gold-primary); font-weight: 600; letter-spacing: 0.5px; }
-
-/* CONTENT & GRID */
-.content {
-  padding: 30px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
-  overflow-y: auto;
-  scroll-behavior: smooth;
-  padding-bottom: 80px;
-  flex: 1;
-}
-
-/* HIGHLIGHT CARDS (GLASSMORPHISM) */
-.card {
-  background: var(--panel-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 24px;
-  padding: 25px;
-  transition: all 0.4s ease;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  animation: fadeUp 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
-  opacity: 0;
-}
-
-.card:hover {
-  background: var(--panel-hover);
-  transform: translateY(-4px);
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.5);
-}
-
-.card h3 { color: var(--gold-primary); margin-bottom: 15px; font-weight: 400; font-size: 1.2rem; }
-
-/* INPUTS SLEEK */
-.input {
-  padding: 12px 18px;
-  border-radius: 12px;
-  border: 1px solid rgba(255,255,255,0.05);
-  background: rgba(0, 0, 0, 0.2);
-  color: white;
-  outline: none;
-  font-family: inherit;
-  transition: all 0.3s ease;
-  width: 100%;
-}
-.input::placeholder { color: rgba(255,255,255,0.3); }
-
-.input:focus {
-  border: 1px solid var(--gold-primary);
-  background: rgba(0, 0, 0, 0.4);
-  box-shadow: 0 0 15px rgba(212, 175, 55, 0.15);
-}
-
-/* BUTTON PREMIUM */
-.btn-gold {
-  margin-top: 5px;
-  padding: 12px 24px;
-  border: none;
-  border-radius: 10px;
-  background: var(--gold-gradient);
-  color: #000;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.3);
-}
-
-.btn-gold:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.5);
-  filter: brightness(1.1);
-}
-
-.btn-gold:active { transform: translateY(1px); }
-
-/* TABLES MODERNIZED */
-.table { grid-column: 1 / -1; }
-
-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 8px;
-}
-
-th {
-  color: var(--text-secondary);
-  font-weight: 400;
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 1px;
-  padding: 15px;
-  text-align: left;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-td {
-  padding: 15px;
-  background: rgba(255,255,255,0.02);
-  transition: 0.3s ease;
-}
-
-td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; }
-td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
-
-tr:hover td { background: rgba(212, 175, 55, 0.05); }
-
-/* ANIMATIONS */
-@keyframes fadeUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-/* STAGGERED ANIMATIONS FOR CARDS */
-.card:nth-child(1) { animation-delay: 0.1s; }
-.card:nth-child(2) { animation-delay: 0.2s; }
-.card:nth-child(3) { animation-delay: 0.3s; }
-.card:nth-child(4) { animation-delay: 0.4s; }
-.card:nth-child(5) { animation-delay: 0.5s; }
-
-/* UTILITY HELPERS */
-h2, h3, h4 { margin: 0; }
-</style>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        .mobile-toggle { display: none; cursor: pointer; font-size: 24px; color: var(--gold); }
+        @media screen and (max-width: 900px) {
+            .sidebar { position: absolute; left: -260px; height: 100%; }
+            .sidebar.open { left: 0; }
+            .mobile-toggle { display: block; }
+            .admin-topbar { padding: 0 20px; }
+            .admin-content { padding: 20px; }
+        }
+    </style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-<div class="sidebar">
-<ul>
-  <li onclick="showSection('dashboard')">⚔️ Panel de Inicio</li>
-  <li onclick="showSection('citas')">📅 Citas</li>
-  <li onclick="showSection('clientes')">👥 Clientes</li>
-  <li onclick="showSection('inventario')">📦 Inventario</li>
-  <li onclick="showSection('empleados')">👤 Empleados</li>
-  <li onclick="showSection('finanzas')">💰 Finanzas</li>
-</ul>
-</div>
-
-<!-- MAIN -->
-<div class="main">
-
-  <!-- TOPBAR -->
- <div class="topbar">
-  <h3>Valhalla Dashboard</h3>
-
-  <div>
-    <span id="userInfo" class="user"></span>
-    <button onclick="logout()" class="btn-gold" style="margin-left:20px; font-size:12px; padding:8px 15px;">
-      Cerrar Sesión 
-    </button>
-  </div>
-</div>
-
-  <!-- CONTENT -->
- <div class="content">
-
-  <!-- DASHBOARD -->
-  <div id="dashboard">
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:25px; margin-bottom:25px;">
-      <div class="card" style="border-left: 4px solid #ff7675;">
-        <h3>🚨 Centro de Emergencias</h3>
-        <div id="alertsBox" style="color:var(--text-secondary); font-size:14px;">Todo en orden...</div>
-      </div>
-      <div class="card" style="border-left: 4px solid var(--gold-primary);">
-        <h3>💰 Flujo de Caja Hoy</h3>
-        <h2 style="color:white; font-size:1.8rem;" id="dashIncome">₡0</h2>
-      </div>
-      <div class="card" style="border-left: 4px solid #4ecdc4;">
-        <h3>📅 Citas para Hoy</h3>
-        <h2 style="color:white; font-size:1.8rem;" id="dashAppts">0</h2>
-      </div>
-    </div>
-    <div class="card">
-      <h3 style="margin-bottom:15px;">🗓 Citas del Día</h3>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Hora</th><th>Cliente</th><th>Servicio</th><th>Barbero</th>
-            </tr>
-          </thead>
-          <tbody id="appointmentsTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- CITAS -->
-  <div id="citas" style="display:none; width: 100%;">
-    
-    <div class="card" style="margin-bottom:25px;">
-      <h3 style="margin-bottom:15px; color:var(--text-primary);">📝 Generar Nueva Cita (Recepción)</h3>
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:15px;">
-        <input id="newName" placeholder="👤 Nombre cliente" class="input" />
-        <input id="newPhone" placeholder="📱 Teléfono" class="input" />
-        <input id="newDate" type="date" class="input" />
-        <input id="newTime" type="time" class="input" />
-        <select id="newEmployee" class="input">
-           <option>Seleccionar Barbero</option>
-        </select>
-        <select id="newService" class="input">
-           <option>Seleccionar Servicio</option>
-        </select>
-      </div>
-      <button onclick="createCita()" class="btn-gold" style="margin-top:20px; width:100%;">Reservar y Guardar Cita</button>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <h2 class="gold-gradient logo-text" style="font-size: 24px; letter-spacing: 5px;">VALHALLA</h2>
+            <p style="font-size: 9px; color: var(--gold); letter-spacing: 2px;">ERP SYSTEM</p>
+        </div>
+        <ul class="sidebar-nav">
+            <li onclick="showSection('dashboard')"  class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard</li>
+            <li onclick="showSection('citas')"><i class="fa-solid fa-calendar-days"></i> Citas</li>
+            <li onclick="showSection('clientes')"><i class="fa-solid fa-users"></i> Clientes</li>
+            <li onclick="showSection('inventario')"><i class="fa-solid fa-box-open"></i> Servicios</li>
+            <li onclick="showSection('empleados')"><i class="fa-solid fa-user-tie"></i> Equipo</li>
+            <li onclick="showSection('finanzas')"><i class="fa-solid fa-coins"></i> Finanzas ERP</li>
+        </ul>
+        <div style="margin-top: auto;">
+             <li onclick="logout()" style="color: #ff6b6b;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar Sesión</li>
+        </div>
     </div>
 
-    <div class="card">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h3 style="color:var(--text-primary);">📅 Calendario de Citas</h3>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Hora</th>
-              <th>Cliente</th>
-              <th>Servicio</th>
-              <th>Barbero</th>
-              <th>Acción</th>
-            </tr>
-          </thead>
-          <tbody id="citasTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- CLIENTES -->
-  <div id="clientes" style="display:none; width: 100%;">
-    <div class="card">
-      <h3 style="margin-bottom:20px; color:var(--text-primary);">👥 Gestión de Clientes Frecuentes</h3>
-      <div style="overflow-x:auto;">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Teléfono</th>
-              <th>Visitas/Citas Totales</th>
-            </tr>
-          </thead>
-          <tbody id="clientesTable"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <!-- INVENTARIO -->
-<div id="inventario" style="display:none;">
-  
-  <div class="card">
-
-    <h3>🛠 Gestión de Servicios</h3>
-
-    <!-- FORM -->
-    <div style="margin-bottom:20px;">
-      <input id="servName" placeholder="Nombre servicio" class="input" />
-      <input id="servPrice" placeholder="Precio" class="input" />
-      
-      <select id="servCat" class="input">
-        <option value="barbero">Barbero</option>
-        <option value="masajista">Masajista</option>
-        <option value="facial">Facial</option>
-        <option value="nutricion">Nutrición</option>
-        <option value="psicologia">Psicología</option>
-        <option value="gym">Gym</option>
-      </select>
-
-      <button onclick="createService()" class="btn-gold">
-        Crear Servicio
-      </button>
-    </div>
-
-    <!-- TABLA -->
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Precio</th>
-          <th>Categoría</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-
-      <tbody id="servicesTable"></tbody>
-    </table>
-
-  </div>
-
-</div>
-  <!-- EMPLEADOS -->
-  <div id="empleados" style="display:none;">
-  
-  <div class="card">
-
-    <h3>👤 Gestión de Empleados</h3>
-    <!-- FORM -->
-    <div style="margin-bottom:20px;">
-      <input id="empName" placeholder="Nombre del empleado" class="input" />
-      <input id="empUser" placeholder="Usuario" class="input" />
-<input id="empPass" placeholder="Contraseña" class="input" />
-      <button onclick="createEmployee()" class="btn-gold">
-        Crear
-      </button>
-    </div>
-
-    <!-- TABLA -->
-    <table>
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-
-      <tbody id="employeesTable"></tbody>
-    </table>
-
-  </div>
-
-  <div class="card" style="margin-top: 20px;">
-
-    <h3>🎯 Gestión de Metas</h3>
-    <div style="margin-bottom:20px;">
-
-      <select id="goalEmployee" class="input"></select>
-
-      <input id="goalCantidad" placeholder="Meta mensual (ej: 100)" class="input">
-
-      <input id="goalMes" placeholder="Mes (1-12)" class="input">
-
-      <input id="goalAnio" placeholder="Año (2026)" class="input">
-
-      <button onclick="createGoal()" class="btn-gold">Crear Meta</button>
-
-    </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Empleado</th>
-          <th>Meta</th>
-          <th>Mes</th>
-          <th>Año</th>
-          <th>Acción</th>
-        </tr>
-      </thead>
-
-      <tbody id="goalsTable"></tbody>
-    </table>
-  </div>
-
-  <div class="card" style="margin-top: 20px;">
-    <h3>📊 Progreso de Metas</h3>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Empleado</th>
-          <th>Realizadas</th>
-          <th>Meta</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-
-      <tbody id="progressTable"></tbody>
-    </table>
-  </div>
-
-</div>
-
-  <!-- FINANZAS ERP ADVANCED -->
-  <div id="finanzas" style="display:none;">
-
-    <!-- 🤖 SISTEMA PREDICTIVO Y ALERTAS (RUNWAY) -->
-    <div class="card" style="margin-bottom:20px; border: 1px solid #4ecdc4;">
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <h3>🔮 Previsión a Fin de Mes (Runway Forecast)</h3>
-        <span id="forecastBadge" style="padding: 5px 15px; border-radius:20px; font-weight:bold; font-size:14px; background:gray; color:white;">Calculando...</span>
-      </div>
-      <p id="forecastMessage" style="color:#ddd; margin-top:10px; font-size: 14px; line-height:1.5;">El asistente de IA contable está evaluando el flujo de caja actual...</p>
-      
-      <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; margin-top:20px;">
-        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-          <p style="color:#aaa; font-size:12px;">Días Restantes Mes</p>
-          <h3 id="fcDays">0 días</h3>
+    <div class="main-panel">
+        <div class="admin-topbar">
+            <div class="mobile-toggle" onclick="toggleSidebar()"><i class="fa-solid fa-bars"></i></div>
+            <h3 style="font-family: Cinzel; letter-spacing: 3px;">DASHBOARD DUEÑO</h3>
+            <div id="userInfo" class="gold-gradient" style="font-weight: 600;">ADMIN</div>
         </div>
-        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-          <p style="color:#aaa; font-size:12px;">Velocidad de Ingreso</p>
-          <h3 id="fcVelocity">₡0 / día</h3>
-        </div>
-        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-          <p style="color:#aaa; font-size:12px;">Fijos a Cubrir</p>
-          <h3 id="fcBurnRate">₡0</h3>
-        </div>
-        <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-          <p style="color:#aaa; font-size:12px;">Previsión Cierre Mes</p>
-          <h3 id="fcProjected">₡0</h3>
-        </div>
-      </div>
-      
-      <!-- AI INSIGHTS TACTICS -->
-      <div style="margin-top:20px; background:rgba(46, 213, 115, 0.1); border-left: 4px solid #2ed573; padding:15px; border-radius:5px;">
-        <h4 style="color:#2ed573; margin-bottom: 5px;">🤖 Estrategia de IA Avanzada</h4>
-        <p id="aiTactics" style="font-size: 13px; color:#ddd; line-height: 1.6;">Recolectando datos históricos...</p>
-      </div>
 
+        <div class="admin-content">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="erp-section">
+                <div class="stats-grid">
+                    <div class="stat-item"><h4>Ingresos Hoy</h4><h2 id="dashIncome">₡0</h2></div>
+                    <div class="stat-item" style="border-left-color: #4ecdc4;"><h4>Citas</h4><h2 id="dashAppts">0</h2></div>
+                    <div class="stat-item" style="border-left-color: #ff7675;"><h4>Alertas</h4><h2 id="alertsCount">0</h2></div>
+                </div>
+                <div class="erp-card">
+                    <h3 style="font-family: Cinzel; margin-bottom: 20px;">🗓 CITAS DEL DÍA</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>HORA</th><th>CLIENTE</th><th>SERVICIO</th><th>BARBERO</th></tr></thead>
+                            <tbody id="appointmentsTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CITAS -->
+            <div id="citas" class="erp-section" style="display:none;">
+                <div class="erp-card">
+                    <h3 style="font-family: Cinzel; margin-bottom: 20px;">NUEVA CITA MANUAL</h3>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap:15px;">
+                        <input id="newName" placeholder="Nombre cliente" class="input">
+                        <input id="newPhone" placeholder="Teléfono" class="input">
+                        <input id="newDate" type="date" class="input">
+                        <input id="newTime" type="time" class="input">
+                        <select id="newEmployee" class="input"></select>
+                        <select id="newService" class="input"></select>
+                    </div>
+                    <button class="btn-primary" onclick="createCita()" style="width:100%; margin-top:20px;">CONFIRMAR CITA</button>
+                </div>
+                <div class="erp-card">
+                    <h3 style="font-family: Cinzel; margin-bottom: 20px;">CALENDARIO GENERAL</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>HORA</th><th>CLIENTE</th><th>SERVICIO</th><th>BARBERO</th><th>ACCIÓN</th></tr></thead>
+                            <tbody id="citasTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CLIENTES -->
+            <div id="clientes" class="erp-section" style="display:none;">
+                <div class="erp-card">
+                    <h3 style="font-family: Cinzel; margin-bottom: 20px;">GUERREROS FRECUENTES</h3>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead><tr><th>NOMBRE</th><th>TELÉFONO</th><th>VISITAS</th></tr></thead>
+                            <tbody id="clientesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SERVICIOS -->
+            <div id="inventario" class="erp-section" style="display:none;">
+                <div class="erp-card">
+                    <h3 style="font-family: Cinzel; margin-bottom: 20px;">GESTIÓN DE SERVICIOS</h3>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:15px; margin-bottom: 20px;">
+                        <input id="servName" placeholder="Nombre" class="input">
+                        <input id="servPrice" placeholder="Precio (₡)" class="input">
+                        <select id="servCat" class="input">
+                            <option value="barbero">Barbero</option>
+                            <option value="manicurista">Manicurista</option>
+                            <option value="masajista">Masajista</option>
+                        </select>
+                        <button onclick="createService()" class="btn-primary">CREAR</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>NOMBRE</th><th>PRECIO</th><th>CATEGORÍA</th><th>ACCIÓN</th></tr></thead>
+                        <tbody id="servicesTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- EQUIPO & METAS -->
+            <div id="empleados" class="erp-section" style="display:none;">
+                <div class="erp-card">
+                    <h3>EQUIPO DE TRABAJO</h3>
+                    <div style="display:flex; gap:10px; margin-bottom:15px;">
+                        <input id="empName" placeholder="Nombre" class="input">
+                        <input id="empUser" placeholder="Usuario" class="input">
+                        <button onclick="createEmployee()" class="btn-primary">AÑADIR</button>
+                    </div>
+                    <table style="margin-bottom:30px;">
+                        <thead><tr><th>NOMBRE</th><th>ACCIÓN</th></tr></thead>
+                        <tbody id="employeesTable"></tbody>
+                    </table>
+
+                    <h3 style="margin-top:40px;">🎯 METAS MENSUALES</h3>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap:10px; margin-bottom:15px;">
+                         <select id="goalEmployee" class="input"></select>
+                         <input id="goalCantidad" placeholder="Meta" class="input">
+                         <input id="goalMes" placeholder="Mes" class="input">
+                         <button onclick="createGoal()" class="btn-primary">FIJAR META</button>
+                    </div>
+                    <table>
+                        <thead><tr><th>EMPLEADO</th><th>META</th><th>REALIZADAS</th><th>ESTADO</th></tr></thead>
+                        <tbody id="goalsTable"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- FINANZAS ERP -->
+            <div id="finanzas" class="erp-section" style="display:none;">
+                <div class="erp-card" style="border: 1px solid var(--gold); background: rgba(201, 164, 76, 0.05);">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <h3>🔮 RUNWAY FORECAST (IA PREDICTIVA)</h3>
+                        <span id="forecastBadge" style="background:var(--gold); color:black; padding:5px 15px; border-radius:20px; font-weight:700;">STABLE</span>
+                    </div>
+                    <div class="stats-grid" style="margin-top:20px;">
+                        <div class="stat-item"><h4>Días Restantes</h4><h2 id="fcDays">0</h2></div>
+                        <div class="stat-item"><h4>Velocidad</h4><h2 id="fcVelocity">₡0/d</h2></div>
+                        <div class="stat-item"><h4>Proyección</h4><h2 id="fcProjected">₡0</h2></div>
+                    </div>
+                    <p id="forecastMessage" style="font-size:12px; color:#aaa; margin-top:10px;"></p>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-item"><h4>Ventas Brutas</h4><h2 id="erpGross">₡0</h2></div>
+                    <div class="stat-item" style="border-left-color:#ff6b6b;"><h4>Retención (Ley)</h4><h2 id="erpTax">₡0</h2></div>
+                    <div class="stat-item" style="border-left-color:#2ed573;"><h4>Flujo Operativo</h4><h2 id="erpNet">₡0</h2></div>
+                </div>
+
+                <div class="erp-card">
+                    <h3 style="margin-bottom:20px;">REGLA 20/20/60 (DISTRIBUCIÓN)</h3>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:30px;">
+                        <div>
+                            <div class="stat-item" style="margin-bottom:10px;"><h4>Reserva (20%)</h4><h3 id="erpFundSav">₡0</h3></div>
+                            <div class="stat-item" style="margin-bottom:10px;"><h4>Deuda (20%)</h4><h3 id="erpFundLoan">₡0</h3></div>
+                            <div class="stat-item" style="border-left-color:gold;"><h4>Dueño (60%)</h4><h3 id="erpOwnerNet">₡0</h3></div>
+                        </div>
+                        <div style="display:flex; justify-content:center; align-items:center;">
+                            <canvas id="financeChart" style="max-height:220px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
+                    <div class="erp-card">
+                        <h3>COSTOS FIJOS</h3>
+                        <div style="display:flex; gap:10px; margin-bottom:15px;">
+                            <input id="expName" placeholder="Concepto" class="input">
+                            <input id="expAmount" placeholder="Monto" class="input">
+                            <button onclick="createExpense()" class="btn-primary">OK</button>
+                        </div>
+                        <tbody id="expensesTable"></tbody>
+                    </div>
+                    <div class="erp-card">
+                        <h3>GESTIÓN DE DEUDAS</h3>
+                        <div style="display:flex; gap:10px; margin-bottom:15px;">
+                            <input id="loanDesc" placeholder="Banco" class="input">
+                            <input id="loanCuota" placeholder="Cuota" class="input">
+                            <button onclick="createLoan()" class="btn-primary">OK</button>
+                        </div>
+                        <div id="loansContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <div class="card" style="margin-bottom:20px;">
-      <h3>📊 Contaduría Financiera (Strict Flow)</h3>
-      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-top:20px;">
-        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-          <h4 style="color:#aaa;">Ventas Brutas</h4>
-          <h2 id="erpGross">₡0</h2>
-        </div>
-        <div style="background:rgba(255,100,100,0.1); padding:15px; border-radius:10px; border-bottom: 2px solid #ff6b6b">
-          <h4 style="color:#ff6b6b;">Impuestos LEY (Retención)</h4>
-          <h2 id="erpTax">₡0</h2>
-        </div>
-        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-          <h4 style="color:#4ecdc4;">Operativa (Post-Imp)</h4>
-          <h2 id="erpPostTax">₡0</h2>
-        </div>
-        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-          <h4 style="color:#ff6b6b;">Costos Fijos & Préstamos</h4>
-          <h2 id="erpExpenses">₡0</h2>
-        </div>
-        <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; border: 1px solid gold;">
-          <h4 style="color:gold;">Ganancia del Negocio (100%)</h4>
-          <h2 id="erpNet">₡0</h2>
-        </div>
-      </div>
+    <script>
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user || user.role !== "admin") window.location.href = "/login.html";
+        document.getElementById("userInfo").innerText = user.username.toUpperCase();
 
-      <h3 style="margin-top:30px;">💼 Distribución de Ganancia & Bonos</h3>
-      <p style="font-size:12px; color:#aaa; margin-bottom: 10px;">Flujo estricto: 20% Ahorro | 20% Amortización Deuda | 60% Dueño (de donde se sacan los bonos).</p>
-      
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-        
-        <!-- MATEMÁTICA EN TARJETAS -->
-        <div style="display:grid; gap:10px;">
-          <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-            <h4>Fondo Reserva Ahorro (20%)</h4>
-            <h3 id="erpFundSav" style="color:#4ecdc4;">₡0</h3>
-          </div>
-          <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-            <h4>Fondo Préstamo Extra (20%)</h4>
-            <h3 id="erpFundLoan" style="color:#4ecdc4;">₡0</h3>
-          </div>
-          <div style="background:rgba(255,215,0,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border-left: 2px solid gold;">
-            <h4>Bolsa Bruta Accionista (60%)</h4>
-            <h3 id="erpOwnerGross" style="color:gold;">₡0</h3>
-          </div>
-          <div style="background:rgba(255,100,100,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-            <h4>(-) Bonos Empleados Generados</h4>
-            <h3 id="erpComms" style="color:#ff6b6b;">₡0</h3>
-          </div>
-          <div style="background:rgba(255,215,0,0.3); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border: 1px solid gold;">
-            <h3 style="color:gold;">Ganancia Líquida Final Dueño</h3>
-            <h2 id="erpOwnerNet" style="color:gold; font-weight:bold;">₡0</h2>
-          </div>
-        </div>
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
 
-        <!-- GRÁFICO CIRCULAR -->
-        <div style="background:rgba(0,0,0,0.4); border-radius:10px; padding:20px; display:flex; justify-content:center; align-items:center;">
-          <canvas id="financeChart" style="max-width: 300px; max-height: 300px;"></canvas>
-        </div>
-
-      </div>
-    </div>
-
-    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap:20px;">
-      <!-- Gastos Fijos -->
-      <div class="card">
-        <h3>📄 Gastos Fijos y Salarios</h3>
-        <div style="display:grid; gap:10px; margin-bottom:15px;">
-          <input id="expName" placeholder="Nombre (ej. Alquiler)" class="input">
-          <input id="expAmount" type="number" placeholder="Monto" class="input">
-          <input id="expDay" type="number" placeholder="Día de pago (1-31)" class="input">
-          <button onclick="createExpense()" class="btn-gold">Registrar Gasto</button>
-        </div>
-        <table>
-          <thead><tr><th>Gasto</th><th>Monto</th><th>Vence</th><th></th></tr></thead>
-          <tbody id="expensesTable"></tbody>
-        </table>
-      </div>
-
-      <!-- Préstamos -->
-      <div class="card">
-        <h3>🏦 Gestión de Préstamos</h3>
-        <div style="display:grid; gap:10px; margin-bottom:15px;">
-          <input id="loanDesc" placeholder="Descripción" class="input">
-          <input id="loanMonto" type="number" placeholder="Monto Inicial" class="input">
-          <input id="loanTasa" type="number" placeholder="Tasa % Anual" class="input">
-          <input id="loanMeses" type="number" placeholder="Meses Plazo" class="input">
-          <input id="loanCuota" type="number" placeholder="Cuota" class="input">
-          <input id="loanDay" type="number" placeholder="Día Pago" class="input">
-          <button onclick="createLoan()" class="btn-gold">Registrar Préstamo</button>
-        </div>
-        <div id="loansContainer"></div>
-      </div>
-    </div>
-
-    <!-- LIBRO MAYOR (LEDGER) TRIBUTACIÓN -->
-    <div class="card" style="margin-top:20px;">
-      <h3>📚 Libro Mayor Contable (Ledger Legal)</h3>
-      <p style="font-size:12px; color:#aaa; margin-bottom: 15px;">Registro histórico e inmutable de movimientos y auditoría.</p>
-      <div style="max-height: 300px; overflow-y: auto;">
-        <table>
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Tipo de Movimiento</th>
-              <th>Descripción y Referencia</th>
-              <th>Monto</th>
-            </tr>
-          </thead>
-          <tbody id="ledgerTable"></tbody>
-        </table>
-      </div>
-    </div>
-
-  </div><!-- fin #finanzas -->
-
-  </div><!-- fin .content -->
-  </div><!-- fin .main -->
-
-<script>
-
-// 🔐 Validar sesión
-const user = JSON.parse(localStorage.getItem("user"));
-
-if (!user || user.role !== "admin") {
-  window.location.href = "/login.html";
-}
-
-// 👤 Mostrar usuario
-document.getElementById("userInfo").innerText =
-  user.username + " (" + user.role + ")";
-
-
-// 📡 DASHBOARD
-async function loadAppointments() {
-  try {
-
-    const res = await fetch("/api/appointments");
-    const data = await res.json();
-
-    const table = document.getElementById("appointmentsTable");
-    table.innerHTML = "";
-
-    let totalCitas = 0;
-    let totalIngresos = 0;
-
-    data.forEach(app => {
-
-      totalCitas++;
-      totalIngresos += Number(app.precio);
-
-      const row = `
-        <tr>
-          <td>${app.hora}</td>
-          <td>${app.cliente_nombre}</td>
-          <td>${app.servicio}</td>
-          <td>${app.barbero}</td>
-        </tr>
-      `;
-
-      table.innerHTML += row;
-    });
-
-    if (table.innerHTML === "") {
-      table.innerHTML = `
-        <tr>
-          <td colspan="4">No hay citas registradas</td>
-        </tr>
-      `;
-    }
-
-    // métricas en el dashboard
-    const dashIncome = document.getElementById("dashIncome");
-    const dashAppts = document.getElementById("dashAppts");
-    if(dashIncome) dashIncome.innerText = "₡" + totalIngresos;
-    if(dashAppts) dashAppts.innerText = totalCitas;
-
-    // 📊 GRÁFICO
-    const horas = {};
-
-    data.forEach(app => {
-      const hora = app.hora;
-      if (!horas[hora]) horas[hora] = 0;
-      horas[hora]++;
-    });
-
-    const labels = Object.keys(horas);
-    const valores = Object.values(horas);
-
-    const ctx = document.getElementById('myChart');
-
-    if (ctx) {
-      new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Citas por hora',
-            data: valores,
-            borderColor: 'gold',
-            backgroundColor: 'rgba(255,215,0,0.2)',
-            tension: 0.4
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { labels: { color: 'white' } }
-          },
-          scales: {
-            x: { ticks: { color: 'white' } },
-            y: { ticks: { color: 'white' } }
-          }
+        function showSection(id) {
+            document.querySelectorAll('.erp-section').forEach(s => s.style.display = 'none');
+            document.querySelectorAll('.sidebar-nav li').forEach(li => li.classList.remove('active'));
+            document.getElementById(id).style.display = 'block';
+            event.currentTarget.classList.add('active');
+            if(window.innerWidth < 900) toggleSidebar();
+            
+            if(id === 'dashboard') loadAppointments();
+            if(id === 'citas') loadCitasAdmin();
+            if(id === 'clientes') loadClientes();
+            if(id === 'inventario') loadServices();
+            if(id === 'empleados') { loadEmployees(); loadGoals(); }
+            if(id === 'finanzas') loadFinanzas();
         }
-      });
-    }
 
-  } catch (error) {
-    console.error("Error:", error);
-  }
-}
+        function logout() { localStorage.removeItem("user"); window.location.href = "/login.html"; }
 
+        // --- DASHBOARD ---
+        async function loadAppointments() {
+            const res = await fetch("/api/appointments");
+            const data = await res.json();
+            const table = document.getElementById("appointmentsTable");
+            table.innerHTML = "";
+            let totalIncome = 0;
+            data.forEach(app => {
+                totalIncome += Number(app.precio);
+                table.innerHTML += `<tr><td>${app.hora}</td><td>${app.cliente_nombre}</td><td>${app.servicio}</td><td>${app.barbero}</td></tr>`;
+            });
+            document.getElementById("dashIncome").innerText = `₡${totalIncome}`;
+            document.getElementById("dashAppts").innerText = data.length;
+        }
 
-// 📅 CITAS
-async function loadCitasAdmin() {
-  const res = await fetch("/api/appointments");
-  const data = await res.json();
+        // --- CITAS ADMIN ---
+        async function loadCitasAdmin() {
+            const res = await fetch("/api/appointments");
+            const data = await res.json();
+            const table = document.getElementById("citasTable");
+            table.innerHTML = "";
+            data.forEach(app => {
+                table.innerHTML += `<tr><td>${app.hora}</td><td>${app.cliente_nombre}</td><td>${app.servicio}</td><td>${app.barbero}</td><td><button onclick="deleteCita(${app.id})" style="color:red; background:none; border:none; cursor:pointer;">Eliminar</button></td></tr>`;
+            });
+            loadSelects();
+        }
 
-  const table = document.getElementById("citasTable");
-  table.innerHTML = "";
+        async function loadSelects() {
+            const resEmp = await fetch("/api/employees");
+            const dataEmp = await resEmp.json();
+            const selEmp = document.getElementById("newEmployee");
+            selEmp.innerHTML = "";
+            dataEmp.forEach(e => selEmp.innerHTML += `<option value="${e.id}">${e.nombre}</option>`);
 
-  data.forEach(app => {
-    table.innerHTML += `
-      <tr>
-        <td>${app.hora}</td>
-        <td>${app.cliente_nombre}</td>
-        <td>${app.servicio}</td>
-        <td>${app.barbero}</td>
-        <td>
-          <button onclick="deleteCita(${app.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;">
-            Eliminar
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-}
+            const resServ = await fetch("/api/services");
+            const dataServ = await resServ.json();
+            const selServ = document.getElementById("newService");
+            selServ.innerHTML = "";
+            dataServ.forEach(s => selServ.innerHTML += `<option value="${s.id}">${s.nombre}</option>`);
+        }
 
+        async function createCita() {
+            const cita = {
+                name: document.getElementById("newName").value,
+                phone: document.getElementById("newPhone").value,
+                date: document.getElementById("newDate").value,
+                time: document.getElementById("newTime").value,
+                empleado_id: document.getElementById("newEmployee").value,
+                servicio_id: document.getElementById("newService").value
+            };
+            await fetch("/api/appointments", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(cita)});
+            loadCitasAdmin();
+        }
 
-// ❌ ELIMINAR
-async function deleteCita(id) {
-  if (!confirm("¿Eliminar esta cita?")) return;
-
-  await fetch(`/api/appointments/${id}`, {
-    method: "DELETE"
-  });
-
-  loadCitasAdmin();
-  loadAppointments();
-}
-
-
-// 👥 CLIENTES
-async function loadClientes() {
-  const res = await fetch("/api/appointments");
-  const data = await res.json();
-
-  const clientes = {};
-
-  data.forEach(app => {
-    if (!clientes[app.cliente_nombre]) {
-      clientes[app.cliente_nombre] = {
-        telefono: app.cliente_telefono,
-        citas: 0
-      };
-    }
-    clientes[app.cliente_nombre].citas++;
-  });
-
-  const table = document.getElementById("clientesTable");
-  table.innerHTML = "";
-
-  for (let nombre in clientes) {
-    table.innerHTML += `
-      <tr>
-        <td>${nombre}</td>
-        <td>${clientes[nombre].telefono}</td>
-        <td>${clientes[nombre].citas}</td>
-      </tr>
-    `;
-  }
-}
-
-
-// 💰 FINANZAS ESTILO ERP ADVANCED
-
-let financeChartInstance = null;
-
-async function loadERPFinanzas() {
-  try {
-    const res = await fetch("/api/finanzas/resumen");
-    const data = await res.json();
-
-    document.getElementById("erpGross").innerText = "₡" + Number(data.ingresoBruto).toFixed(2);
-    document.getElementById("erpTax").innerText = "₡" + Number(data.totalRetencionTributaria).toFixed(2);
-    document.getElementById("erpPostTax").innerText = "₡" + Number(data.ingresoPostImpuestos).toFixed(2);
-    
-    document.getElementById("erpExpenses").innerText = "₡" + Number(data.totalGastosFijos).toFixed(2);
-    document.getElementById("erpNet").innerText = "₡" + Number(data.gananciaNegocio).toFixed(2);
-    
-    document.getElementById("erpFundSav").innerText = "₡" + Number(data.fondoAhorro).toFixed(2);
-    document.getElementById("erpFundLoan").innerText = "₡" + Number(data.fondoPrestamoExtra).toFixed(2);
-    
-    document.getElementById("erpOwnerGross").innerText = "₡" + Number(data.bolsaDuenoBruta).toFixed(2);
-    document.getElementById("erpComms").innerText = "₡" + Number(data.totalComisiones).toFixed(2);
-    document.getElementById("erpOwnerNet").innerText = "₡" + Number(data.gananciaFinalLiquidaDueno).toFixed(2);
-
-    updateChart(data);
-
-    loadExpenses();
-    loadLoans();
-    loadPredictiveAnalytics();
-    loadLedger();
-  } catch (error) {
-    console.error("Error ERP:", error);
-  }
-}
-
-async function loadPredictiveAnalytics() {
-  try {
-    const res = await fetch("/api/finanzas/analitica/prevision");
-    const data = await res.json();
-    
-    document.getElementById("fcDays").innerText = data.remainingDays + " días (" + data.daysIntoMonth + " transcurridos)";
-    document.getElementById("fcVelocity").innerText = "₡" + Number(data.dailyVelocity).toFixed(0);
-    document.getElementById("fcBurnRate").innerText = "₡" + Number(data.totalMonthlyBurnRate).toFixed(0);
-    document.getElementById("fcProjected").innerText = "₡" + Number(data.projectedPostTax).toFixed(0);
-
-    const badge = document.getElementById("forecastBadge");
-    const message = document.getElementById("forecastMessage");
-    
-    message.innerText = data.alert.message;
-    if (data.alert.status === "red") {
-      badge.innerText = "ALERTA ROJA - DÉFICIT";
-      badge.style.background = "#ff4757";
-    } else if (data.alert.status === "amber") {
-      badge.innerText = "PRECAUCIÓN - RIESGO";
-      badge.style.background = "#ffa502";
-    } else {
-      badge.innerText = "VERDE - SEGURO";
-      badge.style.background = "#2ed573";
-    }
-
-    // AI Tactics update
-    document.getElementById("aiTactics").innerText = data.aiDeepInsights.tips;
-
-  } catch(e) { console.error("Error Análisis:", e); }
-}
-
-async function loadLedger() {
-  try {
-    const res = await fetch("/api/finanzas/ledger");
-    const data = await res.json();
-    const table = document.getElementById("ledgerTable");
-    table.innerHTML = "";
-    data.forEach(entry => {
-      const fecha = new Date(entry.fecha).toLocaleString();
-      table.innerHTML += `
-        <tr>
-          <td style="font-size:12px; color:#aaa">${fecha}</td>
-          <td><span style="background:rgba(255,255,255,0.1); padding:3px 6px; border-radius:4px; font-size:11px;">${entry.tipo}</span></td>
-          <td>${entry.descripcion}</td>
-          <td style="color:${entry.monto < 0 ? '#ff6b6b' : '#2ed573'}"><b>${entry.monto < 0 ? '' : '+'}₡${Math.abs(entry.monto)}</b></td>
-        </tr>
-      `;
-    });
-  } catch(e) { console.error("Error Ledger:", e); }
-}
-
-function updateChart(data) {
-    const ctx = document.getElementById('financeChart');
-    if(!ctx) return;
-
-    if (financeChartInstance) {
-        financeChartInstance.destroy();
-    }
-
-    financeChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Impuestos (Hacienda)', 'Gastos Fijos', 'Fondos Reserva', 'Bonos (Comisiones)', 'Ganancia Dueño'],
-            datasets: [{
-                data: [
-                    data.totalRetencionTributaria, 
-                    data.totalGastosFijos, 
-                    data.fondoAhorro + data.fondoPrestamoExtra,
-                    data.totalComisiones,
-                    data.gananciaFinalLiquidaDueno > 0 ? data.gananciaFinalLiquidaDueno : 0
-                ],
-                backgroundColor: [
-                    '#ff4757', // Red Impuestos
-                    '#57606f', // Grey Fijos
-                    '#4bcffa', // Blue Reservas
-                    '#ffa502', // Orange Bonos
-                    '#2ed573'  // Green Ganancia Libre
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            plugins: {
-                legend: { labels: { color: 'white', font: { size: 10 } } }
+        async function deleteCita(id) {
+            if(confirm("¿Eliminar cita?")) {
+                await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+                loadCitasAdmin();
             }
         }
-    });
-}
-
-async function loadExpenses() {
-  const res = await fetch("/api/finanzas/gastos");
-  const data = await res.json();
-  const table = document.getElementById("expensesTable");
-  table.innerHTML = "";
-  data.forEach(exp => {
-    table.innerHTML += `
-      <tr>
-        <td>${exp.nombre}</td>
-        <td>₡${exp.monto}</td>
-        <td>Día ${exp.dia_pago}</td>
-        <td><button onclick="deleteExpense(${exp.id})" style="background:red;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;">X</button></td>
-      </tr>
-    `;
-  });
-}
-
-async function createExpense() {
-  const data = {
-    nombre: document.getElementById("expName").value,
-    monto: document.getElementById("expAmount").value,
-    dia_pago: document.getElementById("expDay").value,
-    categoria: "general"
-  };
-  await fetch("/api/finanzas/gastos", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-  });
-  loadExpenses();
-  loadERPFinanzas();
-}
-
-async function deleteExpense(id) {
-  if(!confirm("¿Eliminar gasto fijo?")) return;
-  await fetch(`/api/finanzas/gastos/${id}`, {method: "DELETE"});
-  loadExpenses();
-  loadERPFinanzas();
-}
-
-async function loadLoans() {
-  const res = await fetch("/api/finanzas/prestamos");
-  const data = await res.json();
-  const container = document.getElementById("loansContainer");
-  container.innerHTML = "";
-  data.forEach(loan => {
-    container.innerHTML += `
-      <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid gold;">
-        <h4 style="color:gold;">${loan.descripcion}</h4>
-        <p>Deuda Restante: <b>₡${Number(loan.monto_actual).toFixed(2)}</b> (de ₡${loan.monto_inicial})</p>
-        <p>Cuota: ₡${loan.cuota_mensual} - Vence Día ${loan.dia_pago}</p>
-        <button onclick="payLoan(${loan.id}, ${loan.cuota_mensual}, false)" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px;">Pagar Cuota</button>
-        <button onclick="payLoanExtra(${loan.id})" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px; background:lightblue;">Abono Extra</button>
-      </div>
-    `;
-  });
-}
-
-async function createLoan() {
-  if(!document.getElementById("loanDesc").value || !document.getElementById("loanMonto").value) {
-    return alert("Por favor llena la descripción y el monto del préstamo.");
-  }
-
-  const data = {
-    descripcion: document.getElementById("loanDesc").value,
-    monto_inicial: document.getElementById("loanMonto").value || 0,
-    tasa_interes_anual: document.getElementById("loanTasa").value || 0,
-    plazo_meses: document.getElementById("loanMeses").value || 0,
-    cuota_mensual: document.getElementById("loanCuota").value || 0,
-    dia_pago: document.getElementById("loanDay").value || 1
-  };
-  
-  try {
-    const res = await fetch("/api/finanzas/prestamos", {
-      method: "POST", headers: {"Content-Type": "application/json"},
-      body: JSON.stringify(data)
-    });
-
-    if (res.ok) {
-      alert("Préstamo registrado exitosamente ✅");
-      
-      // Limpiar campos
-      document.getElementById("loanDesc").value = "";
-      document.getElementById("loanMonto").value = "";
-      document.getElementById("loanTasa").value = "";
-      document.getElementById("loanMeses").value = "";
-      document.getElementById("loanCuota").value = "";
-      document.getElementById("loanDay").value = "";
-      
-      loadLoans();
-    } else {
-      alert("Error al registrar el préstamo en la base de datos.");
-    }
-  } catch(err) {
-    alert("Error de conexión al guardar el préstamo.");
-  }
-}
-
-async function payLoan(id, cuota, isExtra) {
-  if(!confirm("¿Registrar pago?")) return;
-  await fetch(`/api/finanzas/prestamos/${id}/pagos`, {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ monto_pagado: cuota, es_extraordinario: isExtra })
-  });
-  loadLoans();
-}
-
-async function payLoanExtra(id) {
-  const monto = prompt("Ingrese el monto del abono EXTRAORDINARIO (100% a Capital):");
-  if(monto && !isNaN(monto) && Number(monto) > 0) {
-    payLoan(id, monto, true);
-  }
-}
-
-
-
-// 🔄 NAVEGACIÓN
-function showSection(section) {
-  // 1. Primero ocultar TODAS las secciones
-  const sections = ["dashboard","citas","clientes","inventario","empleados","finanzas"];
-  sections.forEach(sec => {
-    document.getElementById(sec).style.display = "none";
-  });
-
-  // 2. Mostrar la sección seleccionada
-  const el = document.getElementById(section);
-  if(el) el.style.display = "block";
-
-  // 3. Cargar datos según la sección
-  if (section === "inventario") loadServices();
-  if (section === "citas") { loadFormData(); loadCitasAdmin(); }
-  if (section === "clientes") loadClientes();
-  if (section === "empleados") { loadEmployees(); loadEmployeesForGoals(); loadGoals(); loadProgress(); }
-  if (section === "finanzas") loadERPFinanzas();
-}
-
-
-// 🔐 LOGOUT
-function logout() {
-  localStorage.removeItem("user");
-  window.location.href = "/login.html";
-}
-
-
-// 🚀 INIT
-loadAppointments();
-async function loadFormData() {
-
-  const empRes = await fetch("/api/employees");
-  const empleados = await empRes.json();
-
-  const empSelect = document.getElementById("newEmployee");
-  empSelect.innerHTML = "";
-
-  empleados.forEach(e => {
-    empSelect.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
-  });
-
-  const servRes = await fetch("/api/services");
-  const servicios = await servRes.json();
-
-  const servSelect = document.getElementById("newService");
-  servSelect.innerHTML = "";
-
-  servicios.forEach(s => {
-    servSelect.innerHTML += `<option value="${s.id}">${s.nombre}</option>`;
-  });
-
-}
-async function createCita() {
-
-  const data = {
-    name: document.getElementById("newName").value,
-    phone: document.getElementById("newPhone").value,
-    servicio_id: document.getElementById("newService").value,
-    empleado_id: document.getElementById("newEmployee").value,
-    date: document.getElementById("newDate").value,
-    time: document.getElementById("newTime").value
-  };
-
-  const res = await fetch("/api/appointments", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-
-  const result = await res.json();
-
-  alert(result.message);
-
-  loadCitasAdmin();
-  loadAppointments();
-  loadAlerts();
-}
-async function createEmployee() {
-
-  const nombre = document.getElementById("empName").value;
-  const username = document.getElementById("empUser").value;
-  const password = document.getElementById("empPass").value;
-
-  // 1. crear empleado
-  const empRes = await fetch("/api/employees", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre })
-  });
-
-  const empData = await empRes.json();
-
-  // 2. crear usuario
-  const userRes = await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username,
-      password,
-      role: "employee"
-    })
-  });
-
-  const userData = await userRes.json();
-
-  alert("Empleado y usuario creados");
-
-  loadEmployees();
-}
-async function loadEmployees() {
-
-  // 1. pedir empleados
-  const res = await fetch("/api/employees");
-  const data = await res.json();
-
-  const table = document.getElementById("employeesTable");
-
-  // 2. limpiar tabla
-  table.innerHTML = "";
-
-  // 3. recorrer empleados
-  data.forEach(emp => {
-
-    table.innerHTML += `
-      <tr>
-        <td>${emp.nombre}</td>
-        <td>
-          <button onclick="deleteEmployee(${emp.id})">
-            Eliminar
-          </button>
-        </td>
-      </tr>
-    `;
-
-  });
-}
-    crear.servicio 
-deleteEmployee
-async function deleteEmployee(id) {
-
-  // confirmar
-  if (!confirm("¿Eliminar empleado?")) return;
-
-  // eliminar
-  await fetch(`/api/employees/${id}`, {
-    method: "DELETE"
-  });
-
-  // recargar
-  loadEmployees();
-}
-async function createService() {
-
-  const nombre = document.getElementById("servName").value;
-  const precio = document.getElementById("servPrice").value;
-  const categoria = document.getElementById("servCat").value;
-
-  const res = await fetch("/api/services", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ nombre, precio, categoria })
-  });
-
-  const data = await res.json();
-
-  alert(data.message);
-
-  loadServices();
-}
-Cargar.servicios
-async function loadServices() {
-
-  const res = await fetch("/api/services");
-  const data = await res.json();
-
-  const table = document.getElementById("servicesTable");
-
-  table.innerHTML = "";
-
-  data.forEach(serv => {
-
-    table.innerHTML += `
-      <tr>
-        <td>${serv.nombre}</td>
-        <td>₡${serv.precio}</td>
-        <td>${serv.categoria}</td>
-        <td>
-          <button onclick="deleteService(${serv.id})">Eliminar</button>
-        </td>
-      </tr>
-    `;
-
-  });
-}
-Cargar.empleados.en.el.select
-async function loadEmployeesForGoals() {
-
-  const res = await fetch("/api/employees");
-  const data = await res.json();
-
-  const select = document.getElementById("goalEmployee");
-
-  select.innerHTML = "";
-
-  data.forEach(emp => {
-    select.innerHTML += `<option value="${emp.id}">${emp.nombre}</option>`;
-  });
-
-}
-Crear.meta
-async function createGoal() {
-
-  const empleado_id = document.getElementById("goalEmployee").value;
-  const cantidad = document.getElementById("goalCantidad").value;
-  const mes = document.getElementById("goalMes").value;
-  const anio = document.getElementById("goalAnio").value;
-
-  const res = await fetch("/api/goals", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ empleado_id, cantidad, mes, anio })
-  });
-
-  const data = await res.json();
 
-  alert(data.message);
-
-  loadGoals();
-}
-Cargar.metas
-async function loadGoals() {
-
-  const res = await fetch("/api/goals");
-  const data = await res.json();
-
-  const table = document.getElementById("goalsTable");
-
-  table.innerHTML = "";
-
-  data.forEach(g => {
-
-    table.innerHTML += `
-      <tr>
-        <td>${g.nombre}</td>
-        <td>${g.cantidad}</td>
-        <td>${g.mes}</td>
-        <td>${g.anio}</td>
-        <td>
-          <button onclick="deleteGoal(${g.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;cursor:pointer;">
-            Eliminar
-          </button>
-        </td>
-      </tr>
-    `;
-
-  });
-
-}
-
-async function deleteGoal(id) {
-  if (!confirm("¿Eliminar esta meta?")) return;
-  await fetch(`/api/goals/${id}`, { method: "DELETE" });
-  loadGoals();
-  loadProgress();
-  loadAlerts();
-}
-async function loadProgress() {
-
-  const res = await fetch("/api/goals-progress");
-  const data = await res.json();
-
-  const table = document.getElementById("progressTable");
-
-  table.innerHTML = "";
-
-  data.forEach(p => {
-
-    const estado = p.realizadas >= p.meta 
-      ? "✅ Cumplida" 
-      : "❌ En progreso";
-
-    table.innerHTML += `
-      <tr>
-        <td>${p.nombre}</td>
-        <td>${p.realizadas}</td>
-        <td>${p.meta}</td>
-        <td>${estado}</td>
-      </tr>
-    `;
-
-  });
-
-}
-async function loadAlerts() {
-
-  const res = await fetch("/api/alerts");
-  const data = await res.json();
-
-  const box = document.getElementById("alertsBox");
-
-  box.innerHTML = "";
-
-  data.forEach(emp => {
-
-    let mensaje = "";
-
-    if (emp.estado === "riesgo") {
-      mensaje = `⚠️ ${emp.nombre} no estas alcanzado la meta (${emp.realizadas}/${emp.meta})`;
-    }
-
-    if (emp.estado === "cumplida") {
-      mensaje = `🔥 ${emp.nombre} meta alcanzada(${emp.realizadas}/${emp.meta})`;
-    }
-
-    if (mensaje !== "") {
-      box.innerHTML += `<p>${mensaje}</p>`;
-    }
-
-  });
-
-}
-</script>
-
+        // --- CLIENTES ---
+        async function loadClientes() {
+            const res = await fetch("/api/appointments");
+            const data = await res.json();
+            const table = document.getElementById("clientesTable");
+            table.innerHTML = "";
+            const cl = {};
+            data.forEach(a => { 
+                if(!cl[a.cliente_nombre]) cl[a.cliente_nombre] = { t: a.cliente_telefono, v: 0 };
+                cl[a.cliente_nombre].v++;
+            });
+            Object.keys(cl).forEach(name => {
+                table.innerHTML += `<tr><td>${name}</td><td>${cl[name].t}</td><td>${cl[name].v}</td></tr>`;
+            });
+        }
+
+        // --- SERVICIOS ---
+        async function loadServices() {
+            const res = await fetch("/api/services");
+            const data = await res.json();
+            const table = document.getElementById("servicesTable");
+            table.innerHTML = "";
+            data.forEach(s => {
+                table.innerHTML += `<tr><td>${s.nombre}</td><td>₡${s.precio}</td><td>${s.categoria}</td><td><button onclick="deleteService(${s.id})">❌</button></td></tr>`;
+            });
+        }
+
+        async function createService() {
+            const s = { nombre: document.getElementById("servName").value, precio: document.getElementById("servPrice").value, categoria: document.getElementById("servCat").value };
+            await fetch("/api/services", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(s)});
+            loadServices();
+        }
+
+        // --- EMPLEADOS & METAS ---
+        async function loadEmployees() {
+            const res = await fetch("/api/employees");
+            const data = await res.json();
+            const table = document.getElementById("employeesTable");
+            const selGoal = document.getElementById("goalEmployee");
+            table.innerHTML = ""; selGoal.innerHTML = "";
+            data.forEach(e => {
+                table.innerHTML += `<tr><td>${e.nombre}</td><td><button onclick="deleteEmployee(${e.id})">❌</button></td></tr>`;
+                selGoal.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
+            });
+        }
+
+        async function createEmployee() {
+            const e = { nombre: document.getElementById("empName").value, username: document.getElementById("empUser").value };
+            await fetch("/api/employees", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(e)});
+            loadEmployees();
+        }
+
+        async function loadGoals() {
+            const res = await fetch("/api/finanzas/goals/progress");
+            const data = await res.json();
+            const table = document.getElementById("goalsTable");
+            table.innerHTML = "";
+            data.forEach(g => {
+                const color = g.realizadas >= g.cantidad ? "#2ed573" : "#ff9f43";
+                table.innerHTML += `<tr><td>${g.nombre}</td><td>${g.cantidad}</td><td>${g.realizadas}</td><td style="color:${color}">${g.realizadas >= g.cantidad ? 'COMPLETADA' : 'EN PROCESO'}</td></tr>`;
+            });
+        }
+
+        async function createGoal() {
+            const g = { empleado_id: document.getElementById("goalEmployee").value, cantidad: document.getElementById("goalCantidad").value, mes: document.getElementById("goalMes").value, anio: new Date().getFullYear() };
+            await fetch("/api/finanzas/goals", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(g)});
+            loadGoals();
+        }
+
+        // --- FINANZAS ERP ---
+        async function loadFinanzas() {
+            const resAnal = await fetch("/api/finanzas/analitica/runway");
+            const runway = await resAnal.json();
+            document.getElementById("fcDays").innerText = runway.dias_restantes;
+            document.getElementById("fcVelocity").innerText = `₡${Math.round(runway.ingreso_diario_promedio)}`;
+            document.getElementById("fcProjected").innerText = `₡${Math.round(runway.proyeccion_cierre_mes)}`;
+            document.getElementById("fcBurnRate").innerText = `₡${Math.round(runway.burn_rate_total)}`;
+            document.getElementById("forecastMessage").innerText = runway.mensaje_estrategico;
+            document.getElementById("forecastBadge").innerText = runway.estado_alerta;
+
+            const resRes = await fetch("/api/finanzas/resumen");
+            const resu = await resRes.json();
+            document.getElementById("erpGross").innerText = `₡${resu.ventas_brutas}`;
+            document.getElementById("erpTax").innerText = `₡${resu.impuestos_retencion}`;
+            document.getElementById("erpNet").innerText = `₡${resu.flujo_operativo}`;
+            document.getElementById("erpFundSav").innerText = `₡${resu.distribucion.reserva_ahorro}`;
+            document.getElementById("erpFundLoan").innerText = `₡${resu.distribucion.amortizacion_deuda}`;
+            document.getElementById("erpOwnerNet").innerText = `₡${resu.distribucion.ganancia_dueño_neta}`;
+
+            renderChart(resu.distribucion);
+            loadExpenses();
+            loadLoans();
+        }
+
+        let chart;
+        function renderChart(dist) {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            if(chart) chart.destroy();
+            chart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Ahorro', 'Deuda', 'Dueño'],
+                    datasets: [{
+                        data: [dist.reserva_ahorro, dist.amortizacion_deuda, dist.ganancia_dueño_neta],
+                        backgroundColor: ['#4ecdc4', '#ff7675', '#d4af37'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { plugins: { legend: { display: false } } }
+            });
+        }
+
+        async function loadExpenses() {
+            const res = await fetch("/api/finanzas/expenses");
+            const data = await res.json();
+            const table = document.getElementById("expensesTable");
+            table.innerHTML = "";
+            data.forEach(x => {
+                table.innerHTML += `<tr><td>${x.nombre}</td><td>₡${x.monto}</td></tr>`;
+            });
+        }
+
+        async function createExpense() {
+            const x = { nombre: document.getElementById("expName").value, monto: document.getElementById("expAmount").value, dia_pago: 1 };
+            await fetch("/api/finanzas/expenses", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(x)});
+            loadFinanzas();
+        }
+
+        async function loadLoans() {
+            const res = await fetch("/api/finanzas/loans");
+            const data = await res.json();
+            const container = document.getElementById("loansContainer");
+            container.innerHTML = "";
+            data.forEach(l => {
+                container.innerHTML += `<div style="background:rgba(255,100,100,0.1); padding:10px; border-radius:5px; margin-bottom:5px; font-size:12px;"><strong>${l.descripcion}</strong>: Cuota ₡${l.cuota}</div>`;
+            });
+        }
+
+        async function createLoan() {
+            const l = { descripcion: "Préstamo", monto_inicial: document.getElementById("loanMonto").value, cuota: document.getElementById("loanCuota").value, dia_pago: 15, tasa_interes: 0, meses_plazo: 12 };
+            await fetch("/api/finanzas/loans", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify(l)});
+            loadFinanzas();
+        }
+
+        // Init
+        loadAppointments();
+    </script>
 </body>
 </html>

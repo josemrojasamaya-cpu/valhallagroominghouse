@@ -1,0 +1,409 @@
+/* 
+--------------------------------------------------
+   SISTEMA DE DISEÑO VALHALLA (PREMIUM)
+--------------------------------------------------
+   Ingeniería Master en Gráficos y Redes
+--------------------------------------------------
+*/
+
+:root {
+    --gold: #c9a44c;
+    --gold-bright: #f0d082;
+    --gold-dark: #856a2a;
+    --black: #000000;
+    --dark-grey: #0a0a0a;
+    --glass: rgba(0, 0, 0, 0.65);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --text-white: #ffffff;
+    --text-grey: #a0a0a0;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* BASE */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+    outline: none;
+}
+
+html {
+    scroll-behavior: smooth;
+    background: var(--black);
+}
+
+body {
+    background: var(--black);
+    color: var(--text-white);
+    overflow-x: hidden;
+    line-height: 1.6;
+}
+
+/* TYPOGRAPHY */
+h1, h2, h3, .logo-text {
+    font-family: 'Cinzel', serif;
+}
+
+.gold-gradient {
+    background: linear-gradient(to bottom, #f0d082, #c9a44c, #856a2a);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+/* NAVBAR MODERNO */
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    z-index: 1000;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    transition: var(--transition);
+}
+
+.navbar.scrolled {
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    height: 70px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.nav-links {
+    display: flex;
+    gap: 30px;
+}
+
+.nav-links a {
+    color: var(--text-white);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 2px;
+    font-weight: 600;
+    opacity: 0.7;
+    transition: var(--transition);
+}
+
+.nav-links a:hover {
+    opacity: 1;
+    color: var(--gold);
+}
+
+/* HERO SECTION */
+.hero {
+    position: relative;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    text-align: center;
+    overflow: hidden;
+}
+
+.hero video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -2;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0,0,0,0.4), var(--black));
+    z-index: -1;
+}
+
+.hero h1 {
+    font-size: clamp(3rem, 10vw, 7rem);
+    letter-spacing: 15px;
+    margin-bottom: 20px;
+    font-weight: 900;
+}
+
+.hero p {
+    font-size: clamp(16px, 2vw, 22px);
+    max-width: 600px;
+    margin: 0 auto 40px;
+    opacity: 0.8;
+}
+
+.btn-primary {
+    padding: 18px 45px;
+    background: var(--gold);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary:hover {
+    background: var(--gold-bright);
+    transform: translateY(-5px);
+    box-shadow: 0 0 30px rgba(201, 164, 76, 0.4);
+}
+
+/* SERVICES GRID (RESPONSIVE) */
+.main-content {
+    padding: 100px 5%;
+    position: relative;
+    z-index: 10;
+}
+
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 40px;
+    max-width: 1400px;
+    margin: 50px auto 0;
+}
+
+.service-card {
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    padding: 60px 40px;
+    text-align: center;
+    transition: var(--transition);
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.service-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gold);
+    transform: scaleX(0);
+    transition: var(--transition);
+    transform-origin: left;
+}
+
+.service-card:hover::before {
+    transform: scaleX(1);
+}
+
+.service-card:hover {
+    transform: translateY(-15px);
+    border-color: var(--gold);
+    box-shadow: var(--shadow);
+}
+
+.service-card i {
+    font-size: 60px;
+    color: var(--gold);
+    margin-bottom: 30px;
+}
+
+.service-card h3 {
+    margin-bottom: 15px;
+    letter-spacing: 3px;
+}
+
+.service-card p {
+    color: var(--text-grey);
+}
+
+/* STORY SLIDER */
+.story-slider {
+    position: relative;
+    height: 100vh;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.slide.active {
+    opacity: 1;
+    z-index: 2;
+}
+
+.slide video {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+}
+
+.slide-content {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    padding: 60px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid var(--glass-border);
+    max-width: 600px;
+    width: 90%;
+    margin: 20px;
+}
+
+/* AUDIO BUTTON - PREMIUM GLASS */
+.audio-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    z-index: 1001;
+    background: var(--glass);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    color: var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+}
+
+.audio-btn:hover {
+    border-color: var(--gold);
+    transform: scale(1.1);
+}
+
+/* WHATSAPP */
+.whatsapp {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 30px;
+    z-index: 1001;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    transition: var(--transition);
+}
+
+.whatsapp:hover {
+    transform: scale(1.1) rotate(15deg);
+}
+
+/* MODAL & FORM */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(15px);
+    z-index: 2000;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: #0d0d0d;
+    border: 1px solid var(--gold);
+    border-radius: 25px;
+    padding: 50px;
+    max-width: 500px;
+    margin: 50px auto;
+    position: relative;
+    box-shadow: 0 0 50px rgba(201, 164, 76, 0.2);
+}
+
+.close-modal {
+    position: absolute;
+    top: 25px;
+    right: 30px;
+    font-size: 35px;
+    color: var(--gold);
+    cursor: pointer;
+}
+
+input, select {
+    background: #151515;
+    border: 1px solid #333;
+    padding: 15px;
+    border-radius: 10px;
+    color: white;
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+input:focus, select:focus {
+    border-color: var(--gold);
+}
+
+label {
+    display: block;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* MOBILE RESPONSIVENESS */
+@media screen and (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+
+    .hero h1 {
+        letter-spacing: 5px;
+    }
+
+    .navbar {
+        justify-content: center;
+    }
+
+    .slide-content {
+        padding: 30px;
+    }
+
+    .main-content {
+        padding: 60px 20px;
+    }
+
+    .audio-btn {
+        top: auto;
+        bottom: 110px;
+        right: 30px;
+    }
+}
