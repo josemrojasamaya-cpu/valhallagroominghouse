@@ -35,6 +35,17 @@ app.get("/api/install/migrate", (req, res) => {
         res.json({ status: "Éxito", details: "Base de Datos en Producción migradas a las nuevas tablas de Finanzas/Goals.", logs: stdout });
     });
 });
+// Migrar Administradores Puros
+app.get("/api/install/admins", (req, res) => {
+    const { exec } = require('child_process');
+    exec('node setup_admins.js', (err, stdout, stderr) => {
+        if (err) {
+            return res.status(500).json({ status: "Error", message: err.message, stderr });
+        }
+        res.json({ status: "Éxito", details: "Administradores sincronizados con bcrypt.", logs: stdout });
+    });
+});
+
 app.get("/api/test", (req, res) => {
     res.send("FUNCIONA TEST");
 });
