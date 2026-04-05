@@ -24,6 +24,17 @@ app.use("/api/finanzas/analitica", analiticaRoutes);
 app.get("/api", (req, res) => {
     res.json({ message: "API Valhalla funcionando ⚔️" });
 });
+
+// Migrar Base de Datos Hosteada
+app.get("/api/install/migrate", (req, res) => {
+    const { exec } = require('child_process');
+    exec('node setup_db.js && node setup_ledger.js', (err, stdout, stderr) => {
+        if (err) {
+            return res.status(500).json({ status: "Error", message: err.message, stderr });
+        }
+        res.json({ status: "Éxito", details: "Base de Datos en Producción migradas a las nuevas tablas de Finanzas/Goals.", logs: stdout });
+    });
+});
 app.get("/api/test", (req, res) => {
     res.send("FUNCIONA TEST");
 });
