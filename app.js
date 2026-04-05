@@ -32,20 +32,57 @@ app.get("/api", (req, res) => {
 // Ver QR de WhatsApp en el navegador
 app.get("/api/whatsapp/qr", (req, res) => {
     const qrData = whatsappService.getQR();
-    if (!qrData) {
-        return res.send(`<h2>El bot de WhatsApp ya está vinculado o aún no se ha generado el código. Revisa en la terminal.</h2>`);
-    }
-    res.send(`
+
+    const loadingPage = `
         <html>
-            <head><title>Vincular WhatsApp</title></head>
-            <body style="text-align:center; padding: 50px; background:#111; color:#fff; font-family:sans-serif;">
-                <h1>Escanea el código QR para vincular WhatsApp</h1>
-                <img src="${qrData}" alt="QR Code" style="width: 300px; height: 300px; border: 10px solid white; border-radius: 10px;" />
-                <p style="margin-top:20px;">Abre WhatsApp en tu celular -> Dispositivos vinculados -> Vincular un dispositivo</p>
-                <script>setInterval(() => window.location.reload(), 10000);</script>
-            </body>
-        </html>
-    `);
+        <head>
+            <title>Valhalla Bot - Vincular WhatsApp</title>
+            <meta http-equiv="refresh" content="3">
+            <style>
+                body { background:#111; color:#fff; font-family:sans-serif; text-align:center; padding:60px 20px; }
+                .spinner { border: 6px solid #333; border-top: 6px solid #d4af37; border-radius:50%; width:60px; height:60px; animation: spin 1s linear infinite; margin: 30px auto; }
+                @keyframes spin { to { transform: rotate(360deg); } }
+                h1 { color: #d4af37; }
+                p { color: #aaa; }
+            </style>
+        </head>
+        <body>
+            <h1>⚔️ Valhalla Bot</h1>
+            <div class="spinner"></div>
+            <p>Iniciando el bot... El código QR aparecerá aquí en unos segundos.</p>
+            <p style="font-size:12px; color:#555;">Esta página se actualiza automáticamente cada 3 segundos.</p>
+        </body>
+        </html>`;
+
+    const qrPage = `
+        <html>
+        <head>
+            <title>Escanear QR - Valhalla Bot</title>
+            <meta http-equiv="refresh" content="25">
+            <style>
+                body { background:#111; color:#fff; font-family:sans-serif; text-align:center; padding:40px 20px; }
+                img { border: 8px solid #d4af37; border-radius:16px; }
+                h1 { color: #d4af37; }
+                .steps { background:#1a1a1a; border-radius:10px; padding:20px; max-width:400px; margin:20px auto; text-align:left; }
+                .steps li { margin:8px 0; color:#ccc; }
+            </style>
+        </head>
+        <body>
+            <h1>⚔️ Vincular WhatsApp - Valhalla Bot</h1>
+            <img src="${qrData}" alt="QR Code" width="280" height="280" />
+            <div class="steps">
+                <ol>
+                    <li>Abre <strong>WhatsApp</strong> en tu celular</li>
+                    <li>Ve a <strong>Menú (⋮) → Dispositivos vinculados</strong></li>
+                    <li>Toca <strong>Vincular un dispositivo</strong></li>
+                    <li>Apunta la cámara a este QR</li>
+                </ol>
+            </div>
+            <p style="color:#555; font-size:12px;">El QR se renueva automáticamente cada 25 segundos</p>
+        </body>
+        </html>`;
+
+    res.send(qrData ? qrPage : loadingPage);
 });
 
 // Migrar Base de Datos Hosteada
