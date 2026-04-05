@@ -333,36 +333,79 @@
         function closeModal(){ modal.style.display = "none"; }
         window.onclick = e => { if(e.target == modal) closeModal(); };
 
-        async function updateServices(){
-            const res = await fetch("/api/services");
-            const data = await res.json();
-            serviceSelect.innerHTML = "";
-            data.filter(s => s.categoria.toLowerCase() === professional.value.toLowerCase() || professional.value === "barbero").forEach(s => {
-                const option = document.createElement("option");
-                option.value = s.id;
-                option.textContent = `${s.nombre} - ₡${s.precio}`;
-                serviceSelect.appendChild(option);
-            });
+        let allEmployees = [];
 
-            const isBarber = professional.value === "barbero";
-            employeeSelect.style.display = isBarber ? "block" : "none";
-            barberoLabel.style.display = isBarber ? "block" : "none";
+        async function updateServices(){
+            try {
+                const res = await fetch("/api/services");
+                const data = await res.json();
+                serviceSelect.innerHTML = "";
+                
+                // Fix: strictly match category
+                const profValue = professional.value.toLowerCase();
+                const filteredServices = data.filter(s => (s.categoria || "").toLowerCase() === profValue);
+                
+                if (filteredServices.length === 0) {
+                    const opt = document.createElement("option");
+                    opt.textContent = "No hay servicios disponibles";
+                    opt.value = "";
+                    serviceSelect.appendChild(opt);
+                } else {
+                    filteredServices.forEach(s => {
+                        const option = document.createElement("option");
+                        option.value = s.id;
+                        option.textContent = `${s.nombre} - ₡${s.precio}`;
+                        serviceSelect.appendChild(option);
+                    });
+                }
+
+                // Update employee Label dynamically
+                const profText = professional.options[professional.selectedIndex].text;
+                barberoLabel.textContent = profText + " A Cargo";
+
+                // Filter Employees
+                employeeSelect.innerHTML = "";
+                const filteredEmployees = allEmployees.filter(e => {
+                    if (!e.puesto || e.puesto.trim() === "") {
+                        return profValue === "barbero"; // Fallback para empleados legacy sin puesto
+                    }
+                    return e.puesto.toLowerCase() === profValue;
+                });
+                
+                if (filteredEmployees.length === 0) {
+                    const opt = document.createElement("option");
+                    opt.textContent = `No hay ${profValue}s asignados`;
+                    opt.value = "";
+                    employeeSelect.appendChild(opt);
+                } else {
+                    filteredEmployees.forEach(e => {
+                        const option = document.createElement("option");
+                        option.value = e.id;
+                        option.textContent = e.nombre;
+                        employeeSelect.appendChild(option);
+                    });
+                }
+
+                employeeSelect.style.display = "block";
+                barberoLabel.style.display = "block";
+                
+                loadAvailableTimes();
+            } catch(e) {
+                console.error("Error fetching data:", e);
+            }
         }
 
         async function loadEmployees(){
-            const res = await fetch("/api/employees");
-            const data = await res.json();
-            employeeSelect.innerHTML = "";
-            data.forEach(e => {
-                const option = document.createElement("option");
-                option.value = e.id;
-                option.textContent = e.nombre;
-                employeeSelect.appendChild(option);
-            });
+            try {
+                const res = await fetch("/api/employees");
+                allEmployees = await res.json();
+                updateServices();
+            } catch(e) {
+                console.error("Error fetching employees:", e);
+            }
         }
 
         loadEmployees();
-        updateServices();
 
         document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
             e.preventDefault();
@@ -370,7 +413,7 @@
                 name: document.getElementById("name").value,
                 phone: document.getElementById("phone").value,
                 servicio_id: serviceSelect.value,
-                empleado_id: professional.value === "barbero" ? employeeSelect.value : null,
+                empleado_id: employeeSelect.value || null,
                 date: document.getElementById("date").value,
                 time: document.getElementById("time").value
             };
