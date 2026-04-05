@@ -984,16 +984,21 @@ async function loadERPFinanzas() {
     const res = await fetch("/api/finanzas/resumen");
     const data = await res.json();
 
-    document.getElementById("erpGross").innerText    = "₡" + Number(data.ingresoBruto).toFixed(2);
-    document.getElementById("erpTax").innerText      = "₡" + Number(data.totalRetencionTributaria).toFixed(2);
-    document.getElementById("erpPostTax").innerText  = "₡" + Number(data.ingresoPostImpuestos).toFixed(2);
-    document.getElementById("erpExpenses").innerText = "₡" + Number(data.totalGastosFijos).toFixed(2);
-    document.getElementById("erpNet").innerText      = "₡" + Number(data.gananciaNegocio).toFixed(2);
-    document.getElementById("erpFundSav").innerText  = "₡" + Number(data.fondoAhorro).toFixed(2);
-    document.getElementById("erpFundLoan").innerText = "₡" + Number(data.fondoPrestamoExtra).toFixed(2);
-    document.getElementById("erpOwnerGross").innerText = "₡" + Number(data.bolsaDuenoBruta).toFixed(2);
-    document.getElementById("erpComms").innerText    = "₡" + Number(data.totalComisiones).toFixed(2);
-    document.getElementById("erpOwnerNet").innerText = "₡" + Number(data.gananciaFinalLiquidaDueno).toFixed(2);
+    document.getElementById("erpGross").innerText    = "₡" + Number(data.ventas_brutas).toLocaleString();
+    document.getElementById("erpTax").innerText      = "₡" + Number(data.impuestos_retencion).toLocaleString();
+    document.getElementById("erpPostTax").innerText  = "₡" + (Number(data.ventas_brutas) - Number(data.impuestos_retencion)).toLocaleString();
+    document.getElementById("erpExpenses").innerText = "₡" + (Number(data.ventas_brutas) - Number(data.impuestos_retencion) - Number(data.flujo_operativo)).toLocaleString();
+    document.getElementById("erpNet").innerText      = "₡" + Number(data.flujo_operativo).toLocaleString();
+    
+    document.getElementById("erpFundSav").innerText  = "₡" + Number(data.distribucion.reserva_ahorro).toLocaleString();
+    document.getElementById("erpFundLoan").innerText = "₡" + Number(data.distribucion.amortizacion_deuda).toLocaleString();
+    document.getElementById("erpOwnerGross").innerText = "₡" + Number(data.distribucion.ganancia_dueño_neta).toLocaleString();
+    
+    // Ocultar comisiones si no vienen en el objeto de distribución simplificado
+    const commsEl = document.getElementById("erpComms");
+    if (commsEl) commsEl.innerText = "₡0"; // Opcional: el backend ahora las descuenta antes del flujo operativo
+    
+    document.getElementById("erpOwnerNet").innerText = "₡" + Number(data.distribucion.ganancia_dueño_neta).toLocaleString();
 
     updateChart(data);
     loadExpenses();
@@ -1076,11 +1081,11 @@ function updateChart(data) {
       labels: ['Impuestos (Hacienda)', 'Gastos Fijos', 'Fondos Reserva', 'Bonos (Comisiones)', 'Ganancia Dueño'],
       datasets: [{
         data: [
-          data.totalRetencionTributaria,
-          data.totalGastosFijos,
-          data.fondoAhorro + data.fondoPrestamoExtra,
-          data.totalComisiones,
-          data.gananciaFinalLiquidaDueno > 0 ? data.gananciaFinalLiquidaDueno : 0
+          data.impuestos_retencion,
+          (data.ventas_brutas - data.impuestos_retencion - data.flujo_operativo), // Gastos Estimados
+          data.distribucion.reserva_ahorro + data.distribucion.amortizacion_deuda,
+          0, // Comisiones (ya descontadas en la base del negocio)
+          data.distribucion.ganancia_dueño_neta
         ],
         backgroundColor: ['#ff4757','#57606f','#4bcffa','#ffa502','#2ed573'],
         borderWidth: 0

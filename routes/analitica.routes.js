@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../config/db");
 
-router.get("/prevision", async (req, res) => {
+router.get(["/prevision", "/runway"], async (req, res) => {
     try {
         const date = new Date();
         const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();

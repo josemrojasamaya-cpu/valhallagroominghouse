@@ -36,32 +36,7 @@ router.get("/resumen", async (req, res) => {
 
         const ingresoPostImpuestos = ingresoBruto - totalRetencionTributaria;
 
-        // 3. OBTENER GASTOS FIJOS, SALARIOS Y PRÉSTAMOS
-        const fixedExpensesQuery = await pool.query(`SELECT sum(monto) as total FROM fixed_expenses WHERE active = TRUE`);
-        const salariesQuery = await pool.query(`SELECT sum(monto_fijo) as total FROM salaries`);
-        const loansQuotasQuery = await pool.query(`SELECT sum(cuota_mensual) as total FROM loans WHERE active = TRUE`);
-        
-        let totalGastosFijos = 0;
-        totalGastosFijos += Number(fixedExpensesQuery.rows[0].total || 0);
-        totalGastosFijos += Number(salariesQuery.rows[0].total || 0);
-        totalGastosFijos += Number(loansQuotasQuery.rows[0].total || 0);
-
-        // 4. GANANCIA DEL NEGOCIO (Antes de distribución del dueño)
-        const gananciaNegocio = ingresoPostImpuestos - totalGastosFijos;
-
-        // 5. DISTRIBUCIÓN DEL DUEÑO (Regla explícita del usuario)
-        // 20% Ahorro, 20% Préstamo Extra, 60% Para el Dueño Mínimo Variable
-        let fondoAhorro = 0;
-        let fondoPrestamoExtra = 0;
-        let bolsaDueno = 0;
-
-        if (gananciaNegocio > 0) {
-            fondoAhorro = gananciaNegocio * 0.20;
-            fondoPrestamoExtra = gananciaNegocio * 0.20;
-            bolsaDueno = gananciaNegocio * 0.60;
-        }
-
-        // 6. CÁLCULO DE BONOS / COMISIONES DE EMPLEADOS
+        // 3. CÁLCULO DE COMISIONES DE EMPLEADOS
         const employeesPerformances = await pool.query(`
             SELECT 
                 e.id, 
@@ -79,40 +54,50 @@ router.get("/resumen", async (req, res) => {
         `, [currentMonth, currentYear]);
 
         let totalComisiones = 0;
-        const performanceDetails = employeesPerformances.rows.map(emp => {
+        employeesPerformances.rows.forEach(emp => {
             const hasGoal = emp.meta !== 9999;
-            const cumplioMeta = emp.citas_realizadas >= emp.meta;
+            const cumplioMeta = parseInt(emp.citas_realizadas) >= emp.meta;
             const generated = Number(emp.monto_generado || 0);
             
-            // "Los bonos se van a pagar del 60% restante que me quedaría a mi como dueño puro"
-            const comision = (hasGoal && cumplioMeta) ? (generated * 0.40) : 0;
-            totalComisiones += comision;
-
-            return {
-                nombre: emp.nombre,
-                realizadas: Number(emp.citas_realizadas),
-                meta: hasGoal ? emp.meta : "Sin meta",
-                cumplioMeta,
-                generado: generated,
-                comision
-            };
+            if (hasGoal && cumplioMeta) totalComisiones += (generated * 0.40);
         });
 
-        // 7. GANANCIA FINAL BOLSILLO DEL DUEÑO (Restando bonos de los empleados)
-        const gananciaFinalLiquidaDueno = bolsaDueno - totalComisiones;
+        // 4. BASE DEL NEGOCIO (Ingreso post-impuestos menos comisiones)
+        let baseNegocio = ingresoPostImpuestos - totalComisiones;
+
+        // 5. GASTOS FIJOS
+        const fixedExpensesQuery = await pool.query(`SELECT sum(monto) as total FROM fixed_expenses WHERE active = TRUE`);
+        const salariesQuery = await pool.query(`SELECT sum(monto_fijo) as total FROM salaries`);
+        const loansQuotasQuery = await pool.query(`SELECT sum(cuota_mensual) as total FROM loans WHERE active = TRUE`);
+        
+        let totalGastosFijos = 0;
+        totalGastosFijos += Number(fixedExpensesQuery.rows[0].total || 0);
+        totalGastosFijos += Number(salariesQuery.rows[0].total || 0);
+        totalGastosFijos += Number(loansQuotasQuery.rows[0].total || 0);
+
+        // 6. FLUJO OPERATIVO (Ganancia Neta)
+        const flujoOperativo = baseNegocio - totalGastosFijos;
+
+        // 7. DISTRIBUCIÓN
+        let gananciaDuenoNeta = 0;
+        let reservaAhorro = 0;
+        let amortizacionDeuda = 0;
+
+        if (flujoOperativo > 0) {
+            gananciaDuenoNeta = flujoOperativo * 0.60;
+            reservaAhorro = flujoOperativo * 0.20;
+            amortizacionDeuda = flujoOperativo * 0.20;
+        }
 
         res.json({
-            ingresoBruto,
-            totalRetencionTributaria,
-            ingresoPostImpuestos,
-            totalGastosFijos,
-            gananciaNegocio,
-            fondoAhorro,
-            fondoPrestamoExtra,
-            bolsaDuenoBruta: bolsaDueno,
-            totalComisiones,
-            gananciaFinalLiquidaDueno,
-            detalles_empleados: performanceDetails
+            ventas_brutas: ingresoBruto,
+            impuestos_retencion: totalRetencionTributaria,
+            flujo_operativo: flujoOperativo,
+            distribucion: {
+                reserva_ahorro: reservaAhorro,
+                amortizacion_deuda: amortizacionDeuda,
+                ganancia_dueño_neta: gananciaDuenoNeta
+            }
         });
 
     } catch (error) {
@@ -125,14 +110,14 @@ router.get("/resumen", async (req, res) => {
 // ==========================================
 // GASTOS FIJOS (CRUD)
 // ==========================================
-router.get("/gastos", async (req, res) => {
+router.get(['/gastos', '/expenses'], async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM fixed_expenses WHERE active = TRUE ORDER BY dia_pago");
         res.json(result.rows);
     } catch (error) { res.status(500).send("Error"); }
 });
 
-router.post("/gastos", async (req, res) => {
+router.post(['/gastos', '/expenses'], async (req, res) => {
     try {
         const { nombre, monto, categoria, dia_pago } = req.body;
         const result = await pool.query(
@@ -147,7 +132,7 @@ router.post("/gastos", async (req, res) => {
     } catch (error) { res.status(500).send("Error"); }
 });
 
-router.delete("/gastos/:id", async (req, res) => {
+router.delete(['/gastos/:id', '/expenses/:id'], async (req, res) => {
     try {
         await pool.query("DELETE FROM fixed_expenses WHERE id = $1", [req.params.id]);
         res.json({ message: "Eliminado" });
@@ -158,14 +143,14 @@ router.delete("/gastos/:id", async (req, res) => {
 // ==========================================
 // PRÉSTAMOS (CRUD)
 // ==========================================
-router.get("/prestamos", async (req, res) => {
+router.get(['/prestamos', '/loans'], async (req, res) => {
     try {
         const result = await pool.query("SELECT * FROM loans WHERE active = TRUE");
         res.json(result.rows);
     } catch (error) { res.status(500).send("Error"); }
 });
 
-router.post("/prestamos", async (req, res) => {
+router.post(['/prestamos', '/loans'], async (req, res) => {
     try {
         let { descripcion, monto_inicial, tasa_interes_anual, plazo_meses, cuota_mensual, dia_pago } = req.body;
         
@@ -188,7 +173,7 @@ router.post("/prestamos", async (req, res) => {
     }
 });
 
-router.post("/prestamos/:id/pagos", async (req, res) => {
+router.post(['/prestamos/:id/pagos', '/loans/:id/pagos'], async (req, res) => {
     try {
         const loanId = req.params.id;
         const { monto_pagado, es_extraordinario } = req.body;
@@ -300,6 +285,61 @@ router.get("/ledger", async (req, res) => {
         const result = await pool.query("SELECT * FROM ledger_transactions ORDER BY fecha DESC LIMIT 100");
         res.json(result.rows);
     } catch (error) { res.status(500).send("Error"); }
+});
+
+// ==========================================
+// METAS Y PROGRESO (Rutas solicitadas por Frontend Finanzas ERP)
+// ==========================================
+
+// CREAR META
+router.post("/goals", async (req, res) => {
+  try {
+      const { empleado_id, cantidad, mes, anio } = req.body;
+      const result = await pool.query(
+        "INSERT INTO goals (empleado_id, cantidad, mes, anio) VALUES ($1,$2,$3,$4) RETURNING *",
+        [empleado_id, cantidad, mes, anio]
+      );
+      res.json({ message: "Meta creada", goal: result.rows[0] });
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error creando meta" });
+  }
+});
+
+// PROGRESO DE METAS
+router.get("/goals/progress", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        employees.nombre,
+        goals.cantidad AS meta,
+        COUNT(appointments.id) AS realizadas
+      FROM goals
+      JOIN employees 
+        ON goals.empleado_id = employees.id
+      LEFT JOIN appointments 
+        ON appointments.empleado_id = employees.id
+      GROUP BY employees.nombre, goals.cantidad
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error progreso metas" });
+  }
+});
+
+// OBTENER TODAS LAS METAS
+router.get("/goals", async (req, res) => {
+  try {
+      const result = await pool.query(`
+        SELECT goals.*, employees.nombre
+        FROM goals
+        JOIN employees ON goals.empleado_id = employees.id
+      `);
+      res.json(result.rows);
+  } catch(e) {
+      res.status(500).json({ message: "Error" });
+  }
 });
 
 module.exports = router;
