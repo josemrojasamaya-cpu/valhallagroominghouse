@@ -1,9 +1,11 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const qrcodeTerm = require('qrcode-terminal');
+const qrcode = require('qrcode');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 let client = null;
 let isReady = false;
+let currentQR = "";
 
 // 🧠 Configuración del Cerebro IA (Gemini)
 // El usuario debe incluir GEMINI_API_KEY en su archivo .env
@@ -31,16 +33,22 @@ function initializeWhatsApp() {
         }
     });
 
-    client.on('qr', (qr) => {
+    client.on('qr', async (qr) => {
         console.log("=========================================");
         console.log("📷 ¡ESCÁNEAME! CÓDIGO QR DE WHATSAPP");
-        console.log("Abre WhatsApp en el celular -> Dispositivos Vinculados -> Vincular un Dispositivo");
         console.log("=========================================");
-        qrcode.generate(qr, { small: true });
+        qrcodeTerm.generate(qr, { small: true });
+        
+        try {
+            currentQR = await qrcode.toDataURL(qr);
+        } catch(err) {
+            console.error("Error generating QR PNG", err);
+        }
     });
 
     client.on('ready', () => {
         isReady = true;
+        currentQR = "";
         console.log('✅ Cliente de WhatsApp (Valhalla Bot) ¡Está Listo y Conectado!');
     });
 
@@ -117,7 +125,12 @@ async function sendNotification(phone, message) {
     }
 }
 
+function getQR() {
+    return currentQR;
+}
+
 module.exports = {
     initializeWhatsApp,
-    sendNotification
+    sendNotification,
+    getQR
 };

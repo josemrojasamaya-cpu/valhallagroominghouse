@@ -29,6 +29,25 @@ app.get("/api", (req, res) => {
     res.json({ message: "API Valhalla funcionando ⚔️" });
 });
 
+// Ver QR de WhatsApp en el navegador
+app.get("/api/whatsapp/qr", (req, res) => {
+    const qrData = whatsappService.getQR();
+    if (!qrData) {
+        return res.send(`<h2>El bot de WhatsApp ya está vinculado o aún no se ha generado el código. Revisa en la terminal.</h2>`);
+    }
+    res.send(`
+        <html>
+            <head><title>Vincular WhatsApp</title></head>
+            <body style="text-align:center; padding: 50px; background:#111; color:#fff; font-family:sans-serif;">
+                <h1>Escanea el código QR para vincular WhatsApp</h1>
+                <img src="${qrData}" alt="QR Code" style="width: 300px; height: 300px; border: 10px solid white; border-radius: 10px;" />
+                <p style="margin-top:20px;">Abre WhatsApp en tu celular -> Dispositivos vinculados -> Vincular un dispositivo</p>
+                <script>setInterval(() => window.location.reload(), 10000);</script>
+            </body>
+        </html>
+    `);
+});
+
 // Migrar Base de Datos Hosteada
 app.get("/api/install/migrate", (req, res) => {
     const { exec } = require('child_process');
