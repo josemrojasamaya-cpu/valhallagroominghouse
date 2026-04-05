@@ -38,6 +38,7 @@ async function run() {
         console.log("USUARIOS CREADOS O ACTUALIZADOS EXITOSAMENTE.");
     } catch(e) {
         console.error("Error DB:", e);
+        process.exit(1);
     } finally {
         pool.end();
     }
