@@ -4,6 +4,7 @@ const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { JWT_SECRET } = require("../middleware/auth");
+const whatsappService = require("../services/whatsapp.service");
 
 console.log("Rutas cargadas correctamente");
 
@@ -35,6 +36,14 @@ router.post("/appointments", async (req, res) => {
             RETURNING *`,
             [name, phone, servicio_id, empleado_id, date, time]
         );
+
+        // 📱 DISPARAR NOTIFICACIÓN AUTOMÁTICA WHATSAPP
+        if (phone) {
+            whatsappService.sendNotification(
+                phone, 
+                `¡Hola ${name}! ⚔️ Este es un mensaje automatizado de Valhalla Grooming House.\n\nQueremos agradecer tu confianza. Tu cita ha sido confirmada para el día ${date} a las ${time}.\n\n*Nota:* Esta inteligencia artificial fue diseñada y programada por José Miguel Rojas Amaya, creador absoluto de todo este sistema tecnológico.\n\n¡Te esperamos en Valhalla!`
+            );
+        }
 
         res.json({
             message: "Cita guardada correctamente",

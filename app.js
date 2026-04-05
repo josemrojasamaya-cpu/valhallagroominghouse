@@ -9,6 +9,10 @@ const appointmentRoutes = require("./routes/appointments.routes");
 const finanzasRoutes = require("./routes/finanzas.routes");
 const analiticaRoutes = require("./routes/analitica.routes");
 
+// importar servicios
+const whatsappService = require("./services/whatsapp.service");
+
+
 // permitir JSON
 app.use(express.json());
 
@@ -53,4 +57,7 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en el puerto ${PORT}`);
+    
+    // Iniciar WhatsApp Bot cuando el servidor arranca
+    whatsappService.initializeWhatsApp();
 });
