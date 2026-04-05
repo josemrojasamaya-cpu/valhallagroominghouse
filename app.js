@@ -111,9 +111,24 @@ app.get("/api/test", (req, res) => {
 });
 const PORT = process.env.PORT || 3000;
 
+// Capturar excepciones globales — nunca dejar que el bot tire el servidor
+process.on('uncaughtException', (err) => {
+    console.error('⚠️ Excepción no capturada (servidor continúa):', err?.message);
+});
+process.on('unhandledRejection', (reason) => {
+    console.error('⚠️ Promise rechazada (servidor continúa):', reason?.message || reason);
+});
+
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+    console.log(`✅ Servidor Express corriendo en el puerto ${PORT}`);
     
-    // Iniciar WhatsApp Bot cuando el servidor arranca
-    whatsappService.initializeWhatsApp();
+    // Iniciar WhatsApp 5 segundos después del arranque
+    // para que Render lo marque como "Live" antes de que el bot empiece
+    setTimeout(() => {
+        try {
+            whatsappService.initializeWhatsApp();
+        } catch (err) {
+            console.error('❌ Error iniciando WhatsApp (servidor sigue activo):', err?.message);
+        }
+    }, 5000);
 });

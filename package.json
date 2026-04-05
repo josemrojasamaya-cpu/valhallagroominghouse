@@ -10,6 +10,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
+    "pino": "^9.7.0",
     "qrcode": "^1.5.4"
   },
   "name": "valhalla-barber-system",
@@ -18,7 +19,7 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js",
+    "start": "node --max-old-space-size=256 app.js",
     "sync": "node sync_db.js"
   },
   "keywords": [],
