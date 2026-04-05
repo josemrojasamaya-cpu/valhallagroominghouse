@@ -11,12 +11,12 @@ router.get("/prevision", async (req, res) => {
         
         const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1).toISOString();
         
-        // Ingresos del mes
+        // Ingresos del mes (precio viene de services)
         const ingresosQuery = await pool.query(`
-            SELECT a.fecha, a.precio as price_from_legacy, s.precio as price_from_service
+            SELECT a.fecha, COALESCE(s.precio, 0) as precio
             FROM appointments a
             LEFT JOIN services s ON a.servicio_id = s.id
-            WHERE TO_DATE(a.fecha, 'YYYY-MM-DD') >= $1 
+            WHERE a.fecha::date >= $1::date
         `, [startOfMonth.split("T")[0]]);
 
         let totalEarnedSoFar = 0;
@@ -24,7 +24,7 @@ router.get("/prevision", async (req, res) => {
         let busiestDayIndex = -1;
 
         ingresosQuery.rows.forEach(curr => {
-            const amount = Number(curr.price_from_service || curr.price_from_legacy || 0);
+            const amount = Number(curr.precio || 0);
             totalEarnedSoFar += amount;
             
             // Trackear qué día de la semana ingresó el dinero

@@ -24,10 +24,13 @@
     <!-- NAVBAR PREMIUM -->
     <nav class="navbar" id="navbar">
         <div class="logo-text gold-gradient" style="font-size: 24px; letter-spacing: 5px;">VALHALLA</div>
-        <div class="nav-links">
-            <a href="#hero">INICIO</a>
-            <a href="#booking">RESERVAS</a>
-            <a href="https://wa.me/50663166151" target="_blank">SOPORTE</a>
+        <div class="nav-links" id="navLinks">
+            <a href="#hero" onclick="closeMobileMenu()">INICIO</a>
+            <a href="#booking" onclick="closeMobileMenu()">RESERVAS</a>
+            <a href="https://wa.me/50663166151" target="_blank" onclick="closeMobileMenu()">SOPORTE</a>
+        </div>
+        <div class="mobile-menu-toggle" onclick="toggleMobileMenu()">
+            <i class="fa-solid fa-bars"></i>
         </div>
     </nav>
 
@@ -220,6 +223,14 @@
         const navbar = document.getElementById("navbar");
 
         let isPlaying = false;
+
+        function toggleMobileMenu() {
+            document.getElementById("navLinks").classList.toggle("active");
+        }
+
+        function closeMobileMenu() {
+            document.getElementById("navLinks").classList.remove("active");
+        }
 
         // Navbar scroll effect
         window.onscroll = () => {

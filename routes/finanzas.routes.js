@@ -11,17 +11,17 @@ router.get("/resumen", async (req, res) => {
         const currentMonth = date.getMonth() + 1; // 1-12
         const currentYear = date.getFullYear();
 
-        // 1. OBTENER INGRESOS BRUTOS DEL MES
+        // 1. OBTENER INGRESOS BRUTOS DEL MES (precio viene de services)
         const ingresosQuery = await pool.query(`
-            SELECT a.precio as price_from_legacy, s.precio as price_from_service
+            SELECT COALESCE(s.precio, 0) as precio
             FROM appointments a
             LEFT JOIN services s ON a.servicio_id = s.id
-            WHERE EXTRACT(MONTH FROM TO_DATE(a.fecha, 'YYYY-MM-DD')) = $1
-            AND EXTRACT(YEAR FROM TO_DATE(a.fecha, 'YYYY-MM-DD')) = $2
+            WHERE EXTRACT(MONTH FROM a.fecha::date) = $1
+            AND EXTRACT(YEAR FROM a.fecha::date) = $2
         `, [currentMonth, currentYear]);
 
         let ingresoBruto = ingresosQuery.rows.reduce((acc, curr) => {
-            return acc + Number(curr.price_from_service || curr.price_from_legacy || 0);
+            return acc + Number(curr.precio || 0);
         }, 0);
 
         // 2. EXTRAER IMPUESTOS (HACIENDA)
@@ -68,12 +68,12 @@ router.get("/resumen", async (req, res) => {
                 e.nombre,
                 COALESCE(g.cantidad, 9999) as meta,
                 COUNT(a.id) as citas_realizadas,
-                SUM(COALESCE(s.precio, a.precio, 0)) as monto_generado
+                SUM(COALESCE(s.precio, 0)) as monto_generado
             FROM employees e
             LEFT JOIN goals g ON e.id = g.empleado_id AND g.mes = $1 AND g.anio = $2
             LEFT JOIN appointments a ON e.id = a.empleado_id 
-                AND EXTRACT(MONTH FROM TO_DATE(a.fecha, 'YYYY-MM-DD')) = $1
-                AND EXTRACT(YEAR FROM TO_DATE(a.fecha, 'YYYY-MM-DD')) = $2
+                AND EXTRACT(MONTH FROM a.fecha::date) = $1
+                AND EXTRACT(YEAR FROM a.fecha::date) = $2
             LEFT JOIN services s ON a.servicio_id = s.id
             GROUP BY e.id, e.nombre, g.cantidad
         `, [currentMonth, currentYear]);
