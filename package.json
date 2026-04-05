@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "axios": "^1.14.0",
     "bcryptjs": "^3.0.3",
     "body-parser": "^2.2.2",
@@ -9,9 +10,7 @@
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
     "pg": "^8.20.0",
-    "qrcode": "^1.5.4",
-    "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.34.6"
+    "qrcode": "^1.5.4"
   },
   "name": "valhalla-barber-system",
   "version": "1.0.0",
@@ -19,9 +18,8 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node --max-old-space-size=180 app.js",
-    "sync": "node sync_db.js",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "start": "node app.js",
+    "sync": "node sync_db.js"
   },
   "keywords": [],
   "author": "",

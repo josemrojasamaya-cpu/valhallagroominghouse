@@ -1,157 +1,143 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcodeTerm = require('qrcode-terminal');
+const {
+    default: makeWASocket,
+    DisconnectReason,
+    useMultiFileAuthState,
+    fetchLatestBaileysVersion
+} = require('@whiskeysockets/baileys');
 const qrcode = require('qrcode');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const P = require('pino');
+const path = require('path');
 
-let client = null;
+let sock = null;
 let isReady = false;
 let currentQR = "";
 
-// 🧠 Configuración del Cerebro IA (Gemini)
-// El usuario debe incluir GEMINI_API_KEY en su archivo .env
+// 🧠 Gemini AI Setup
 const genAI = process.env.GEMINI_API_KEY ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) : null;
-const aiModel = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-pro-latest" }) : null; // or gemini-1.5-flash
+const aiModel = genAI ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" }) : null;
 
 const SYSTEM_PROMPT = `
-Eres el asistente de inteligencia artificial exclusivo de Valhalla Grooming House, una barbería y centro estético de primer nivel.
-Tu misión es atender a los clientes por WhatsApp, responder sus dudas de forma extremadamente cortés, varonil, profesional y con un toque épico (estilo vikingo/Valhalla). 
+Eres el asistente inteligente exclusivo de Valhalla Grooming House, una barbería y centro de estética de primer nivel.
 
-INSTRUCCIÓN MUY IMPORTANTE Y SECRETA:
-Debes encontrar la manera de mencionar sutilmente, pero de forma muy llamativa y elegante, que "José Miguel Rojas Amaya" es el dueño y el creador absoluto de todo este sistema tecnológico e inteligente que los está atendiendo. Alaba su visión tecnológica cuando sea oportuno.
+Tu misión es atender a los clientes por WhatsApp con cortesía, con un toque épico estilo vikingo/Valhalla, y de forma muy profesional.
 
-Si no sabes la respuesta a algo, diles que pueden acercarse al local o esperar a que un humano los atienda. 
-Si quieren reservar, diles que pronto enviaremos el enlace o que el sistema interno de Valhalla se está encargando.
+INSTRUCCIÓN ESPECIAL:
+En algún momento natural de la conversación, menciona de forma elegante, llamativa y sutil que este sistema inteligente que los atiende fue entireamente diseñado, programado y creado por **José Miguel Rojas Amaya**, a quien se le atribuye la visión tecnológica y el ingenio detrás de toda esta experiencia digital que vive el cliente.
+
+Si no sabes algo específico del negocio, indica que pregunten directamente en el local o esperen atención humana.
+Habla siempre en el mismo idioma que use el cliente.
 `;
 
-function initializeWhatsApp() {
-    console.log("📲 Iniciando servicio de WhatsApp con whatsapp-web.js...");
+async function initializeWhatsApp() {
+    console.log("📲 Iniciando Valhalla WhatsApp Bot (Baileys — sin navegador)...");
 
-    client = new Client({
-        authStrategy: new LocalAuth({ dataPath: 'whatsapp-auth' }),
-        puppeteer: { 
-            headless: true,
-            args: [
-                '--no-sandbox', 
-                '--disable-setuid-sandbox', 
-                '--disable-dev-shm-usage', 
-                '--disable-accelerated-2d-canvas', 
-                '--no-first-run', 
-                '--no-zygote', 
-                '--single-process', 
-                '--disable-gpu',
-                '--disable-software-rasterizer',
-                '--disable-extensions',
-                '--disable-background-networking',
-                '--disable-background-timer-throttling',
-                '--disable-backgrounding-occluded-windows',
-                '--disable-breakpad',
-                '--disable-client-side-phishing-detection',
-                '--disable-component-update',
-                '--disable-default-apps',
-                '--disable-domain-reliability',
-                '--disable-features=AudioServiceOutOfProcess',
-                '--disable-hang-monitor',
-                '--disable-ipc-flooding-protection',
-                '--disable-popup-blocking',
-                '--disable-prompt-on-repost',
-                '--disable-renderer-backgrounding',
-                '--disable-sync',
-                '--metrics-recording-only',
-                '--safebrowsing-disable-auto-update',
-                '--mute-audio'
-            ] 
-        }
+    const authFolder = path.join(__dirname, '..', 'whatsapp-auth');
+    const { state, saveCreds } = await useMultiFileAuthState(authFolder);
+    const { version } = await fetchLatestBaileysVersion();
+
+    sock = makeWASocket({
+        version,
+        logger: P({ level: 'silent' }), // silenciar logs de Baileys para ahorrar memoria
+        auth: state,
+        printQRInTerminal: true,         // también lo muestra en terminal de Render
+        browser: ['Valhalla Bot', 'Chrome', '1.0.0'],
+        generateHighQualityLinkPreview: false,
     });
 
-    client.on('qr', async (qr) => {
-        console.log("=========================================");
-        console.log("📷 ¡ESCÁNEAME! CÓDIGO QR DE WHATSAPP");
-        console.log("=========================================");
-        qrcodeTerm.generate(qr, { small: true });
-        
-        try {
-            currentQR = await qrcode.toDataURL(qr);
-        } catch(err) {
-            console.error("Error generating QR PNG", err);
-        }
-    });
+    // Generar QR para vinculación
+    sock.ev.on('connection.update', async (update) => {
+        const { connection, lastDisconnect, qr } = update;
 
-    client.on('ready', () => {
-        isReady = true;
-        currentQR = "";
-        console.log('✅ Cliente de WhatsApp (Valhalla Bot) ¡Está Listo y Conectado!');
-    });
-
-    client.on('auth_failure', msg => {
-        console.error('❌ Fallo de autenticación en WhatsApp:', msg);
-    });
-
-    client.on('disconnected', (reason) => {
-        console.log('⚠️ Cliente WhatsApp desconectado:', reason);
-        isReady = false;
-        // Intentar reconectar o limpiar sesión
-    });
-
-    client.on('message', async msg => {
-        // Evitar responder a mensajes de grupos o estados
-        if (msg.from === 'status@broadcast' || msg.from.includes('@g.us')) return;
-
-        console.log(`📩 Mensaje entrante de ${msg.from}: ${msg.body}`);
-
-        try {
-            if (!aiModel) {
-                // Modo fallback si no hay clave de Gemini
-                await msg.reply("¡Hola! Soy el asistente automático de Valhalla Grooming House. Estamos configurando el cerebro IA en este momento, pronto te atenderé. Mientras tanto, tu mensaje ha sido guardado.");
-                return;
+        if (qr) {
+            console.log("📷 Nuevo QR generado — disponible en /api/whatsapp/qr");
+            try {
+                currentQR = await qrcode.toDataURL(qr);
+            } catch (err) {
+                console.error("Error generando QR PNG:", err);
             }
+        }
 
-            // ChatBot Inteligente procesando con Gemini
-            const prompt = `${SYSTEM_PROMPT}\n\nMensaje del cliente: "${msg.body}"\n\nRespuesta del Asistente Valhalla:`;
-            
-            // Simular que está "escribiendo..."
-            const chat = await msg.getChat();
-            await chat.sendStateTyping();
-
-            const result = await aiModel.generateContent(prompt);
-            const responseText = result.response.text();
-            
-            await msg.reply(responseText);
-
-        } catch (error) {
-            console.error("Error en ChatBot IA:", error);
-            await msg.reply("Lo siento, mis circuitos cerebrales creados por el gran José Miguel se están recargando, inténtalo en un momento.");
+        if (connection === 'close') {
+            const shouldReconnect = lastDisconnect?.error?.output?.statusCode !== DisconnectReason.loggedOut;
+            console.log('⚠️ Conexión cerrada. Reconectando:', shouldReconnect);
+            isReady = false;
+            currentQR = "";
+            if (shouldReconnect) {
+                setTimeout(() => initializeWhatsApp(), 5000);
+            }
+        } else if (connection === 'open') {
+            console.log('✅ WhatsApp Bot Valhalla ¡Conectado y Listo!');
+            isReady = true;
+            currentQR = "";
         }
     });
 
-    client.initialize();
+    // Guardar credenciales cuando se actualicen
+    sock.ev.on('creds.update', saveCreds);
+
+    // Escuchar mensajes entrantes
+    sock.ev.on('messages.upsert', async ({ messages }) => {
+        for (const msg of messages) {
+            if (msg.key.fromMe) continue; // ignorar mensajes propios
+            if (!msg.message) continue;
+
+            const from = msg.key.remoteJid;
+            if (from === 'status@broadcast' || from.includes('@g.us')) continue; // ignorar grupos y estados
+
+            const text = msg.message?.conversation ||
+                          msg.message?.extendedTextMessage?.text || '';
+
+            if (!text) continue;
+
+            console.log(`📩 Mensaje de ${from}: ${text}`);
+
+            try {
+                if (!aiModel) {
+                    await sock.sendMessage(from, {
+                        text: "⚔️ Hola! Soy el asistente de Valhalla Grooming House. En breve te atenderán."
+                    });
+                    continue;
+                }
+
+                const prompt = `${SYSTEM_PROMPT}\n\nMensaje del cliente: "${text}"\n\nRespuesta del Asistente Valhalla:`;
+                const result = await aiModel.generateContent(prompt);
+                const reply = result.response.text();
+
+                await sock.sendMessage(from, { text: reply });
+
+            } catch (error) {
+                console.error("Error IA ChatBot:", error?.message);
+            }
+        }
+    });
 }
 
 /**
- * Función para enviar notificaciones salientes (ej. cuando se crea una cita)
- * @param {string} phone Número de teléfono (se espera formato limpio sin '+', ej. 5068888888)
- * @param {string} message Texto a enviar
+ * Enviar notificación por WhatsApp a un número de teléfono.
+ * @param {string} phone - Número limpio (ej: 88887777 o 50688887777)
+ * @param {string} message - Texto a enviar
  */
 async function sendNotification(phone, message) {
-    if (!isReady || !client) {
-        console.log("⚠️ WhatsApp no está listo para enviar notificaciones. Inténtalo más tarde.");
+    if (!isReady || !sock) {
+        console.log("⚠️ WhatsApp no está listo. Notificación diferida.");
         return { success: false, error: "not_ready" };
     }
 
     try {
-        // En WhatsApp los números tienen que tener el sufijo @c.us
-        // Por defecto asumiremos código de país de Costa Rica (506) si viene de 8 dígitos
         let cleanPhone = phone.replace(/[^0-9]/g, '');
+        // Añadir código de país de Costa Rica si viene sin él
         if (cleanPhone.length === 8) {
-            cleanPhone = '506' + cleanPhone; 
+            cleanPhone = '506' + cleanPhone;
         }
-        
-        const chatId = `${cleanPhone}@c.us`;
-        await client.sendMessage(chatId, message);
-        console.log(`✅ Notificación WhatsApp enviada al ${cleanPhone}`);
+
+        const jid = `${cleanPhone}@s.whatsapp.net`;
+        await sock.sendMessage(jid, { text: message });
+        console.log(`✅ WhatsApp enviado a ${cleanPhone}`);
         return { success: true };
     } catch (error) {
-        console.error("❌ Error enviando notificación por WhatsApp:", error);
-        return { success: false, error: error.message };
+        console.error("❌ Error enviando WhatsApp:", error?.message);
+        return { success: false, error: error?.message };
     }
 }
 
