@@ -161,8 +161,13 @@ function getQR() {
     return currentQR;
 }
 
+function isConnected() {
+    return isReady;
+}
+
 module.exports = {
     initializeWhatsApp,
     sendNotification,
-    getQR
+    getQR,
+    isConnected
 };
