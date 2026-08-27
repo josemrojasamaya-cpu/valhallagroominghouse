@@ -245,12 +245,23 @@ async function prepararBaseSiHaceFalta() {
         const r = await pool.query(
             "SELECT COUNT(*)::int n FROM information_schema.tables WHERE table_schema = 'public'"
         );
+
+        // Sin usuarios, el panel es inaccesible aunque las tablas existan.
+        // Ese caso también hay que resolverlo, no solo la base vacía.
+        let sinUsuarios = false;
         if (r.rows[0].n > 0) {
-            console.log(`[SETUP] la base ya tiene ${r.rows[0].n} tablas, no se toca`);
-            return;
+            const u = await pool.query("SELECT COUNT(*)::int n FROM users").catch(() => null);
+            sinUsuarios = u ? u.rows[0].n === 0 : false;
+
+            if (!sinUsuarios) {
+                console.log(`[SETUP] la base ya tiene ${r.rows[0].n} tablas y usuarios, no se toca`);
+                return;
+            }
+            console.log("[SETUP] hay tablas pero ningún usuario: completando…");
+        } else {
+            console.log("[SETUP] base vacía: aplicando esquema y catálogo inicial…");
         }
 
-        console.log("[SETUP] base vacía: aplicando esquema y catálogo inicial…");
         const { main } = require("./db/setup");
         await main({ cerrarPool: false });
         console.log("[SETUP] base preparada");
