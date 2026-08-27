@@ -319,13 +319,13 @@
 
         function openBooking(type){
             modal.style.display = "flex";
-            // Se abre con el área que el visitante tocó en las tarjetas, sobre
-            // el primer bloque de servicio.
-            const primerArea = document.querySelector('.bloque .f-area');
-            if (primerArea && type) {
-                primerArea.value = type;
-                const n = primerArea.closest('.bloque').dataset.n;
-                alCambiarArea(Number(n));
+            // Se abre limpio con el área que el visitante tocó en las tarjetas:
+            // ya eligió barbería, no tiene que volver a decirlo.
+            if (type) {
+                document.getElementById('bloques').innerHTML = '';
+                contadorBloques = 0;
+                agregarBloque(type);
+                pintarResumen();
             }
         }
 
@@ -384,8 +384,13 @@ async function cargarCatalogo() {
 }
 
 /* ── Bloques de servicio ───────────────────────────────── */
-function agregarBloque() {
+function agregarBloque(areaInicial) {
   const n = ++contadorBloques;
+  const esPrimero = document.querySelectorAll('.bloque').length === 0;
+  // El primer bloque hereda el área que el visitante tocó en las tarjetas.
+  // Los siguientes arrancan en un área distinta, que es el motivo de agregarlos.
+  const area = areaInicial || (esPrimero ? 'barbero' : areaSugerida());
+
   const div = document.createElement('div');
   div.className = 'bloque';
   div.dataset.n = n;
@@ -396,7 +401,8 @@ function agregarBloque() {
     '</div>' +
     '<label>Área</label>' +
     '<select class="f-area" onchange="alCambiarArea(' + n + ')">' +
-      AREAS.map(a => '<option value="' + a.id + '">' + a.nombre + '</option>').join('') +
+      AREAS.map(a => '<option value="' + a.id + '"' + (a.id === area ? ' selected' : '') + '>' +
+        a.nombre + '</option>').join('') +
     '</select>' +
     '<label>Servicio</label>' +
     '<select class="f-servicio" onchange="pintarResumen()"></select>' +
@@ -406,6 +412,15 @@ function agregarBloque() {
   document.getElementById('bloques').appendChild(div);
   alCambiarArea(n);
   refrescarBloques();
+}
+
+// Propone la primera área que todavía no se haya elegido: agregar un
+// servicio suele ser para sumar algo distinto, no para repetir lo mismo.
+function areaSugerida() {
+  const usadas = Array.prototype.slice.call(document.querySelectorAll('.bloque .f-area'))
+    .map(s => s.value);
+  const libre = AREAS.filter(a => usadas.indexOf(a.id) === -1)[0];
+  return libre ? libre.id : AREAS[0].id;
 }
 
 function quitarBloque(n) {
@@ -489,8 +504,18 @@ async function cargarHorasLibres() {
   const empId = primero ? primero.value : '';
   const sel = document.getElementById('time');
 
-  if (!fecha || !empId) {
-    sel.innerHTML = '<option value="">Elegí fecha y profesional</option>';
+  // El campo de al lado ya pide la fecha; aquí solo se muestran horas.
+  if (!fecha) {
+    sel.innerHTML = '<option value="">Elegí la fecha</option>';
+    sel.disabled = true;
+    return;
+  }
+
+  // Con fecha pero sin profesional aún, se ofrece el horario completo:
+  // el usuario puede elegir la hora y después ajustar si hay choque.
+  if (!empId) {
+    sel.innerHTML = HORARIO.map(h => '<option value="' + h + '">' + h + '</option>').join('');
+    sel.disabled = false;
     return;
   }
 
@@ -506,7 +531,10 @@ async function cargarHorasLibres() {
     sel.disabled = !libres.length;
   } catch (err) {
     console.error(err);
-    sel.innerHTML = '<option value="">No se pudieron cargar las horas</option>';
+    // Si no se puede consultar la agenda, igual se ofrece el horario:
+    // dejar el campo vacío bloquearía la reserva por completo.
+    sel.innerHTML = HORARIO.map(h => '<option value="' + h + '">' + h + '</option>').join('');
+    sel.disabled = false;
   }
 }
 
