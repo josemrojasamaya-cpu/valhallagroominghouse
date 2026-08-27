@@ -19,6 +19,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node --max-old-space-size=256 app.js",
+    "setup": "node db/setup.js",
     "sync": "node sync_db.js",
     "seed": "node seed_demo.js"
   },
