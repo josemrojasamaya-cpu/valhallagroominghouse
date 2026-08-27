@@ -60,6 +60,16 @@ const FONDOS = [
   ["Fondo para Préstamos Extra", 20.0, "prestamos"],
 ];
 
+// Cuentas de demostración. Sus credenciales se muestran en la pantalla de
+// acceso a propósito: existen para que cualquiera pueda recorrer el sistema
+// sin pedir permiso. No dan acceso a nada real — la base es de ejemplo.
+const CUENTAS_DEMO = [
+  { username: "demo",     password: "demo1234", role: "admin",
+    nombre: "Dueño (demostración)",       empleado: null },
+  { username: "empleado", password: "demo1234", role: "employee",
+    nombre: "Kevin Mora",                 empleado: "Kevin Mora" },
+];
+
 async function main({ cerrarPool = true, silencioso = false } = {}) {
   const log = silencioso ? () => {} : console.log;
   const destino = process.env.DATABASE_URL_CLOUD || process.env.DATABASE_URL
@@ -121,6 +131,28 @@ async function main({ cerrarPool = true, silencioso = false } = {}) {
       );
     }
     log("  impuestos y fondos verificados");
+
+    // ── 4a. Cuentas de demostración ───────────────────────
+    const bcrypt = require("bcryptjs");
+    let nDemo = 0;
+    for (const c of CUENTAS_DEMO) {
+      const existe = await pool.query("SELECT id FROM users WHERE LOWER(username) = LOWER($1)", [c.username]);
+      if (existe.rowCount) continue;
+
+      let empId = null;
+      if (c.empleado) {
+        const e = await pool.query("SELECT id FROM employees WHERE nombre = $1", [c.empleado]);
+        empId = e.rowCount ? e.rows[0].id : null;
+      }
+      const hash = await bcrypt.hash(c.password, 10);
+      await pool.query(
+        `INSERT INTO users (username, password, role, empleado_id, nombre_completo)
+         VALUES ($1,$2,$3,$4,$5)`,
+        [c.username, hash, c.role, empId, c.nombre]
+      );
+      nDemo++;
+    }
+    if (nDemo) log(`  cuentas de demostración creadas: ${nDemo}`);
 
     // ── 4b. Vincular cuentas con fichas de empleado ───────
     // Une por nombre de usuario contra el nombre del profesional. Es la
