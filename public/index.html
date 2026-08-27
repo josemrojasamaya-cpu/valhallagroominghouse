@@ -182,34 +182,27 @@
                 <label>Teléfono</label>
                 <input type="text" id="phone" required placeholder="Ej: 8888-8888">
 
-                <label>Profesional</label>
-                <select id="professional" onchange="updateServices()" required>
-                    <option value="barbero">Barbero</option>
-                    <option value="manicurista">Manicurista</option>
-                    <option value="masajista">Masajista</option>
-                    <option value="psicologa">Psicología / Nutrición</option>
-                    <option value="gym">Entrenador</option>
-                </select>
+                <!-- Bloques de servicio: se pueden agregar varios en una misma reserva -->
+                <div id="bloques"></div>
 
-                <label>Servicio</label>
-                <select id="service"></select>
+                <button type="button" class="btn-add" onclick="agregarBloque()">
+                    <span>＋</span> Agregar otro servicio
+                </button>
 
-                <label id="barberoLabel">Barbero Especialista</label>
-                <select id="employee"></select>
-
-                <div style="display:flex;gap:15px">
-                    <div style="flex:1">
+                <div class="fila-2">
+                    <div>
                         <label>Fecha</label>
                         <input type="date" id="date" required>
                     </div>
-
-                    <div style="flex:1">
+                    <div>
                         <label>Hora</label>
                         <select id="time" required></select>
                     </div>
                 </div>
 
-                <button type="submit" class="btn-confirm btn-primary" style="width:100%; letter-spacing: 2px;">CONFIRMAR RITUAL</button>
+                <div id="resumenReserva" class="resumen"></div>
+
+                <button type="submit" class="btn-confirm btn-primary" style="width:100%">Confirmar reserva</button>
 
             </form>
 
@@ -326,132 +319,273 @@
 
         function openBooking(type){
             modal.style.display = "flex";
-            professional.value = type;
-            updateServices();
+            // Se abre con el área que el visitante tocó en las tarjetas, sobre
+            // el primer bloque de servicio.
+            const primerArea = document.querySelector('.bloque .f-area');
+            if (primerArea && type) {
+                primerArea.value = type;
+                const n = primerArea.closest('.bloque').dataset.n;
+                alCambiarArea(Number(n));
+            }
         }
 
         function closeModal(){ modal.style.display = "none"; }
         window.onclick = e => { if(e.target == modal) closeModal(); };
 
-        let allEmployees = [];
+        /* ============================================================
+   Reserva de citas — Valhalla Grooming House
 
-        async function updateServices(){
-            try {
-                const res = await fetch("/api/services");
-                const data = await res.json();
-                serviceSelect.innerHTML = "";
-                
-                // Fix: strictly match category
-                const profValue = professional.value.toLowerCase();
-                const filteredServices = data.filter(s => (s.categoria || "").toLowerCase() === profValue);
-                
-                if (filteredServices.length === 0) {
-                    const opt = document.createElement("option");
-                    opt.textContent = "No hay servicios disponibles";
-                    opt.value = "";
-                    serviceSelect.appendChild(opt);
-                } else {
-                    filteredServices.forEach(s => {
-                        const option = document.createElement("option");
-                        option.value = s.id;
-                        option.textContent = `${s.nombre} - ₡${s.precio}`;
-                        serviceSelect.appendChild(option);
-                    });
-                }
+   Un cliente puede reservar VARIOS servicios en la misma visita.
+   Cada bloque es independiente: elige el área, y a partir de ahí
+   se cargan solo los servicios y los profesionales de esa área.
+   ============================================================ */
 
-                // Update employee Label dynamically
-                const profText = professional.options[professional.selectedIndex].text;
-                barberoLabel.textContent = profText + " A Cargo";
+const AREAS = [
+  { id: 'barbero',     nombre: 'Barbería',              titulo: 'Barbero' },
+  { id: 'manicurista', nombre: 'Manicura y pedicura',   titulo: 'Manicurista' },
+  { id: 'masajista',   nombre: 'Masajes y spa',         titulo: 'Masajista' },
+  { id: 'psicologa',   nombre: 'Psicología y nutrición',titulo: 'Especialista' },
+  { id: 'gym',         nombre: 'Entrenamiento',         titulo: 'Entrenador' }
+];
 
-                // Filter Employees
-                employeeSelect.innerHTML = "";
-                const filteredEmployees = allEmployees.filter(e => {
-                    if (!e.puesto || e.puesto.trim() === "") {
-                        return profValue === "barbero"; // Fallback para empleados legacy sin puesto
-                    }
-                    return e.puesto.toLowerCase() === profValue;
-                });
-                
-                if (filteredEmployees.length === 0) {
-                    const opt = document.createElement("option");
-                    opt.textContent = `No hay ${profValue}s asignados`;
-                    opt.value = "";
-                    employeeSelect.appendChild(opt);
-                } else {
-                    filteredEmployees.forEach(e => {
-                        const option = document.createElement("option");
-                        option.value = e.id;
-                        option.textContent = e.nombre;
-                        employeeSelect.appendChild(option);
-                    });
-                }
+const HORARIO = ['10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
-                employeeSelect.style.display = "block";
-                barberoLabel.style.display = "block";
-                
-                loadAvailableTimes();
-            } catch(e) {
-                console.error("Error fetching data:", e);
-            }
-        }
+let serviciosPorArea = {};   // { area: [servicios] }
+let equipoPorArea    = {};   // { area: [profesionales] }
+let contadorBloques  = 0;
 
-        async function loadEmployees(){
-            try {
-                const res = await fetch("/api/employees");
-                allEmployees = await res.json();
-                updateServices();
-            } catch(e) {
-                console.error("Error fetching employees:", e);
-            }
-        }
+const money = (n) => '₡' + Math.round(Number(n) || 0).toLocaleString('es-CR').replace(/\s/g, '.');
 
-        loadEmployees();
+/* ── Carga del catálogo ────────────────────────────────── */
+async function cargarCatalogo() {
+  try {
+    const [rs, re] = await Promise.all([fetch('/api/services'), fetch('/api/employees')]);
+    const servicios = rs.ok ? await rs.json() : [];
+    const equipo    = re.ok ? await re.json() : [];
 
-        document.getElementById("appointmentForm").addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const appointment = {
-                name: document.getElementById("name").value,
-                phone: document.getElementById("phone").value,
-                servicio_id: serviceSelect.value,
-                empleado_id: employeeSelect.value || null,
-                date: document.getElementById("date").value,
-                time: document.getElementById("time").value
-            };
+    serviciosPorArea = {};
+    equipoPorArea = {};
+    AREAS.forEach(a => { serviciosPorArea[a.id] = []; equipoPorArea[a.id] = []; });
 
-            const response = await fetch("/api/appointments", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(appointment)
-            });
+    servicios.forEach(s => {
+      const cat = String(s.categoria || 'barbero').toLowerCase();
+      if (serviciosPorArea[cat]) serviciosPorArea[cat].push(s);
+    });
+    equipo.forEach(e => {
+      // Quien no tenga puesto asignado se trata como barbero, que es el
+      // área original del negocio.
+      const p = String(e.puesto || 'barbero').toLowerCase();
+      if (equipoPorArea[p]) equipoPorArea[p].push(e);
+    });
+  } catch (err) {
+    console.error('No se pudo cargar el catálogo:', err);
+  }
+  if (!document.querySelectorAll('.bloque').length) agregarBloque();
+}
 
-            const result = await response.json();
-            alert(result.message);
-            closeModal();
-        });
+/* ── Bloques de servicio ───────────────────────────────── */
+function agregarBloque() {
+  const n = ++contadorBloques;
+  const div = document.createElement('div');
+  div.className = 'bloque';
+  div.dataset.n = n;
+  div.innerHTML =
+    '<div class="bloque-head">' +
+      '<span class="bloque-num">Servicio ' + n + '</span>' +
+      '<button type="button" class="bloque-del" onclick="quitarBloque(' + n + ')">Quitar</button>' +
+    '</div>' +
+    '<label>Área</label>' +
+    '<select class="f-area" onchange="alCambiarArea(' + n + ')">' +
+      AREAS.map(a => '<option value="' + a.id + '">' + a.nombre + '</option>').join('') +
+    '</select>' +
+    '<label>Servicio</label>' +
+    '<select class="f-servicio" onchange="pintarResumen()"></select>' +
+    '<label class="lbl-prof">Profesional</label>' +
+    '<select class="f-prof" onchange="alCambiarProfesional()"></select>';
 
-        document.getElementById("date").addEventListener("change", loadAvailableTimes);
-        document.getElementById("employee").addEventListener("change", loadAvailableTimes);
+  document.getElementById('bloques').appendChild(div);
+  alCambiarArea(n);
+  refrescarBloques();
+}
 
-        async function loadAvailableTimes(){
-            const date = document.getElementById("date").value;
-            const empId = employeeSelect.value;
-            if(!date || !empId) return;
+function quitarBloque(n) {
+  const el = document.querySelector('.bloque[data-n="' + n + '"]');
+  if (el) el.remove();
+  refrescarBloques();
+  pintarResumen();
+}
 
-            const res = await fetch(`/api/available-times?empleado_id=${empId}&date=${date}`);
-            const data = await res.json();
-            const allHours = ["10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"];
-            const taken = data.map(a => a.hora.slice(0,5));
-            const available = allHours.filter(h => !taken.includes(h));
-            
-            const timeSelect = document.getElementById("time");
-            timeSelect.innerHTML = "";
-            available.forEach(h => {
-                const option = document.createElement("option");
-                option.value = h;
-                option.textContent = h;
-                timeSelect.appendChild(option);
-            });
-        }
+function refrescarBloques() {
+  const bloques = document.querySelectorAll('.bloque');
+  // Con un solo servicio no tiene sentido ofrecer quitarlo.
+  bloques.forEach((b, i) => {
+    b.querySelector('.bloque-num').textContent = 'Servicio ' + (i + 1);
+    b.querySelector('.bloque-del').style.display = bloques.length > 1 ? 'inline-block' : 'none';
+  });
+}
+
+function alCambiarArea(n) {
+  const bloque = document.querySelector('.bloque[data-n="' + n + '"]');
+  if (!bloque) return;
+
+  const area = bloque.querySelector('.f-area').value;
+  const info = AREAS.filter(a => a.id === area)[0] || AREAS[0];
+
+  // La etiqueta refleja el área elegida en vez de decir siempre "Barbero".
+  bloque.querySelector('.lbl-prof').textContent = info.titulo + ' a elegir';
+
+  const servicios = serviciosPorArea[area] || [];
+  const selServ = bloque.querySelector('.f-servicio');
+  selServ.innerHTML = servicios.length
+    ? servicios.map(s => '<option value="' + s.id + '" data-precio="' + s.precio + '">' +
+        s.nombre + ' — ' + money(s.precio) + '</option>').join('')
+    : '<option value="">Sin servicios en esta área</option>';
+  selServ.disabled = !servicios.length;
+
+  const equipo = equipoPorArea[area] || [];
+  const selProf = bloque.querySelector('.f-prof');
+  selProf.innerHTML = equipo.length
+    ? equipo.map(e => '<option value="' + e.id + '">' + e.nombre + '</option>').join('')
+    : '<option value="">Sin ' + info.titulo.toLowerCase() + ' disponible</option>';
+  selProf.disabled = !equipo.length;
+
+  alCambiarProfesional();
+}
+
+function alCambiarProfesional() {
+  cargarHorasLibres();
+  pintarResumen();
+}
+
+/* ── Resumen ───────────────────────────────────────────── */
+function pintarResumen() {
+  const bloques = Array.prototype.slice.call(document.querySelectorAll('.bloque'));
+  const lineas = [];
+  let total = 0;
+
+  bloques.forEach(b => {
+    const opt = b.querySelector('.f-servicio').selectedOptions[0];
+    const prof = b.querySelector('.f-prof').selectedOptions[0];
+    if (!opt || !opt.value) return;
+    const precio = Number(opt.dataset.precio || 0);
+    total += precio;
+    lineas.push(
+      '<div class="res-linea"><span>' + opt.textContent.split(' — ')[0] +
+      (prof && prof.value ? ' · ' + prof.textContent : '') +
+      '</span><span>' + money(precio) + '</span></div>'
+    );
+  });
+
+  const cont = document.getElementById('resumenReserva');
+  cont.innerHTML = lineas.length
+    ? lineas.join('') + '<div class="res-total"><span>Total</span><span>' + money(total) + '</span></div>'
+    : '';
+}
+
+/* ── Horas disponibles ─────────────────────────────────── */
+async function cargarHorasLibres() {
+  const fecha = document.getElementById('date').value;
+  const primero = document.querySelector('.bloque .f-prof');
+  const empId = primero ? primero.value : '';
+  const sel = document.getElementById('time');
+
+  if (!fecha || !empId) {
+    sel.innerHTML = '<option value="">Elegí fecha y profesional</option>';
+    return;
+  }
+
+  try {
+    const res = await fetch('/api/available-times?empleado_id=' + encodeURIComponent(empId) +
+                            '&date=' + encodeURIComponent(fecha));
+    const ocupadas = res.ok ? (await res.json()).map(a => String(a.hora).slice(0, 5)) : [];
+    const libres = HORARIO.filter(h => ocupadas.indexOf(h) === -1);
+
+    sel.innerHTML = libres.length
+      ? libres.map(h => '<option value="' + h + '">' + h + '</option>').join('')
+      : '<option value="">Sin horas libres ese día</option>';
+    sel.disabled = !libres.length;
+  } catch (err) {
+    console.error(err);
+    sel.innerHTML = '<option value="">No se pudieron cargar las horas</option>';
+  }
+}
+
+/* ── Envío ─────────────────────────────────────────────── */
+document.getElementById('appointmentForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const nombre = document.getElementById('name').value.trim();
+  const tel    = document.getElementById('phone').value.trim();
+  const fecha  = document.getElementById('date').value;
+  const hora   = document.getElementById('time').value;
+  const btn    = e.target.querySelector('button[type="submit"]');
+
+  if (!nombre || !tel) { alert('Completá tu nombre y teléfono.'); return; }
+  if (!fecha || !hora) { alert('Elegí la fecha y la hora.'); return; }
+
+  const pedidos = Array.prototype.slice.call(document.querySelectorAll('.bloque')).map(b => ({
+    servicio_id: b.querySelector('.f-servicio').value,
+    empleado_id: b.querySelector('.f-prof').value
+  })).filter(p => p.servicio_id && p.empleado_id);
+
+  if (!pedidos.length) { alert('Elegí al menos un servicio con su profesional.'); return; }
+
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Reservando…';
+
+  try {
+    // Cada servicio se registra como una cita. Las horas se corren para que
+    // no se solapen entre si dentro de la misma visita.
+    const resultados = [];
+    for (let i = 0; i < pedidos.length; i++) {
+      const idx = HORARIO.indexOf(hora) + i;
+      const horaBloque = HORARIO[idx] || hora;
+      const r = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: nombre, phone: tel,
+          servicio_id: pedidos[i].servicio_id,
+          empleado_id: pedidos[i].empleado_id,
+          date: fecha, time: horaBloque
+        })
+      });
+      const d = await r.json().catch(() => ({}));
+      resultados.push({ ok: r.ok, msg: d.message, hora: horaBloque });
+    }
+
+    const bien = resultados.filter(r => r.ok).length;
+    if (bien === resultados.length) {
+      alert('¡Listo! ' + bien + ' servicio' + (bien === 1 ? '' : 's') +
+            ' reservado' + (bien === 1 ? '' : 's') + ' para el ' + fecha + '.');
+      if (typeof closeModal === 'function') closeModal();
+      document.getElementById('appointmentForm').reset();
+      document.getElementById('bloques').innerHTML = '';
+      contadorBloques = 0;
+      agregarBloque();
+      pintarResumen();
+    } else {
+      const fallo = resultados.filter(r => !r.ok)[0];
+      alert('Se reservaron ' + bien + ' de ' + resultados.length + '. ' +
+            (fallo && fallo.msg ? fallo.msg : 'Revisá los horarios.'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('No se pudo conectar con el servidor. Intentá de nuevo.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
+});
+
+document.getElementById('date').addEventListener('change', cargarHorasLibres);
+
+// La fecha no puede ser anterior a hoy.
+document.getElementById('date').min = new Date().toISOString().slice(0, 10);
+
+cargarCatalogo();
+
     </script>
 </body>
 </html>

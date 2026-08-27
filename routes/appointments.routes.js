@@ -64,25 +64,35 @@ router.post("/appointments", async (req, res) => {
 
 // SERVICIOS
 router.get("/services", async (req, res) => {
-
-    const result = await pool.query(
-        "SELECT * FROM services ORDER BY precio"
-    );
-
-    res.json(result.rows);
-
+    try {
+        // Acepta ?categoria=barbero para pedir solo los servicios de un area.
+        const cat = req.query.categoria;
+        const result = cat
+            ? await pool.query(
+                "SELECT * FROM services WHERE LOWER(categoria) = LOWER($1) ORDER BY precio", [cat])
+            : await pool.query("SELECT * FROM services ORDER BY categoria, precio");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error listando servicios:", error);
+        res.status(500).json({ message: "No se pudieron cargar los servicios" });
+    }
 });
 
 
 // EMPLEADOS
 router.get("/employees", async (req, res) => {
-
-    const result = await pool.query(
-        "SELECT * FROM employees ORDER BY id"
-    );
-
-    res.json(result.rows);
-
+    try {
+        // Acepta ?puesto=masajista para traer solo los profesionales del area.
+        const puesto = req.query.puesto;
+        const result = puesto
+            ? await pool.query(
+                "SELECT * FROM employees WHERE LOWER(puesto) = LOWER($1) ORDER BY nombre", [puesto])
+            : await pool.query("SELECT * FROM employees ORDER BY nombre");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error listando empleados:", error);
+        res.status(500).json({ message: "No se pudieron cargar los profesionales" });
+    }
 });
 
 
@@ -215,11 +225,13 @@ router.post("/login", async (req, res) => {
 router.post("/employees", async (req, res) => {
   try {
 
-    const { nombre } = req.body;
+    // El puesto define en que area aparece el profesional al reservar.
+    // Sin el, el empleado no seria seleccionable en ninguna categoria.
+    const { nombre, puesto } = req.body;
 
     const result = await pool.query(
-      "INSERT INTO employees (nombre) VALUES ($1) RETURNING *",
-      [nombre]
+      "INSERT INTO employees (nombre, puesto) VALUES ($1, $2) RETURNING *",
+      [nombre, puesto || 'barbero']
     );
 
     res.json({

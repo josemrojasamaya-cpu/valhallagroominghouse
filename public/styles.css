@@ -78,23 +78,51 @@ h1, h2, h3, .logo-text {
 
 .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 10px;
+    align-items: center;
 }
 
+/* Enlaces del menu como botones de vidrio: el brillo diagonal se desplaza
+   al pasar el cursor, en vez de un simple cambio de color. */
 .nav-links a {
-    color: var(--text-white);
+    position: relative;
+    overflow: hidden;
+    color: rgba(255, 255, 255, 0.82);
     text-decoration: none;
-    font-size: 13px;
-    letter-spacing: 2px;
+    font-size: 12px;
+    letter-spacing: 2.2px;
     font-weight: 600;
-    opacity: 0.7;
-    transition: var(--transition);
+    padding: 10px 20px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: color .3s ease, border-color .3s ease, background .3s ease, transform .3s ease;
+}
+
+.nav-links a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(100deg,
+        transparent,
+        rgba(240, 208, 130, 0.22),
+        transparent);
+    transition: left .6s cubic-bezier(.25, .8, .25, 1);
 }
 
 .nav-links a:hover {
-    opacity: 1;
-    color: var(--gold);
+    color: var(--gold-bright);
+    border-color: rgba(201, 164, 76, 0.42);
+    background: rgba(201, 164, 76, 0.09);
+    transform: translateY(-1px);
 }
+
+.nav-links a:hover::before { left: 130%; }
 
 .mobile-menu-toggle {
     display: none;
@@ -149,24 +177,60 @@ h1, h2, h3, .logo-text {
     opacity: 0.8;
 }
 
+/* Boton dorado con acabado metalico: el degradado de tres paradas y el
+   reflejo superior evitan el amarillo plano de un color solido. */
 .btn-primary {
-    padding: 18px 45px;
-    background: var(--gold);
-    color: white;
+    padding: 16px 42px;
+    background: linear-gradient(135deg, #f3dfa4 0%, var(--gold) 42%, var(--gold-dark) 100%);
+    color: #14100a;
     border: none;
-    border-radius: 5px;
+    border-radius: 11px;
     font-weight: 700;
-    letter-spacing: 3px;
+    font-size: 13px;
+    letter-spacing: 2.4px;
+    text-transform: uppercase;
     cursor: pointer;
-    transition: var(--transition);
     position: relative;
     overflow: hidden;
+    box-shadow:
+        0 5px 18px rgba(201, 164, 76, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.42),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.14);
+    transition: transform .28s cubic-bezier(.25,.8,.25,1), box-shadow .28s ease, filter .28s ease;
+}
+
+/* Destello que cruza el boton al pasar el cursor */
+.btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 45%;
+    height: 100%;
+    background: linear-gradient(100deg,
+        transparent,
+        rgba(255, 255, 255, 0.45),
+        transparent);
+    transform: skewX(-18deg);
+    transition: left .65s cubic-bezier(.25,.8,.25,1);
 }
 
 .btn-primary:hover {
-    background: var(--gold-bright);
-    transform: translateY(-5px);
-    box-shadow: 0 0 30px rgba(201, 164, 76, 0.4);
+    transform: translateY(-2px);
+    filter: brightness(1.05);
+    box-shadow:
+        0 12px 30px rgba(201, 164, 76, 0.36),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.16);
+}
+
+.btn-primary:hover::after { left: 130%; }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(.35);
 }
 
 /* SERVICES GRID (RESPONSIVE) */
@@ -342,15 +406,101 @@ h1, h2, h3, .logo-text {
     overflow-y: auto;
 }
 
+/* El contenido crece con el formulario y hace scroll propio si se pasa de
+   la pantalla; antes el recuadro cortaba el contenido al agregar campos. */
 .modal-content {
     background: #0d0d0d;
-    border: 1px solid var(--gold);
-    border-radius: 25px;
-    padding: 50px;
-    max-width: 500px;
-    margin: 50px auto;
+    border: 1px solid rgba(201, 164, 76, 0.55);
+    border-radius: 22px;
+    padding: 40px 38px;
+    width: 100%;
+    max-width: 520px;
+    margin: 40px auto;
     position: relative;
-    box-shadow: 0 0 50px rgba(201, 164, 76, 0.2);
+    max-height: calc(100vh - 80px);
+    overflow-y: auto;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .6), 0 0 60px rgba(201, 164, 76, 0.12);
+}
+.modal-content::-webkit-scrollbar { width: 7px; }
+.modal-content::-webkit-scrollbar-track { background: transparent; }
+.modal-content::-webkit-scrollbar-thumb {
+    background: rgba(201, 164, 76, .35); border-radius: 10px;
+}
+
+/* ===== BLOQUES DE SERVICIO ===== */
+.bloque {
+    background: rgba(255, 255, 255, 0.028);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 16px 18px 18px;
+    margin-bottom: 14px;
+    animation: bloqueIn .32s cubic-bezier(.2, .8, .2, 1);
+}
+@keyframes bloqueIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: none; }
+}
+.bloque-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px; padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.bloque-num {
+    font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase;
+    color: var(--gold); font-weight: 600;
+}
+.bloque-del {
+    background: none; border: none; color: rgba(255, 255, 255, .32);
+    font-size: 11.5px; cursor: pointer; font-family: inherit;
+    letter-spacing: .4px; transition: color .2s; padding: 0;
+}
+.bloque-del:hover { color: #ff7b7b; }
+
+/* Botón secundario para sumar servicios */
+.btn-add {
+    width: 100%; padding: 12px;
+    background: rgba(201, 164, 76, 0.07);
+    border: 1px dashed rgba(201, 164, 76, 0.38);
+    border-radius: 12px; color: var(--gold);
+    font-family: inherit; font-size: 12.5px; font-weight: 600;
+    letter-spacing: 1px; cursor: pointer; margin-bottom: 18px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all .25s;
+}
+.btn-add:hover {
+    background: rgba(201, 164, 76, 0.13);
+    border-color: rgba(201, 164, 76, 0.6);
+    border-style: solid;
+}
+.btn-add span { font-size: 15px; line-height: 1; }
+
+/* Fecha y hora en dos columnas, apiladas en pantallas chicas */
+.fila-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 460px) { .fila-2 { grid-template-columns: 1fr; } }
+
+/* Resumen de la reserva */
+.resumen { margin-top: 18px; }
+.resumen:not(:empty) {
+    padding: 14px 16px;
+    background: rgba(201, 164, 76, 0.055);
+    border: 1px solid rgba(201, 164, 76, 0.2);
+    border-radius: 12px;
+}
+.res-linea {
+    display: flex; justify-content: space-between; gap: 12px;
+    font-size: 12.5px; color: rgba(255, 255, 255, .68); margin-bottom: 7px;
+}
+.res-total {
+    display: flex; justify-content: space-between;
+    font-size: 15px; font-weight: 700; color: var(--gold);
+    padding-top: 11px; margin-top: 4px;
+    border-top: 1px solid rgba(201, 164, 76, 0.22);
+}
+
+/* Un select deshabilitado debe verse deshabilitado */
+.modal-content select:disabled,
+.modal-content input:disabled {
+    opacity: .45; cursor: not-allowed;
 }
 
 .close-modal {
