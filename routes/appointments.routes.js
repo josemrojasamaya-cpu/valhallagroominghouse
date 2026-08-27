@@ -88,27 +88,38 @@ router.get("/employees", async (req, res) => {
 
 // CITAS
 router.get("/appointments", async (req, res) => {
+    try {
+        // Acepta ?empleado_id=N para que el panel del especialista pida solo
+        // sus citas en vez de recibir la agenda completa y filtrarla en el
+        // navegador. Sin el parametro devuelve todo, que es lo que necesita
+        // el panel administrativo.
+        const empleadoId = req.query.empleado_id;
 
-    const result = await pool.query(`
-    SELECT 
-    appointments.id,
-    cliente_nombre,
-    cliente_telefono,
-    fecha,
-    hora,
-    employees.nombre AS barbero,
-    services.nombre AS servicio,
-    services.precio
-    FROM appointments
-    LEFT JOIN employees
-    ON appointments.empleado_id = employees.id
-    LEFT JOIN services
-    ON appointments.servicio_id = services.id
-    ORDER BY fecha, hora
-    `);
+        const base = `
+            SELECT
+                appointments.id,
+                appointments.empleado_id,
+                cliente_nombre,
+                cliente_telefono,
+                fecha,
+                hora,
+                employees.nombre AS barbero,
+                services.nombre  AS servicio,
+                services.precio
+            FROM appointments
+            LEFT JOIN employees ON appointments.empleado_id = employees.id
+            LEFT JOIN services  ON appointments.servicio_id = services.id
+        `;
 
-    res.json(result.rows);
+        const result = empleadoId
+            ? await pool.query(base + " WHERE appointments.empleado_id = $1 ORDER BY fecha, hora", [empleadoId])
+            : await pool.query(base + " ORDER BY fecha, hora");
 
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error listando citas:", error);
+        res.status(500).json({ message: "No se pudieron cargar las citas" });
+    }
 });
 
 

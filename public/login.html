@@ -1,126 +1,222 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Valhalla | Acceso Privado</title>
-    
-    <!-- Fonts & Master Styles -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valhalla | Acceso Privado</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#d4af37; --gold-soft:#f3e5ab; --gold-deep:#8e680c;
+  --bg:#080b10; --panel:rgba(20,26,34,.72); --line:rgba(255,255,255,.07);
+  --tx:#f2f4f7; --tx2:#98a1ad; --tx3:#6b7480;
+  --err:#ff6b6b; --ok:#2ed573;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',system-ui,sans-serif}
+body{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  padding:24px; color:var(--tx);
+  background:
+    radial-gradient(ellipse 70% 50% at 50% 0%, rgba(212,175,55,.09), transparent 65%),
+    linear-gradient(rgba(4,6,10,.86), rgba(4,6,10,.94)),
+    url('fondo.jpg') center/cover fixed,
+    var(--bg);
+}
 
-    <style>
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.8)), url('fondo.jpg');
-            background-size: cover;
-            background-attachment: fixed;
-        }
+.card{
+  width:100%; max-width:400px;
+  background:var(--panel);
+  backdrop-filter:blur(28px); -webkit-backdrop-filter:blur(28px);
+  border:1px solid var(--line); border-radius:22px;
+  padding:44px 36px 34px;
+  box-shadow:0 24px 70px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.05);
+  animation:enter .55s cubic-bezier(.2,.8,.2,1);
+}
+@keyframes enter{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
 
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: var(--glass);
-            backdrop-filter: blur(25px);
-            border: 1px solid var(--gold);
-            border-radius: 30px;
-            padding: 50px 40px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            animation: fadeIn 1s ease;
-        }
+.brand{text-align:center; margin-bottom:34px}
+.crest{
+  width:52px; height:52px; margin:0 auto 16px; border-radius:14px;
+  background:linear-gradient(145deg, rgba(212,175,55,.16), rgba(212,175,55,.04));
+  border:1px solid rgba(212,175,55,.34);
+  display:grid; place-items:center; font-size:23px;
+}
+.brand h1{
+  font-family:'Cinzel',serif; font-size:26px; letter-spacing:5px; font-weight:700;
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold),var(--gold-deep));
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+  margin-bottom:7px;
+}
+.brand p{font-size:10.5px; letter-spacing:2.6px; color:var(--tx3); text-transform:uppercase}
 
-        .login-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
+.field{margin-bottom:17px}
+.field label{
+  display:block; font-size:10.5px; letter-spacing:1.4px; text-transform:uppercase;
+  color:var(--tx3); margin-bottom:7px; font-weight:500;
+}
+.field input{
+  width:100%; padding:13px 15px; border-radius:11px;
+  background:rgba(0,0,0,.32); border:1px solid var(--line);
+  color:var(--tx); font-size:14.5px; outline:none; transition:all .25s;
+}
+.field input::placeholder{color:rgba(255,255,255,.2)}
+.field input:focus{
+  border-color:rgba(212,175,55,.55); background:rgba(0,0,0,.46);
+  box-shadow:0 0 0 3px rgba(212,175,55,.09);
+}
+.field input:disabled{opacity:.55; cursor:not-allowed}
 
-        .login-header h2 {
-            font-size: 28px;
-            letter-spacing: 5px;
-            margin-bottom: 10px;
-        }
+.btn{
+  width:100%; margin-top:26px; padding:14px; border:none; border-radius:11px;
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold),var(--gold-deep));
+  color:#0a0d12; font-weight:600; font-size:12.5px; letter-spacing:1.6px;
+  text-transform:uppercase; cursor:pointer; transition:all .25s;
+  display:flex; align-items:center; justify-content:center; gap:9px;
+}
+.btn:hover:not(:disabled){transform:translateY(-1px); box-shadow:0 10px 26px rgba(212,175,55,.26); filter:brightness(1.06)}
+.btn:active:not(:disabled){transform:translateY(0)}
+.btn:disabled{opacity:.6; cursor:wait}
 
-        .error-msg {
-            color: #ff6b6b;
-            text-align: center;
-            font-size: 14px;
-            margin-top: 20px;
-            min-height: 20px;
-        }
-    </style>
+/* Indicador de carga: el boton comunica que la peticion esta en curso,
+   y queda deshabilitado para que un doble clic no envie dos veces. */
+.spinner{
+  width:14px; height:14px; border:2px solid rgba(10,13,18,.28);
+  border-top-color:#0a0d12; border-radius:50%;
+  animation:spin .7s linear infinite; display:none;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn.loading .spinner{display:block}
+
+.msg{
+  margin-top:17px; padding:11px 14px; border-radius:9px; font-size:13px;
+  line-height:1.45; text-align:center; display:none;
+}
+.msg.show{display:block; animation:enter .28s ease}
+.msg.error{background:rgba(255,107,107,.1); border:1px solid rgba(255,107,107,.28); color:#ff9494}
+.msg.ok{background:rgba(46,213,115,.1); border:1px solid rgba(46,213,115,.28); color:#6be29b}
+
+.back{
+  display:block; text-align:center; margin-top:28px; padding-top:22px;
+  border-top:1px solid var(--line);
+  color:var(--tx3); font-size:12px; text-decoration:none; transition:color .2s;
+}
+.back:hover{color:var(--tx2)}
+</style>
 </head>
-
 <body>
 
-    <div class="login-card">
-        <div class="login-header">
-            <h2 class="gold-gradient">VALHALLA</h2>
-            <p style="font-size: 11px; letter-spacing: 2px; color: var(--gold);">CONTROL DE ACCESO</p>
-        </div>
+<div class="card">
+  <div class="brand">
+    <div class="crest">⚔️</div>
+    <h1>VALHALLA</h1>
+    <p>Control de acceso</p>
+  </div>
 
-        <div class="form-group">
-            <label><i class="fa-solid fa-user"></i> Usuario</label>
-            <input type="text" id="username" placeholder="Tu identificación" required>
-        </div>
-
-        <div class="form-group" style="margin-top: 20px;">
-            <label><i class="fa-solid fa-lock"></i> Contraseña</label>
-            <input type="password" id="password" placeholder="••••••••" required>
-        </div>
-
-        <button class="btn-primary" style="width: 100%; margin-top: 40px;" onclick="handleLogin()">
-            ENTRAR AL RITUAL
-        </button>
-
-        <div id="errorMsg" class="error-msg"></div>
-        <div style="text-align: center; margin-top: 30px;">
-             <a href="index.html" style="color: grey; font-size: 11px; text-decoration: none;">← Volver al sitio público</a>
-        </div>
+  <form id="loginForm" autocomplete="on" novalidate>
+    <div class="field">
+      <label for="username">Usuario</label>
+      <input type="text" id="username" name="username" placeholder="Tu identificación"
+             autocomplete="username" required autofocus>
     </div>
 
-    <script>
-        async function handleLogin() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const errorMsg = document.getElementById('errorMsg');
+    <div class="field">
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="password" placeholder="••••••••"
+             autocomplete="current-password" required>
+    </div>
 
-            if(!username || !password) {
-                errorMsg.innerText = "Por favor, completa todos los campos.";
-                return;
-            }
+    <button type="submit" class="btn" id="btnLogin">
+      <span class="spinner"></span>
+      <span id="btnText">Entrar</span>
+    </button>
+  </form>
 
-            try {
-                const res = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
+  <div id="msg" class="msg"></div>
 
-                const data = await res.json();
+  <a href="index.html" class="back">← Volver al sitio público</a>
+</div>
 
-                if (res.ok) {
-                    localStorage.setItem("user", JSON.stringify(data.user));
-                    const role = data.user.role;
-                    
-                    if (role === "admin") window.location.href = "/admin.html";
-                    else if (role === "employee") window.location.href = "/employee.html";
-                    else window.location.href = "/index.html"; 
-                } else {
-                    errorMsg.innerText = data.message || "Credenciales incorrectas.";
-                }
-            } catch (err) {
-                errorMsg.innerText = "Error de conexión con el servidor de Valhalla.";
-            }
-        }
+<script>
+const form  = document.getElementById('loginForm');
+const btn   = document.getElementById('btnLogin');
+const txt   = document.getElementById('btnText');
+const msgEl = document.getElementById('msg');
+const campos = [document.getElementById('username'), document.getElementById('password')];
 
-        // Enter key to login
-        document.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleLogin();
-        });
-    </script>
+function mensaje(texto, tipo) {
+  msgEl.className = 'msg show ' + tipo;
+  msgEl.textContent = texto;
+}
+function limpiarMensaje() {
+  msgEl.className = 'msg';
+}
+function cargando(activo) {
+  btn.disabled = activo;
+  btn.classList.toggle('loading', activo);
+  txt.textContent = activo ? 'Verificando…' : 'Entrar';
+  campos.forEach(c => c.disabled = activo);
+}
+
+// El submit del formulario cubre el clic y la tecla Enter con un solo camino,
+// en vez de un listener de teclado global que disparaba en cualquier parte.
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  limpiarMensaje();
+
+  const username = campos[0].value.trim();
+  const password = campos[1].value;
+
+  if (!username || !password) {
+    mensaje('Completá usuario y contraseña.', 'error');
+    (username ? campos[1] : campos[0]).focus();
+    return;
+  }
+
+  cargando(true);
+  try {
+    const res  = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      mensaje(data.message || 'Usuario o contraseña incorrectos.', 'error');
+      campos[1].value = '';
+      campos[1].focus();
+      cargando(false);
+      return;
+    }
+
+    // Se valida la forma de la respuesta antes de guardar sesión y redirigir:
+    // antes se guardaba lo que llegara y se leía data.user.role a ciegas.
+    const user = data && data.user;
+    if (!user || !user.role) {
+      mensaje('Respuesta inesperada del servidor. Intentá de nuevo.', 'error');
+      cargando(false);
+      return;
+    }
+
+    localStorage.setItem('user', JSON.stringify(user));
+    mensaje('Acceso concedido. Entrando…', 'ok');
+    txt.textContent = 'Entrando…';
+
+    const destino = user.role === 'admin'    ? '/admin.html'
+                  : user.role === 'employee' ? '/employee.html'
+                  : '/index.html';
+    setTimeout(() => { window.location.href = destino; }, 550);
+
+  } catch (err) {
+    console.error(err);
+    mensaje('No se pudo conectar con el servidor. Revisá tu conexión.', 'error');
+    cargando(false);
+  }
+});
+
+campos.forEach(c => c.addEventListener('input', limpiarMensaje));
+</script>
 </body>
 </html>
