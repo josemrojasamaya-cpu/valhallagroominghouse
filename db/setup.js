@@ -121,6 +121,35 @@ async function main() {
     }
     console.log("  impuestos y fondos verificados");
 
+    // ── 4b. Vincular cuentas con fichas de empleado ───────
+    // Une por nombre de usuario contra el nombre del profesional. Es la
+    // correspondencia que antes se hacía a mano en el navegador; acá se
+    // resuelve una vez y queda guardada.
+    const vinculados = await pool.query(`
+      UPDATE users u
+      SET empleado_id = e.id,
+          nombre_completo = COALESCE(u.nombre_completo, e.nombre)
+      FROM employees e
+      WHERE u.empleado_id IS NULL
+        AND u.role = 'employee'
+        AND (LOWER(e.nombre) = LOWER(u.username)
+             OR LOWER(SPLIT_PART(e.nombre, ' ', 1)) = LOWER(u.username))
+      RETURNING u.username, e.nombre
+    `);
+    if (vinculados.rowCount) {
+      console.log(`  cuentas vinculadas a su ficha: ${vinculados.rowCount}`);
+      vinculados.rows.forEach(v => console.log(`    ${v.username} → ${v.nombre}`));
+    }
+
+    const sinVincular = await pool.query(
+      "SELECT username FROM users WHERE role = 'employee' AND empleado_id IS NULL"
+    );
+    if (sinVincular.rowCount) {
+      console.log(`\n  AVISO: ${sinVincular.rowCount} cuenta(s) de empleado sin ficha asociada:`);
+      sinVincular.rows.forEach(u => console.log(`    ${u.username}`));
+      console.log("    Su panel no podrá mostrar citas hasta vincularlas.");
+    }
+
     // ── 5. Protección contra doble reserva ────────────────
     // Se intenta al final y por separado: si la agenda ya tiene solapamientos,
     // el índice no se puede crear, pero eso no debe impedir el resto del setup.

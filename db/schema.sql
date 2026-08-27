@@ -57,6 +57,14 @@ CREATE TABLE IF NOT EXISTS users (
     role     VARCHAR(20)  NOT NULL
 );
 
+-- Vincula la cuenta de acceso con la ficha del profesional. Sin esta
+-- columna, el panel del especialista tenía que adivinar de quién eran las
+-- citas comparando el nombre de usuario con el nombre del barbero.
+ALTER TABLE users ADD COLUMN IF NOT EXISTS empleado_id     INTEGER REFERENCES employees(id) ON DELETE SET NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS nombre_completo VARCHAR(100);
+
+CREATE INDEX IF NOT EXISTS idx_users_empleado ON users (empleado_id);
+
 -- ── Metas y comisiones ──────────────────────────────────────
 
 CREATE TABLE IF NOT EXISTS goals (

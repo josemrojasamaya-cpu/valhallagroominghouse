@@ -211,12 +211,23 @@ router.post("/login", async (req, res) => {
         res.json({
             message: "Login correcto",
             token,
-            user: { id: dbUser.id, username: dbUser.username, role: dbUser.role }
+            user: {
+                id: dbUser.id,
+                username: dbUser.username,
+                role: dbUser.role,
+                // Vincula la cuenta con su ficha de empleado. El panel del
+                // especialista lo usa para pedir solo SUS citas al servidor;
+                // sin esto habria que adivinar por el nombre de usuario.
+                empleado_id: dbUser.empleado_id || null,
+                nombre: dbUser.nombre_completo || dbUser.username
+            }
         });
 
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error en login", error: error.message, stack: error.stack });
+        // El detalle del error va al log del servidor, no a la respuesta:
+        // devolver el stack expone rutas internas y estructura del codigo.
+        console.error("Error en login:", error);
+        res.status(500).json({ message: "No se pudo procesar el inicio de sesión" });
     }
 });
 // ============================
