@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+python-dotenv
+MetaTrader5
+pandas
+pandas-ta
+google-generativeai
+pydantic
+python-multipart
+websockets
+psycopg2-binary
+requests
+yfinance
+pino
