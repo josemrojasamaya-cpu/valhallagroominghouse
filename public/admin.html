@@ -514,7 +514,14 @@ h2, h3, h4 { margin: 0; }
         <h3>👔 Gestión de Empleados</h3>
         <div style="margin-bottom:20px; display:grid; gap:10px;">
           <input id="empName" placeholder="Nombre del empleado" class="input" />
-          <input id="empUser" placeholder="Usuario" class="input" />
+          <select id="empPuesto" class="input">
+            <option value="barbero">Barbería</option>
+            <option value="manicurista">Manicura y pedicura</option>
+            <option value="masajista">Masajes y spa</option>
+            <option value="psicologa">Psicología y nutrición</option>
+            <option value="gym">Entrenamiento</option>
+          </select>
+          <input id="empUser" placeholder="Usuario para acceder" class="input" />
           <input id="empPass" placeholder="Contraseña" class="input" type="password" />
           <button onclick="createEmployee()" class="btn-gold">Crear Empleado</button>
         </div>
@@ -1149,24 +1156,43 @@ async function createEmployee() {
     return;
   }
 
+  const puesto = document.getElementById("empPuesto").value;
+
+  if (password.length < 6) {
+    toast("La contraseña debe tener al menos 6 caracteres.", "error");
+    return;
+  }
+
   try {
-    // Se crea el empleado y su usuario de acceso. Si el primero falla,
-    // no tiene sentido crear el segundo.
+    // Se crea la ficha del profesional y despues su cuenta de acceso,
+    // enlazada a esa ficha. Sin el enlace, su panel no sabria que citas
+    // mostrarle.
     const empRes = await fetch("/api/employees", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre })
+      body: JSON.stringify({ nombre, puesto })
     });
-    if (!empRes.ok) throw new Error("No se pudo crear el empleado.");
+    const empData = await empRes.json().catch(() => ({}));
+    if (!empRes.ok) throw new Error(empData.message || "No se pudo crear el empleado.");
+
+    const empleadoId = (empData.employee && empData.employee.id) || empData.id ||
+                       (empData.rows && empData.rows[0] && empData.rows[0].id) || null;
 
     const userRes = await fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password, role: "employee" })
+      body: JSON.stringify({
+        username, password, role: "employee",
+        empleado_id: empleadoId, nombre_completo: nombre
+      })
     });
-    if (!userRes.ok) throw new Error("Se creó el empleado, pero falló el usuario de acceso.");
+    const userData = await userRes.json().catch(() => ({}));
+    if (!userRes.ok) {
+      throw new Error((userData.message || "Falló el usuario de acceso.") +
+                      " El profesional sí quedó registrado.");
+    }
 
-    toast("Empleado y usuario creados.", "ok");
+    toast(`${nombre} agregado a ${puesto} con su acceso.`, "ok");
     ["empName","empUser","empPass"].forEach(id => document.getElementById(id).value = "");
     loadEmployees();
     loadEmployeesForGoals();

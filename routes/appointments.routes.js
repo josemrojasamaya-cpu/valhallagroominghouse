@@ -282,22 +282,37 @@ router.delete("/employees/:id", async (req, res) => {
 // ============================
 router.post("/users", async (req, res) => {
   try {
+    const { username, password, role, empleado_id, nombre_completo } = req.body;
 
-    const { username, password, role } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ message: "Usuario y contraseña son requeridos" });
+    }
+    if (String(password).length < 6) {
+      return res.status(400).json({ message: "La contraseña debe tener al menos 6 caracteres" });
+    }
+
+    const yaExiste = await pool.query("SELECT 1 FROM users WHERE LOWER(username) = LOWER($1)", [username]);
+    if (yaExiste.rowCount) {
+      return res.status(409).json({ message: "Ese nombre de usuario ya está en uso" });
+    }
+
+    // La contraseña se cifra ANTES de guardarla: hasta ahora se insertaba
+    // tal cual, en texto plano, y quedaba legible para cualquiera con
+    // acceso a la base.
+    const hash = await bcrypt.hash(String(password), 10);
 
     const result = await pool.query(
-      "INSERT INTO users (username, password, role) VALUES ($1,$2,$3) RETURNING *",
-      [username, password, role]
+      `INSERT INTO users (username, password, role, empleado_id, nombre_completo)
+       VALUES ($1,$2,$3,$4,$5)
+       RETURNING id, username, role, empleado_id, nombre_completo`,
+      [username, hash, role || 'employee', empleado_id || null, nombre_completo || null]
     );
 
-    res.json({
-      message: "Usuario creado",
-      user: result.rows[0]
-    });
+    res.json({ message: "Usuario creado", user: result.rows[0] });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error creando usuario" });
+    console.error("Error creando usuario:", error);
+    res.status(500).json({ message: "No se pudo crear el usuario" });
   }
 });
 
