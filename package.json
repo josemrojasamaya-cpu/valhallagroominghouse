@@ -19,7 +19,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node --max-old-space-size=256 app.js",
-    "sync": "node sync_db.js"
+    "sync": "node sync_db.js",
+    "seed": "node seed_demo.js"
   },
   "keywords": [],
   "author": "Jose Miguel Rojas Amaya",

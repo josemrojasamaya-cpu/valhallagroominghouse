@@ -229,6 +229,109 @@ td:first-child { border-top-left-radius: 12px; border-bottom-left-radius: 12px; 
 td:last-child { border-top-right-radius: 12px; border-bottom-right-radius: 12px; }
 tr:hover td { background: rgba(212, 175, 55, 0.05); }
 
+/* KPI TILES — reemplazan los divs con estilo inline repetido */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:15px; }
+.kpi {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--glass-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+}
+.kpi .kpi-label {
+  color: var(--text-secondary);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.kpi .kpi-value { font-size: 1.35rem; font-weight: 600; color: var(--text-primary); }
+.kpi.is-gold { border-color: rgba(212,175,55,0.35); background: rgba(212,175,55,0.07); }
+.kpi.is-gold .kpi-value { color: var(--gold-primary); }
+.kpi.is-danger { border-color: rgba(255,107,107,0.3); background: rgba(255,107,107,0.07); }
+.kpi.is-danger .kpi-value { color: var(--danger); }
+.kpi.is-teal { border-color: rgba(78,205,196,0.3); background: rgba(78,205,196,0.07); }
+.kpi.is-teal .kpi-value { color: #4ecdc4; }
+
+/* NUMEROS TABULARES — evita que las cifras "bailen" al actualizarse */
+.kpi-value, td.num, .money { font-variant-numeric: tabular-nums; }
+
+/* BADGES DE ESTADO */
+.badge {
+  display:inline-block; padding:4px 12px; border-radius:20px;
+  font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;
+}
+.badge.green { background:rgba(46,213,115,0.15); color:#2ed573; border:1px solid rgba(46,213,115,0.3); }
+.badge.amber { background:rgba(255,193,7,0.15); color:#ffc107; border:1px solid rgba(255,193,7,0.3); }
+.badge.red   { background:rgba(255,107,107,0.15); color:#ff6b6b; border:1px solid rgba(255,107,107,0.3); }
+.badge.gray  { background:rgba(255,255,255,0.08); color:var(--text-secondary); border:1px solid var(--glass-border); }
+
+/* ESTADO VACIO Y CARGA */
+.empty-state {
+  text-align:center; padding:35px 20px; color:var(--text-secondary); font-size:14px;
+}
+.empty-state .empty-icon { font-size:30px; opacity:0.4; display:block; margin-bottom:10px; }
+
+.skeleton-row td { background: transparent !important; }
+.skeleton-bar {
+  height: 12px; border-radius: 6px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+}
+@keyframes shimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
+
+/* BOTON SECUNDARIO / PELIGRO — reemplaza los style="background:red" inline */
+.btn-danger {
+  padding:7px 14px; border:1px solid rgba(255,107,107,0.35); border-radius:8px;
+  background:rgba(255,107,107,0.12); color:#ff8787;
+  font-family:inherit; font-size:12px; font-weight:600; cursor:pointer;
+  transition:all 0.25s ease;
+}
+.btn-danger:hover { background:rgba(255,107,107,0.22); color:#fff; border-color:rgba(255,107,107,0.6); }
+
+/* TOASTS — reemplazan alert() */
+#toastWrap {
+  position:fixed; top:20px; right:20px; z-index:9999;
+  display:flex; flex-direction:column; gap:10px; max-width:340px;
+}
+.toast {
+  background:rgba(22,28,36,0.97);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border:1px solid var(--glass-border); border-left-width:4px;
+  border-radius:12px; padding:14px 18px;
+  color:var(--text-primary); font-size:14px; line-height:1.45;
+  box-shadow:0 10px 40px rgba(0,0,0,0.5);
+  animation: toastIn 0.3s cubic-bezier(0.2,0.8,0.2,1);
+}
+.toast.ok    { border-left-color:#2ed573; }
+.toast.error { border-left-color:#ff6b6b; }
+.toast.info  { border-left-color:var(--gold-primary); }
+.toast.out   { animation: toastOut 0.3s ease forwards; }
+@keyframes toastIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+@keyframes toastOut { to { opacity:0; transform:translateX(40px); } }
+
+/* MODAL DE CONFIRMACION — reemplaza confirm() */
+#confirmOverlay {
+  position:fixed; inset:0; z-index:9998; display:none;
+  background:rgba(0,0,0,0.65); backdrop-filter:blur(4px);
+  align-items:center; justify-content:center; padding:20px;
+}
+#confirmOverlay.show { display:flex; }
+.confirm-box {
+  background:rgba(22,28,36,0.98); border:1px solid var(--glass-border);
+  border-radius:18px; padding:28px; max-width:400px; width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+.confirm-box h4 { color:var(--gold-primary); margin-bottom:10px; font-size:1.1rem; }
+.confirm-box p  { color:var(--text-secondary); font-size:14px; line-height:1.5; margin-bottom:22px; }
+.confirm-actions { display:flex; gap:10px; justify-content:flex-end; }
+.btn-ghost {
+  padding:10px 20px; border:1px solid var(--glass-border); border-radius:10px;
+  background:transparent; color:var(--text-secondary);
+  font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:all 0.25s;
+}
+.btn-ghost:hover { color:var(--text-primary); border-color:rgba(255,255,255,0.2); }
+
 /* ANIMATIONS */
 @keyframes fadeUp {
   0% { opacity: 0; transform: translateY(30px); }
@@ -250,12 +353,12 @@ h2, h3, h4 { margin: 0; }
 <div class="sidebar" id="sidebar">
   <h2>⚔️ VALHALLA</h2>
   <ul>
-    <li onclick="showSection('dashboard')" class="active">⚡ Panel de Inicio</li>
-    <li onclick="showSection('citas')">📅 Citas</li>
-    <li onclick="showSection('clientes')">👥 Clientes</li>
-    <li onclick="showSection('inventario')">📦 Servicios</li>
-    <li onclick="showSection('empleados')">👔 Empleados</li>
-    <li onclick="showSection('finanzas')">💰 Finanzas ERP</li>
+    <li onclick="showSection('dashboard', this)" class="active">⚡ Panel de Inicio</li>
+    <li onclick="showSection('citas', this)">📅 Citas</li>
+    <li onclick="showSection('clientes', this)">👥 Clientes</li>
+    <li onclick="showSection('inventario', this)">📦 Servicios</li>
+    <li onclick="showSection('empleados', this)">👔 Empleados</li>
+    <li onclick="showSection('finanzas', this)">💰 Finanzas ERP</li>
   </ul>
   <div style="margin-top:auto;">
     <li onclick="logout()" style="list-style:none; padding:14px 20px; color:#ff6b6b; cursor:pointer;">🚪 Cerrar Sesión</li>
@@ -286,16 +389,20 @@ h2, h3, h4 { margin: 0; }
     <div id="dashboard">
       <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:25px; margin-bottom:25px;">
         <div class="card" style="border-left: 4px solid #ff7675;">
-          <h3>🚨 Centro de Alertas</h3>
-          <div id="alertsBox" style="color:var(--text-secondary); font-size:14px;">Todo en orden...</div>
+          <h3>🚨 Alertas de metas</h3>
+          <div id="alertsBox" style="color:var(--text-secondary); font-size:14px;">
+            <span class="badge gray">Cargando...</span>
+          </div>
         </div>
         <div class="card" style="border-left: 4px solid var(--gold-primary);">
-          <h3>💰 Flujo de Caja Total</h3>
-          <h2 style="color:white; font-size:1.8rem;" id="dashIncome">₡0</h2>
+          <h3>💰 Ingresos acumulados</h3>
+          <h2 class="money" style="color:var(--gold-primary); font-size:1.9rem;" id="dashIncome">₡0</h2>
+          <p style="color:var(--text-secondary); font-size:12px; margin-top:4px;">Suma de todas las citas registradas</p>
         </div>
         <div class="card" style="border-left: 4px solid #4ecdc4;">
-          <h3>📅 Total Citas</h3>
-          <h2 style="color:white; font-size:1.8rem;" id="dashAppts">0</h2>
+          <h3>📅 Citas registradas</h3>
+          <h2 class="money" style="color:#4ecdc4; font-size:1.9rem;" id="dashAppts">0</h2>
+          <p style="color:var(--text-secondary); font-size:12px; margin-top:4px;">Total histórico en el sistema</p>
         </div>
       </div>
       <div class="card">
@@ -464,90 +571,98 @@ h2, h3, h4 { margin: 0; }
     <!-- ===================== FINANZAS ERP ADVANCED ===================== -->
     <div id="finanzas" style="display:none;">
 
-      <!-- 🔮 SISTEMA PREDICTIVO IA (RUNWAY FORECAST) -->
-      <div class="card" style="margin-bottom:20px; border: 1px solid #4ecdc4;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <h3>🔮 Previsión a Fin de Mes (Runway Forecast)</h3>
-          <span id="forecastBadge" style="padding: 5px 15px; border-radius:20px; font-weight:bold; font-size:14px; background:gray; color:white;">Calculando...</span>
+      <!-- PROYECCION DE CIERRE DE MES (calculo lineal sobre el ritmo de ingresos) -->
+      <div class="card" style="margin-bottom:20px; border: 1px solid rgba(78,205,196,0.35);">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+          <h3>📈 Proyección de cierre de mes</h3>
+          <span id="forecastBadge" class="badge gray">Calculando...</span>
         </div>
-        <p id="forecastMessage" style="color:#ddd; margin-top:10px; font-size: 14px; line-height:1.5;">El asistente de IA contable está evaluando el flujo de caja actual...</p>
-        
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-top:20px;">
-          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-            <p style="color:#aaa; font-size:12px;">Días Restantes Mes</p>
-            <h3 id="fcDays">0 días</h3>
+        <p style="color:var(--text-secondary); font-size:12px; margin-top:6px;">
+          Proyección lineal: promedio diario de ingresos del mes × días restantes, contrastado contra los costos fijos.
+        </p>
+        <p id="forecastMessage" style="color:#ddd; margin-top:12px; font-size: 14px; line-height:1.5;">Calculando el flujo de caja del mes...</p>
+
+        <div class="kpi-grid" style="margin-top:20px;">
+          <div class="kpi">
+            <div class="kpi-label">Días restantes</div>
+            <div class="kpi-value" id="fcDays">—</div>
           </div>
-          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-            <p style="color:#aaa; font-size:12px;">Velocidad de Ingreso</p>
-            <h3 id="fcVelocity">₡0 / día</h3>
+          <div class="kpi is-teal">
+            <div class="kpi-label">Promedio diario</div>
+            <div class="kpi-value" id="fcVelocity">—</div>
           </div>
-          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-            <p style="color:#aaa; font-size:12px;">Fijos a Cubrir</p>
-            <h3 id="fcBurnRate">₡0</h3>
+          <div class="kpi is-danger">
+            <div class="kpi-label">Fijos a cubrir</div>
+            <div class="kpi-value" id="fcBurnRate">—</div>
           </div>
-          <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px;">
-            <p style="color:#aaa; font-size:12px;">Previsión Cierre Mes</p>
-            <h3 id="fcProjected">₡0</h3>
+          <div class="kpi is-gold">
+            <div class="kpi-label">Proyección cierre</div>
+            <div class="kpi-value" id="fcProjected">—</div>
           </div>
         </div>
-        
-        <!-- AI INSIGHTS TACTICS -->
-        <div style="margin-top:20px; background:rgba(46, 213, 115, 0.1); border-left: 4px solid #2ed573; padding:15px; border-radius:5px;">
-          <h4 style="color:#2ed573; margin-bottom: 5px;">🧠 Estrategia de IA Avanzada</h4>
-          <p id="aiTactics" style="font-size: 13px; color:#ddd; line-height: 1.6;">Recolectando datos históricos...</p>
+
+        <!-- Lectura del patron semanal a partir de las citas registradas -->
+        <div style="margin-top:20px; background:rgba(46, 213, 115, 0.08); border-left: 3px solid #2ed573; padding:15px; border-radius:8px;">
+          <h4 style="color:#2ed573; margin-bottom: 6px; font-size:0.95rem;">📅 Patrón semanal detectado</h4>
+          <p id="aiTactics" style="font-size: 13px; color:#ddd; line-height: 1.6;">Analizando la distribución de citas por día...</p>
         </div>
       </div>
 
       <!-- CONTADURÍA FINANCIERA STRICT FLOW -->
       <div class="card" style="margin-bottom:20px;">
-        <h3>📊 Contaduría Financiera (Strict Flow)</h3>
-        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap:15px; margin-top:20px;">
-          <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-            <h4 style="color:#aaa;">Ventas Brutas</h4>
-            <h2 id="erpGross">₡0</h2>
+        <h3>📊 Contaduría del mes</h3>
+        <p style="color:var(--text-secondary); font-size:12px; margin-top:4px;">
+          Del ingreso bruto se retiene impuesto, se pagan comisiones y costos fijos, y lo que queda es el flujo operativo.
+        </p>
+        <div class="kpi-grid" style="margin-top:20px;">
+          <div class="kpi">
+            <div class="kpi-label">Ventas brutas</div>
+            <div class="kpi-value" id="erpGross">₡0</div>
           </div>
-          <div style="background:rgba(255,100,100,0.1); padding:15px; border-radius:10px; border-bottom: 2px solid #ff6b6b">
-            <h4 style="color:#ff6b6b;">Impuestos LEY (Retención)</h4>
-            <h2 id="erpTax">₡0</h2>
+          <div class="kpi is-danger">
+            <div class="kpi-label">Retención de impuestos</div>
+            <div class="kpi-value" id="erpTax">₡0</div>
           </div>
-          <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-            <h4 style="color:#4ecdc4;">Operativa (Post-Imp)</h4>
-            <h2 id="erpPostTax">₡0</h2>
+          <div class="kpi is-teal">
+            <div class="kpi-label">Operativa (post-impuestos)</div>
+            <div class="kpi-value" id="erpPostTax">₡0</div>
           </div>
-          <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px;">
-            <h4 style="color:#ff6b6b;">Costos Fijos & Préstamos</h4>
-            <h2 id="erpExpenses">₡0</h2>
+          <div class="kpi is-danger">
+            <div class="kpi-label">Costos fijos y préstamos</div>
+            <div class="kpi-value" id="erpExpenses">₡0</div>
           </div>
-          <div style="background:rgba(255,255,255,0.1); padding:15px; border-radius:10px; border: 1px solid gold;">
-            <h4 style="color:gold;">Ganancia del Negocio (100%)</h4>
-            <h2 id="erpNet">₡0</h2>
+          <div class="kpi is-gold">
+            <div class="kpi-label">Flujo operativo</div>
+            <div class="kpi-value" id="erpNet">₡0</div>
           </div>
         </div>
 
-        <h3 style="margin-top:30px;">💼 Distribución de Ganancia & Bonos</h3>
-        <p style="font-size:12px; color:#aaa; margin-bottom: 10px;">Flujo estricto: 20% Ahorro | 20% Amortización Deuda | 60% Dueño (de donde se sacan los bonos).</p>
-        
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
-          <div style="display:grid; gap:10px;">
-            <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-              <h4>Fondo Reserva Ahorro (20%)</h4>
-              <h3 id="erpFundSav" style="color:#4ecdc4;">₡0</h3>
+        <h3 style="margin-top:30px;">💼 Distribución de la ganancia</h3>
+        <p style="font-size:12px; color:var(--text-secondary); margin-bottom: 14px;">
+          El flujo operativo se reparte en tres: 20% reserva de ahorro, 20% amortización de deuda, 60% para el dueño.
+        </p>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px;">
+          <div style="display:grid; gap:10px; align-content:start;">
+            <div style="background:rgba(78,205,196,0.12); padding:14px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span style="font-size:14px;">Reserva de ahorro (20%)</span>
+              <b class="money" id="erpFundSav" style="color:#4ecdc4; font-size:1.05rem;">₡0</b>
             </div>
-            <div style="background:rgba(78,205,196,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-              <h4>Fondo Préstamo Extra (20%)</h4>
-              <h3 id="erpFundLoan" style="color:#4ecdc4;">₡0</h3>
+            <div style="background:rgba(78,205,196,0.12); padding:14px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span style="font-size:14px;">Amortización de deuda (20%)</span>
+              <b class="money" id="erpFundLoan" style="color:#4ecdc4; font-size:1.05rem;">₡0</b>
             </div>
-            <div style="background:rgba(255,215,0,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border-left: 2px solid gold;">
-              <h4>Bolsa Bruta Accionista (60%)</h4>
-              <h3 id="erpOwnerGross" style="color:gold;">₡0</h3>
+            <div style="background:rgba(212,175,55,0.12); padding:14px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; border-left:2px solid var(--gold-primary);">
+              <span style="font-size:14px;">Bolsa del dueño (60%)</span>
+              <b class="money" id="erpOwnerGross" style="color:var(--gold-primary); font-size:1.05rem;">₡0</b>
             </div>
-            <div style="background:rgba(255,100,100,0.15); padding:15px; border-radius:10px; display:flex; justify-content:space-between;">
-              <h4>(-) Bonos Empleados Generados</h4>
-              <h3 id="erpComms" style="color:#ff6b6b;">₡0</h3>
+            <div style="background:rgba(255,107,107,0.12); padding:14px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px;">
+              <span style="font-size:14px;">(−) Comisiones por metas</span>
+              <b class="money" id="erpComms" style="color:#ff6b6b; font-size:1.05rem;">₡0</b>
             </div>
-            <div style="background:rgba(255,215,0,0.3); padding:15px; border-radius:10px; display:flex; justify-content:space-between; border: 1px solid gold;">
-              <h3 style="color:gold;">Ganancia Líquida Final Dueño</h3>
-              <h2 id="erpOwnerNet" style="color:gold; font-weight:bold;">₡0</h2>
+            <div style="background:rgba(212,175,55,0.22); padding:16px 18px; border-radius:12px; display:flex; justify-content:space-between; align-items:center; gap:12px; border:1px solid rgba(212,175,55,0.5);">
+              <span style="color:var(--gold-primary); font-weight:600;">Ganancia líquida final</span>
+              <b class="money" id="erpOwnerNet" style="color:var(--gold-primary); font-size:1.25rem;">₡0</b>
             </div>
           </div>
 
@@ -614,7 +729,94 @@ h2, h3, h4 { margin: 0; }
   </div><!-- fin .content -->
 </div><!-- fin .main -->
 
+<!-- Contenedores de notificaciones y confirmacion (reemplazan alert/confirm) -->
+<div id="toastWrap"></div>
+<div id="confirmOverlay">
+  <div class="confirm-box">
+    <h4 id="confirmTitle">¿Confirmar?</h4>
+    <p id="confirmText"></p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" id="confirmNo">Cancelar</button>
+      <button class="btn-danger" id="confirmYes">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
 <script>
+
+// ─────────────────────────────────────
+// HELPERS DE UI
+// ─────────────────────────────────────
+
+// Formato de moneda unico para todo el panel: ₡1.234.567 (sin decimales).
+// Antes cada lugar concatenaba "₡" + numero y las cifras salian sin separador.
+// Se usa punto como separador de miles, que es lo convencional para colones;
+// el locale es-CR devuelve un espacio duro y se lee como un error de formato.
+const money = (n) =>
+  "₡" + Math.round(Number(n) || 0).toLocaleString("es-CR").replace(/\s/g, ".");
+
+// Notificacion no bloqueante. Sustituye a alert().
+function toast(message, type = "info") {
+  const wrap = document.getElementById("toastWrap");
+  const el = document.createElement("div");
+  el.className = `toast ${type}`;
+  el.textContent = message;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.classList.add("out");
+    setTimeout(() => el.remove(), 300);
+  }, 3800);
+}
+
+// Confirmacion con promesa. Sustituye a confirm(), que bloquea el hilo
+// y no se puede estilizar.
+function askConfirm(text, title = "¿Confirmar acción?") {
+  return new Promise(resolve => {
+    const overlay = document.getElementById("confirmOverlay");
+    document.getElementById("confirmTitle").textContent = title;
+    document.getElementById("confirmText").textContent = text;
+    overlay.classList.add("show");
+
+    const yes = document.getElementById("confirmYes");
+    const no  = document.getElementById("confirmNo");
+
+    const close = (answer) => {
+      overlay.classList.remove("show");
+      yes.onclick = null; no.onclick = null; overlay.onclick = null;
+      resolve(answer);
+    };
+    yes.onclick = () => close(true);
+    no.onclick  = () => close(false);
+    overlay.onclick = (e) => { if (e.target === overlay) close(false); };
+  });
+}
+
+// Fila de carga (shimmer) mientras la tabla espera al servidor.
+function showSkeleton(tbodyId, cols = 4, rows = 3) {
+  const t = document.getElementById(tbodyId);
+  if (!t) return;
+  t.innerHTML = Array.from({ length: rows }, () =>
+    `<tr class="skeleton-row">${'<td><div class="skeleton-bar"></div></td>'.repeat(cols)}</tr>`
+  ).join("");
+}
+
+// Estado vacio explicito: una tabla en blanco no comunica nada.
+function showEmpty(tbodyId, cols, message, icon = "📭") {
+  const t = document.getElementById(tbodyId);
+  if (!t) return;
+  t.innerHTML = `<tr><td colspan="${cols}">
+    <div class="empty-state"><span class="empty-icon">${icon}</span>${message}</div>
+  </td></tr>`;
+}
+
+// Estado de error: distingue "no hay datos" de "no se pudo cargar".
+function showError(tbodyId, cols, message = "No se pudieron cargar los datos.") {
+  const t = document.getElementById(tbodyId);
+  if (!t) return;
+  t.innerHTML = `<tr><td colspan="${cols}">
+    <div class="empty-state"><span class="empty-icon">⚠️</span>${message}</div>
+  </td></tr>`;
+}
 
 // 🔐 Validar sesión
 const user = JSON.parse(localStorage.getItem("user"));
@@ -628,17 +830,19 @@ function toggleSidebar() {
 }
 
 // 🧭 NAVEGACIÓN
-function showSection(section) {
+function showSection(section, clickedEl) {
   const sections = ["dashboard","citas","clientes","inventario","empleados","finanzas"];
   sections.forEach(sec => {
     document.getElementById(sec).style.display = "none";
   });
   document.querySelectorAll('.sidebar ul li').forEach(li => li.classList.remove('active'));
-  
+
   const el = document.getElementById(section);
   if (el) el.style.display = "block";
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
-  
+  // Se recibe el elemento por parametro en vez de leer el global `event`,
+  // que no existe en todos los navegadores y falla si se llama por codigo.
+  if (clickedEl) clickedEl.classList.add('active');
+
   if (window.innerWidth < 900) toggleSidebar();
 
   if (section === "dashboard")   { loadAppointments(); loadAlerts(); }
@@ -659,37 +863,35 @@ function logout() {
 // 📅 DASHBOARD
 // ─────────────────────────────────────
 async function loadAppointments() {
+  showSkeleton("appointmentsTable", 4);
   try {
     const res = await fetch("/api/appointments");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     const table = document.getElementById("appointmentsTable");
-    table.innerHTML = "";
-    let totalCitas = 0;
-    let totalIngresos = 0;
 
-    data.forEach(app => {
-      totalCitas++;
-      totalIngresos += Number(app.precio || 0);
-      table.innerHTML += `
+    const totalIngresos = data.reduce((sum, app) => sum + Number(app.precio || 0), 0);
+
+    if (!data.length) {
+      showEmpty("appointmentsTable", 4, "Todavía no hay citas registradas.", "📅");
+    } else {
+      table.innerHTML = data.map(app => `
         <tr>
           <td>${app.hora}</td>
           <td>${app.cliente_nombre}</td>
           <td>${app.servicio}</td>
           <td>${app.barbero}</td>
         </tr>
-      `;
-    });
-
-    if (table.innerHTML === "") {
-      table.innerHTML = `<tr><td colspan="4">No hay citas registradas</td></tr>`;
+      `).join("");
     }
 
     const dashIncome = document.getElementById("dashIncome");
     const dashAppts = document.getElementById("dashAppts");
-    if (dashIncome) dashIncome.innerText = "₡" + totalIngresos;
-    if (dashAppts) dashAppts.innerText = totalCitas;
+    if (dashIncome) dashIncome.innerText = money(totalIngresos);
+    if (dashAppts) dashAppts.innerText = data.length;
   } catch (error) {
     console.error("Error cargando citas:", error);
+    showError("appointmentsTable", 4, "No se pudieron cargar las citas.");
   }
 }
 
@@ -697,96 +899,144 @@ async function loadAppointments() {
 // 📅 CITAS ADMIN
 // ─────────────────────────────────────
 async function loadCitasAdmin() {
-  const res = await fetch("/api/appointments");
-  const data = await res.json();
-  const table = document.getElementById("citasTable");
-  table.innerHTML = "";
-  data.forEach(app => {
-    table.innerHTML += `
+  showSkeleton("citasTable", 5);
+  try {
+    const res = await fetch("/api/appointments");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("citasTable", 5, "No hay citas agendadas. Creá la primera con el formulario de arriba.", "📅");
+      return;
+    }
+
+    document.getElementById("citasTable").innerHTML = data.map(app => `
       <tr>
         <td>${app.hora}</td>
         <td>${app.cliente_nombre}</td>
         <td>${app.servicio}</td>
         <td>${app.barbero}</td>
-        <td>
-          <button onclick="deleteCita(${app.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;cursor:pointer;">
-            Eliminar
-          </button>
-        </td>
+        <td><button class="btn-danger" onclick="deleteCita(${app.id})">Eliminar</button></td>
       </tr>
-    `;
-  });
+    `).join("");
+  } catch (error) {
+    console.error("Error cargando citas:", error);
+    showError("citasTable", 5);
+  }
 }
 
 async function deleteCita(id) {
-  if (!confirm("¿Eliminar esta cita?")) return;
-  await fetch(`/api/appointments/${id}`, { method: "DELETE" });
-  loadCitasAdmin();
-  loadAppointments();
+  const ok = await askConfirm("Esta cita se va a eliminar de forma permanente.", "¿Eliminar cita?");
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/appointments/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast("Cita eliminada.", "ok");
+    loadCitasAdmin();
+    loadAppointments();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo eliminar la cita.", "error");
+  }
 }
 
 async function loadFormData() {
-  const empRes = await fetch("/api/employees");
-  const empleados = await empRes.json();
-  const empSelect = document.getElementById("newEmployee");
-  empSelect.innerHTML = "";
-  empleados.forEach(e => {
-    empSelect.innerHTML += `<option value="${e.id}">${e.nombre}</option>`;
-  });
+  try {
+    const [empRes, servRes] = await Promise.all([
+      fetch("/api/employees"),
+      fetch("/api/services")
+    ]);
+    const empleados = await empRes.json();
+    const servicios = await servRes.json();
 
-  const servRes = await fetch("/api/services");
-  const servicios = await servRes.json();
-  const servSelect = document.getElementById("newService");
-  servSelect.innerHTML = "";
-  servicios.forEach(s => {
-    servSelect.innerHTML += `<option value="${s.id}">${s.nombre} - ₡${s.precio}</option>`;
-  });
+    const empSelect = document.getElementById("newEmployee");
+    empSelect.innerHTML = empleados.length
+      ? empleados.map(e => `<option value="${e.id}">${e.nombre}</option>`).join("")
+      : `<option value="">No hay empleados registrados</option>`;
+
+    const servSelect = document.getElementById("newService");
+    servSelect.innerHTML = servicios.length
+      ? servicios.map(s => `<option value="${s.id}">${s.nombre} — ${money(s.precio)}</option>`).join("")
+      : `<option value="">No hay servicios registrados</option>`;
+  } catch (e) {
+    console.error(e);
+    toast("No se pudieron cargar empleados y servicios.", "error");
+  }
 }
 
 async function createCita() {
   const data = {
-    name: document.getElementById("newName").value,
-    phone: document.getElementById("newPhone").value,
+    name: document.getElementById("newName").value.trim(),
+    phone: document.getElementById("newPhone").value.trim(),
     servicio_id: document.getElementById("newService").value,
     empleado_id: document.getElementById("newEmployee").value,
     date: document.getElementById("newDate").value,
     time: document.getElementById("newTime").value
   };
-  const res = await fetch("/api/appointments", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data)
-  });
-  const result = await res.json();
-  alert(result.message);
-  loadCitasAdmin();
-  loadAppointments();
-  loadAlerts();
+
+  // Validacion en el cliente: antes se enviaba la cita incompleta y el error
+  // solo aparecia como un mensaje generico del servidor.
+  if (!data.name || !data.phone || !data.date || !data.time || !data.servicio_id || !data.empleado_id) {
+    toast("Completá todos los campos antes de guardar la cita.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.message || `HTTP ${res.status}`);
+
+    toast(result.message || "Cita creada.", "ok");
+    ["newName","newPhone","newDate","newTime"].forEach(id => document.getElementById(id).value = "");
+    loadCitasAdmin();
+    loadAppointments();
+    loadAlerts();
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "No se pudo crear la cita.", "error");
+  }
 }
 
 // ─────────────────────────────────────
 // 👥 CLIENTES
 // ─────────────────────────────────────
 async function loadClientes() {
-  const res = await fetch("/api/appointments");
-  const data = await res.json();
-  const clientes = {};
-  data.forEach(app => {
-    if (!clientes[app.cliente_nombre]) {
-      clientes[app.cliente_nombre] = { telefono: app.cliente_telefono, citas: 0 };
+  showSkeleton("clientesTable", 3);
+  try {
+    const res = await fetch("/api/appointments");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const clientes = {};
+    data.forEach(app => {
+      if (!clientes[app.cliente_nombre]) {
+        clientes[app.cliente_nombre] = { telefono: app.cliente_telefono, citas: 0 };
+      }
+      clientes[app.cliente_nombre].citas++;
+    });
+
+    // Los que mas vuelven, primero: es la lectura util para el negocio.
+    const ordenados = Object.entries(clientes).sort((a, b) => b[1].citas - a[1].citas);
+
+    if (!ordenados.length) {
+      showEmpty("clientesTable", 3, "Todavía no hay clientes con citas registradas.", "👥");
+      return;
     }
-    clientes[app.cliente_nombre].citas++;
-  });
-  const table = document.getElementById("clientesTable");
-  table.innerHTML = "";
-  for (let nombre in clientes) {
-    table.innerHTML += `
+
+    document.getElementById("clientesTable").innerHTML = ordenados.map(([nombre, info]) => `
       <tr>
         <td>${nombre}</td>
-        <td>${clientes[nombre].telefono}</td>
-        <td>${clientes[nombre].citas}</td>
+        <td>${info.telefono || "—"}</td>
+        <td class="num">${info.citas}</td>
       </tr>
-    `;
+    `).join("");
+  } catch (e) {
+    console.error(e);
+    showError("clientesTable", 3);
   }
 }
 
@@ -794,97 +1044,163 @@ async function loadClientes() {
 // 🛠 SERVICIOS
 // ─────────────────────────────────────
 async function loadServices() {
-  const res = await fetch("/api/services");
-  const data = await res.json();
-  const table = document.getElementById("servicesTable");
-  table.innerHTML = "";
-  data.forEach(serv => {
-    table.innerHTML += `
+  showSkeleton("servicesTable", 4);
+  try {
+    const res = await fetch("/api/services");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("servicesTable", 4, "No hay servicios cargados. Agregá el primero arriba.", "🛠");
+      return;
+    }
+
+    document.getElementById("servicesTable").innerHTML = data.map(serv => `
       <tr>
         <td>${serv.nombre}</td>
-        <td>₡${serv.precio}</td>
+        <td class="num">${money(serv.precio)}</td>
         <td>${serv.categoria}</td>
-        <td><button onclick="deleteService(${serv.id})" style="background:red;border:none;color:white;padding:5px 10px;border-radius:5px;cursor:pointer;">Eliminar</button></td>
+        <td><button class="btn-danger" onclick="deleteService(${serv.id})">Eliminar</button></td>
       </tr>
-    `;
-  });
+    `).join("");
+  } catch (e) {
+    console.error(e);
+    showError("servicesTable", 4);
+  }
 }
 
 async function createService() {
-  const nombre = document.getElementById("servName").value;
+  const nombre = document.getElementById("servName").value.trim();
   const precio = document.getElementById("servPrice").value;
   const categoria = document.getElementById("servCat").value;
-  const res = await fetch("/api/services", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ nombre, precio, categoria })
-  });
-  const data = await res.json();
-  alert(data.message);
-  loadServices();
+
+  if (!nombre || !precio) {
+    toast("El servicio necesita nombre y precio.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/services", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ nombre, precio, categoria })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+
+    toast(data.message || "Servicio creado.", "ok");
+    document.getElementById("servName").value = "";
+    document.getElementById("servPrice").value = "";
+    loadServices();
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "No se pudo crear el servicio.", "error");
+  }
 }
 
 async function deleteService(id) {
-  if (!confirm("¿Eliminar servicio?")) return;
-  await fetch(`/api/services/${id}`, { method: "DELETE" });
-  loadServices();
+  const ok = await askConfirm("El servicio dejará de estar disponible para nuevas citas.", "¿Eliminar servicio?");
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/services/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast("Servicio eliminado.", "ok");
+    loadServices();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo eliminar el servicio.", "error");
+  }
 }
 
 // ─────────────────────────────────────
 // 👔 EMPLEADOS
 // ─────────────────────────────────────
 async function loadEmployees() {
-  const res = await fetch("/api/employees");
-  const data = await res.json();
-  const table = document.getElementById("employeesTable");
-  table.innerHTML = "";
-  data.forEach(emp => {
-    table.innerHTML += `
+  showSkeleton("employeesTable", 2);
+  try {
+    const res = await fetch("/api/employees");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("employeesTable", 2, "No hay empleados registrados.", "👔");
+      return;
+    }
+
+    document.getElementById("employeesTable").innerHTML = data.map(emp => `
       <tr>
         <td>${emp.nombre}</td>
-        <td>
-          <button onclick="deleteEmployee(${emp.id})" style="background:red;color:white;border:none;padding:5px 10px;border-radius:5px;cursor:pointer;">
-            Eliminar
-          </button>
-        </td>
+        <td><button class="btn-danger" onclick="deleteEmployee(${emp.id})">Eliminar</button></td>
       </tr>
-    `;
-  });
+    `).join("");
+  } catch (e) {
+    console.error(e);
+    showError("employeesTable", 2);
+  }
 }
 
 async function createEmployee() {
-  const nombre = document.getElementById("empName").value;
-  const username = document.getElementById("empUser").value;
+  const nombre = document.getElementById("empName").value.trim();
+  const username = document.getElementById("empUser").value.trim();
   const password = document.getElementById("empPass").value;
 
-  await fetch("/api/employees", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ nombre })
-  });
-  await fetch("/api/users", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ username, password, role: "employee" })
-  });
-  alert("Empleado y usuario creados ✅");
-  loadEmployees();
+  if (!nombre || !username || !password) {
+    toast("Nombre, usuario y contraseña son obligatorios.", "error");
+    return;
+  }
+
+  try {
+    // Se crea el empleado y su usuario de acceso. Si el primero falla,
+    // no tiene sentido crear el segundo.
+    const empRes = await fetch("/api/employees", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre })
+    });
+    if (!empRes.ok) throw new Error("No se pudo crear el empleado.");
+
+    const userRes = await fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password, role: "employee" })
+    });
+    if (!userRes.ok) throw new Error("Se creó el empleado, pero falló el usuario de acceso.");
+
+    toast("Empleado y usuario creados.", "ok");
+    ["empName","empUser","empPass"].forEach(id => document.getElementById(id).value = "");
+    loadEmployees();
+    loadEmployeesForGoals();
+  } catch (e) {
+    console.error(e);
+    toast(e.message, "error");
+  }
 }
 
 async function deleteEmployee(id) {
-  if (!confirm("¿Eliminar empleado?")) return;
-  await fetch(`/api/employees/${id}`, { method: "DELETE" });
-  loadEmployees();
+  const ok = await askConfirm("Se eliminará el empleado del sistema.", "¿Eliminar empleado?");
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/employees/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast("Empleado eliminado.", "ok");
+    loadEmployees();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo eliminar el empleado.", "error");
+  }
 }
 
 async function loadEmployeesForGoals() {
-  const res = await fetch("/api/employees");
-  const data = await res.json();
-  const select = document.getElementById("goalEmployee");
-  select.innerHTML = "";
-  data.forEach(emp => {
-    select.innerHTML += `<option value="${emp.id}">${emp.nombre}</option>`;
-  });
+  try {
+    const res = await fetch("/api/employees");
+    const data = await res.json();
+    const select = document.getElementById("goalEmployee");
+    select.innerHTML = data.length
+      ? data.map(emp => `<option value="${emp.id}">${emp.nombre}</option>`).join("")
+      : `<option value="">No hay empleados registrados</option>`;
+  } catch (e) {
+    console.error(e);
+  }
 }
 
 // ─────────────────────────────────────
@@ -895,82 +1211,131 @@ async function createGoal() {
   const cantidad = document.getElementById("goalCantidad").value;
   const mes = document.getElementById("goalMes").value;
   const anio = document.getElementById("goalAnio").value;
-  const res = await fetch("/api/goals", {
-    method: "POST",
-    headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ empleado_id, cantidad, mes, anio })
-  });
-  const data = await res.json();
-  alert(data.message);
-  loadGoals();
-  loadProgress();
+
+  if (!empleado_id || !cantidad || !mes || !anio) {
+    toast("Completá empleado, meta, mes y año.", "error");
+    return;
+  }
+  if (Number(mes) < 1 || Number(mes) > 12) {
+    toast("El mes tiene que estar entre 1 y 12.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/goals", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ empleado_id, cantidad, mes, anio })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || `HTTP ${res.status}`);
+
+    toast(data.message || "Meta creada.", "ok");
+    ["goalCantidad","goalMes","goalAnio"].forEach(id => document.getElementById(id).value = "");
+    loadGoals();
+    loadProgress();
+  } catch (e) {
+    console.error(e);
+    toast(e.message || "No se pudo crear la meta.", "error");
+  }
 }
 
 async function loadGoals() {
-  const res = await fetch("/api/goals");
-  const data = await res.json();
-  const table = document.getElementById("goalsTable");
-  table.innerHTML = "";
-  data.forEach(g => {
-    table.innerHTML += `
+  showSkeleton("goalsTable", 5);
+  try {
+    const res = await fetch("/api/goals");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("goalsTable", 5, "No hay metas asignadas todavía.", "🎯");
+      return;
+    }
+
+    document.getElementById("goalsTable").innerHTML = data.map(g => `
       <tr>
         <td>${g.nombre}</td>
-        <td>${g.cantidad}</td>
-        <td>${g.mes}</td>
-        <td>${g.anio}</td>
-        <td>
-          <button onclick="deleteGoal(${g.id})" style="background:red;color:white;border:none;padding:5px;border-radius:5px;cursor:pointer;">
-            Eliminar
-          </button>
-        </td>
+        <td class="num">${g.cantidad}</td>
+        <td class="num">${g.mes}</td>
+        <td class="num">${g.anio}</td>
+        <td><button class="btn-danger" onclick="deleteGoal(${g.id})">Eliminar</button></td>
       </tr>
-    `;
-  });
+    `).join("");
+  } catch (e) {
+    console.error(e);
+    showError("goalsTable", 5);
+  }
 }
 
 async function deleteGoal(id) {
-  if (!confirm("¿Eliminar esta meta?")) return;
-  await fetch(`/api/goals/${id}`, { method: "DELETE" });
-  loadGoals();
-  loadProgress();
+  const ok = await askConfirm("La meta dejará de contar para las comisiones del mes.", "¿Eliminar meta?");
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/goals/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast("Meta eliminada.", "ok");
+    loadGoals();
+    loadProgress();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo eliminar la meta.", "error");
+  }
 }
 
 async function loadProgress() {
-  const res = await fetch("/api/goals-progress");
-  const data = await res.json();
-  const table = document.getElementById("progressTable");
-  table.innerHTML = "";
-  data.forEach(p => {
-    const estado = p.realizadas >= p.meta ? "✅ Cumplida" : "⏳ En progreso";
-    table.innerHTML += `
+  showSkeleton("progressTable", 4);
+  try {
+    const res = await fetch("/api/goals-progress");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("progressTable", 4, "Sin metas activas para medir progreso.", "📊");
+      return;
+    }
+
+    document.getElementById("progressTable").innerHTML = data.map(p => {
+      const cumplida = Number(p.realizadas) >= Number(p.meta);
+      // El porcentaje da contexto que "12 / 40" por si solo no comunica.
+      const pct = Number(p.meta) > 0 ? Math.round((Number(p.realizadas) / Number(p.meta)) * 100) : 0;
+      return `
       <tr>
         <td>${p.nombre}</td>
-        <td>${p.realizadas}</td>
-        <td>${p.meta}</td>
-        <td>${estado}</td>
-      </tr>
-    `;
-  });
+        <td class="num">${p.realizadas}</td>
+        <td class="num">${p.meta}</td>
+        <td><span class="badge ${cumplida ? 'green' : 'amber'}">${cumplida ? 'Cumplida' : pct + '%'}</span></td>
+      </tr>`;
+    }).join("");
+  } catch (e) {
+    console.error(e);
+    showError("progressTable", 4);
+  }
 }
 
 async function loadAlerts() {
-  const res = await fetch("/api/alerts");
-  const data = await res.json();
   const box = document.getElementById("alertsBox");
-  box.innerHTML = "";
-  data.forEach(emp => {
-    let mensaje = "";
-    if (emp.estado === "riesgo") {
-      mensaje = `⚠️ ${emp.nombre}: solo ${emp.realizadas}/${emp.meta} citas. ¡En riesgo!`;
-    }
-    if (emp.estado === "cumplida") {
-      mensaje = `🏆 ${emp.nombre}: ¡Meta cumplida! (${emp.realizadas}/${emp.meta})`;
-    }
-    if (mensaje !== "") {
-      box.innerHTML += `<p>${mensaje}</p>`;
-    }
-  });
-  if (box.innerHTML === "") box.innerHTML = "Todo en orden ✅";
+  try {
+    const res = await fetch("/api/alerts");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const mensajes = data.map(emp => {
+      if (emp.estado === "riesgo") {
+        return `<p style="margin-bottom:6px;"><span class="badge red">Riesgo</span> ${emp.nombre} — ${emp.realizadas}/${emp.meta} citas</p>`;
+      }
+      if (emp.estado === "cumplida") {
+        return `<p style="margin-bottom:6px;"><span class="badge green">Meta</span> ${emp.nombre} — ${emp.realizadas}/${emp.meta} citas</p>`;
+      }
+      return "";
+    }).filter(Boolean);
+
+    box.innerHTML = mensajes.length
+      ? mensajes.join("")
+      : `<span class="badge green">Todo en orden</span>`;
+  } catch (e) {
+    console.error(e);
+    box.innerHTML = `<span class="badge gray">No se pudieron cargar las alertas</span>`;
+  }
 }
 
 // ─────────────────────────────────────
@@ -980,25 +1345,33 @@ let financeChartInstance = null;
 
 async function loadERPFinanzas() {
   try {
-    // Cargar resumen financiero
     const res = await fetch("/api/finanzas/resumen");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
 
-    document.getElementById("erpGross").innerText    = "₡" + Number(data.ventas_brutas).toLocaleString();
-    document.getElementById("erpTax").innerText      = "₡" + Number(data.impuestos_retencion).toLocaleString();
-    document.getElementById("erpPostTax").innerText  = "₡" + (Number(data.ventas_brutas) - Number(data.impuestos_retencion)).toLocaleString();
-    document.getElementById("erpExpenses").innerText = "₡" + (Number(data.ventas_brutas) - Number(data.impuestos_retencion) - Number(data.flujo_operativo)).toLocaleString();
-    document.getElementById("erpNet").innerText      = "₡" + Number(data.flujo_operativo).toLocaleString();
-    
-    document.getElementById("erpFundSav").innerText  = "₡" + Number(data.distribucion.reserva_ahorro).toLocaleString();
-    document.getElementById("erpFundLoan").innerText = "₡" + Number(data.distribucion.amortizacion_deuda).toLocaleString();
-    document.getElementById("erpOwnerGross").innerText = "₡" + Number(data.distribucion.ganancia_dueño_neta).toLocaleString();
-    
-    // Ocultar comisiones si no vienen en el objeto de distribución simplificado
-    const commsEl = document.getElementById("erpComms");
-    if (commsEl) commsEl.innerText = "₡0"; // Opcional: el backend ahora las descuenta antes del flujo operativo
-    
-    document.getElementById("erpOwnerNet").innerText = "₡" + Number(data.distribucion.ganancia_dueño_neta).toLocaleString();
+    const bruto     = Number(data.ventas_brutas) || 0;
+    const impuestos = Number(data.impuestos_retencion) || 0;
+    const flujo     = Number(data.flujo_operativo) || 0;
+    const postImp   = bruto - impuestos;
+
+    const set = (id, value) => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = money(value);
+    };
+
+    set("erpGross", bruto);
+    set("erpTax", impuestos);
+    set("erpPostTax", postImp);
+    set("erpExpenses", postImp - flujo);   // costos fijos + comisiones ya descontados
+    set("erpNet", flujo);
+
+    set("erpFundSav", data.distribucion.reserva_ahorro);
+    set("erpFundLoan", data.distribucion.amortizacion_deuda);
+    set("erpOwnerGross", data.distribucion.ganancia_dueño_neta);
+    // Las comisiones ya se descuentan antes del flujo operativo en el backend,
+    // por eso aqui la linea queda en cero y no se resta dos veces.
+    set("erpComms", 0);
+    set("erpOwnerNet", data.distribucion.ganancia_dueño_neta);
 
     updateChart(data);
     loadExpenses();
@@ -1007,66 +1380,74 @@ async function loadERPFinanzas() {
     loadLedger();
   } catch (error) {
     console.error("Error ERP:", error);
+    toast("No se pudo cargar el resumen financiero.", "error");
   }
 }
 
-// 🧠 IA Predictiva
+// Proyeccion de cierre de mes (calculo lineal, ver analitica.routes.js)
 async function loadPredictiveAnalytics() {
+  const badge = document.getElementById("forecastBadge");
   try {
     const res = await fetch("/api/finanzas/analitica/prevision");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    
-    document.getElementById("fcDays").innerText      = data.remainingDays + " días (" + data.daysIntoMonth + " transcurridos)";
-    document.getElementById("fcVelocity").innerText  = "₡" + Number(data.dailyVelocity).toFixed(0) + " / día";
-    document.getElementById("fcBurnRate").innerText  = "₡" + Number(data.totalMonthlyBurnRate).toFixed(0);
-    document.getElementById("fcProjected").innerText = "₡" + Number(data.projectedPostTax).toFixed(0);
 
-    const badge   = document.getElementById("forecastBadge");
-    const message = document.getElementById("forecastMessage");
-    message.innerText = data.alert.message;
+    document.getElementById("fcDays").innerText      = `${data.remainingDays} de ${data.remainingDays + data.daysIntoMonth}`;
+    document.getElementById("fcVelocity").innerText  = money(data.dailyVelocity) + "/día";
+    document.getElementById("fcBurnRate").innerText  = money(data.totalMonthlyBurnRate);
+    document.getElementById("fcProjected").innerText = money(data.projectedPostTax);
 
-    if (data.alert.status === "red") {
-      badge.innerText = "⛔ ALERTA ROJA - DÉFICIT";
-      badge.style.background = "#ff4757";
-    } else if (data.alert.status === "amber") {
-      badge.innerText = "⚠️ PRECAUCIÓN - RIESGO";
-      badge.style.background = "#ffa502";
-    } else {
-      badge.innerText = "✅ VERDE - SEGURO";
-      badge.style.background = "#2ed573";
-      badge.style.color = "#000";
-    }
+    document.getElementById("forecastMessage").innerText = data.alert.message;
+
+    const estados = {
+      red:   { txt: "Déficit proyectado", cls: "badge red" },
+      amber: { txt: "Margen ajustado",    cls: "badge amber" },
+      green: { txt: "Por encima del equilibrio", cls: "badge green" }
+    };
+    const estado = estados[data.alert.status] || estados.green;
+    badge.className = estado.cls;
+    badge.innerText = estado.txt;
 
     document.getElementById("aiTactics").innerText = data.aiDeepInsights.tips;
   } catch(e) {
-    console.error("Error Análisis:", e);
+    console.error("Error en la proyección:", e);
+    badge.className = "badge gray";
+    badge.innerText = "Sin datos";
+    document.getElementById("forecastMessage").innerText = "No se pudo calcular la proyección del mes.";
   }
 }
 
 // 📒 Libro Mayor (Ledger)
 async function loadLedger() {
+  showSkeleton("ledgerTable", 4);
   try {
     const res = await fetch("/api/finanzas/ledger");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    const table = document.getElementById("ledgerTable");
-    table.innerHTML = "";
-    if (data.length === 0) {
-      table.innerHTML = `<tr><td colspan="4" style="color:#aaa; text-align:center;">No hay movimientos contables registrados aún.</td></tr>`;
+
+    if (!data.length) {
+      showEmpty("ledgerTable", 4, "No hay movimientos contables registrados aún.", "📒");
       return;
     }
-    data.forEach(entry => {
-      const fecha = new Date(entry.fecha).toLocaleString('es-CR');
-      table.innerHTML += `
+
+    document.getElementById("ledgerTable").innerHTML = data.map(entry => {
+      const fecha = new Date(entry.fecha).toLocaleString('es-CR', {
+        day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      const negativo = Number(entry.monto) < 0;
+      return `
         <tr>
-          <td style="font-size:12px; color:#aaa">${fecha}</td>
-          <td><span style="background:rgba(255,255,255,0.1); padding:3px 6px; border-radius:4px; font-size:11px;">${entry.tipo}</span></td>
+          <td style="font-size:12px; color:var(--text-secondary); white-space:nowrap;">${fecha}</td>
+          <td><span class="badge gray">${entry.tipo}</span></td>
           <td>${entry.descripcion}</td>
-          <td style="color:${entry.monto < 0 ? '#ff6b6b' : '#2ed573'}"><b>${entry.monto < 0 ? '' : '+'}₡${Math.abs(entry.monto)}</b></td>
-        </tr>
-      `;
-    });
+          <td class="num" style="color:${negativo ? '#ff6b6b' : '#2ed573'}; white-space:nowrap;">
+            <b>${negativo ? '−' : '+'}${money(Math.abs(entry.monto))}</b>
+          </td>
+        </tr>`;
+    }).join("");
   } catch(e) {
     console.error("Error Ledger:", e);
+    showError("ledgerTable", 4, "No se pudo cargar el libro mayor.");
   }
 }
 
@@ -1075,25 +1456,39 @@ function updateChart(data) {
   const ctx = document.getElementById('financeChart');
   if (!ctx) return;
   if (financeChartInstance) financeChartInstance.destroy();
+
+  const bruto     = Number(data.ventas_brutas) || 0;
+  const impuestos = Number(data.impuestos_retencion) || 0;
+  const flujo     = Number(data.flujo_operativo) || 0;
+
   financeChartInstance = new Chart(ctx, {
     type: 'doughnut',
     data: {
-      labels: ['Impuestos (Hacienda)', 'Gastos Fijos', 'Fondos Reserva', 'Bonos (Comisiones)', 'Ganancia Dueño'],
+      labels: ['Impuestos', 'Costos fijos y comisiones', 'Reserva y deuda', 'Ganancia del dueño'],
       datasets: [{
         data: [
-          data.impuestos_retencion,
-          (data.ventas_brutas - data.impuestos_retencion - data.flujo_operativo), // Gastos Estimados
-          data.distribucion.reserva_ahorro + data.distribucion.amortizacion_deuda,
-          0, // Comisiones (ya descontadas en la base del negocio)
-          data.distribucion.ganancia_dueño_neta
+          impuestos,
+          bruto - impuestos - flujo,
+          Number(data.distribucion.reserva_ahorro) + Number(data.distribucion.amortizacion_deuda),
+          Number(data.distribucion.ganancia_dueño_neta)
         ],
-        backgroundColor: ['#ff4757','#57606f','#4bcffa','#ffa502','#2ed573'],
+        backgroundColor: ['#ff4757','#57606f','#4bcffa','#2ed573'],
         borderWidth: 0
       }]
     },
     options: {
+      cutout: '62%',
       plugins: {
-        legend: { labels: { color: 'white', font: { size: 10 } } }
+        legend: {
+          position: 'bottom',
+          labels: { color: '#9aa0a6', font: { size: 11 }, padding: 12, boxWidth: 12 }
+        },
+        // El tooltip muestra el monto formateado; antes salia el numero crudo.
+        tooltip: {
+          callbacks: {
+            label: (item) => `${item.label}: ${money(item.raw)}`
+          }
+        }
       }
     }
   });
@@ -1101,109 +1496,194 @@ function updateChart(data) {
 
 // 📄 Gastos Fijos
 async function loadExpenses() {
-  const res = await fetch("/api/finanzas/gastos");
-  const data = await res.json();
-  const table = document.getElementById("expensesTable");
-  table.innerHTML = "";
-  data.forEach(exp => {
-    table.innerHTML += `
+  showSkeleton("expensesTable", 4);
+  try {
+    const res = await fetch("/api/finanzas/gastos");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      showEmpty("expensesTable", 4, "Sin gastos fijos registrados.", "📄");
+      return;
+    }
+
+    document.getElementById("expensesTable").innerHTML = data.map(exp => `
       <tr>
         <td>${exp.nombre}</td>
-        <td>₡${exp.monto}</td>
-        <td>Día ${exp.dia_pago}</td>
-        <td><button onclick="deleteExpense(${exp.id})" style="background:red;border:none;color:white;padding:3px 8px;border-radius:4px;cursor:pointer;">X</button></td>
+        <td class="num">${money(exp.monto)}</td>
+        <td style="white-space:nowrap;">Día ${exp.dia_pago}</td>
+        <td><button class="btn-danger" onclick="deleteExpense(${exp.id})" title="Eliminar gasto">✕</button></td>
       </tr>
-    `;
-  });
+    `).join("");
+  } catch (e) {
+    console.error(e);
+    showError("expensesTable", 4);
+  }
 }
 
 async function createExpense() {
-  const data = {
-    nombre:   document.getElementById("expName").value,
-    monto:    document.getElementById("expAmount").value,
-    dia_pago: document.getElementById("expDay").value || 1,
-    categoria: "general"
-  };
-  await fetch("/api/finanzas/gastos", {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify(data)
-  });
-  loadExpenses();
-  loadERPFinanzas();
+  const nombre = document.getElementById("expName").value.trim();
+  const monto  = document.getElementById("expAmount").value;
+
+  if (!nombre || !monto) {
+    toast("El gasto necesita nombre y monto.", "error");
+    return;
+  }
+
+  try {
+    const res = await fetch("/api/finanzas/gastos", {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        nombre,
+        monto,
+        dia_pago: document.getElementById("expDay").value || 1,
+        categoria: "general"
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    toast("Gasto fijo registrado.", "ok");
+    ["expName","expAmount","expDay"].forEach(id => document.getElementById(id).value = "");
+    loadExpenses();
+    loadERPFinanzas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo registrar el gasto.", "error");
+  }
 }
 
 async function deleteExpense(id) {
-  if (!confirm("¿Eliminar gasto fijo?")) return;
-  await fetch(`/api/finanzas/gastos/${id}`, { method: "DELETE" });
-  loadExpenses();
-  loadERPFinanzas();
+  const ok = await askConfirm("El gasto dejará de descontarse del flujo mensual.", "¿Eliminar gasto fijo?");
+  if (!ok) return;
+  try {
+    const res = await fetch(`/api/finanzas/gastos/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    toast("Gasto eliminado.", "ok");
+    loadExpenses();
+    loadERPFinanzas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo eliminar el gasto.", "error");
+  }
 }
 
 // 🏦 Préstamos
 async function loadLoans() {
-  const res = await fetch("/api/finanzas/prestamos");
-  const data = await res.json();
   const container = document.getElementById("loansContainer");
-  container.innerHTML = "";
-  data.forEach(loan => {
-    container.innerHTML += `
-      <div style="background:rgba(255,255,255,0.05); padding:15px; border-radius:10px; margin-bottom:10px; border-left:4px solid gold;">
-        <h4 style="color:gold;">${loan.descripcion}</h4>
-        <p>Deuda Restante: <b>₡${Number(loan.monto_actual).toFixed(2)}</b> (de ₡${loan.monto_inicial})</p>
-        <p>Cuota: ₡${loan.cuota_mensual} - Vence Día ${loan.dia_pago}</p>
-        <button onclick="payLoan(${loan.id}, ${loan.cuota_mensual}, false)" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px;">Pagar Cuota</button>
-        <button onclick="payLoanExtra(${loan.id})" class="btn-gold" style="padding:5px 10px; margin-top:10px; font-size:12px; background:lightblue; color:#000;">Abono Extra</button>
-      </div>
-    `;
-  });
+  try {
+    const res = await fetch("/api/finanzas/prestamos");
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    if (!data.length) {
+      container.innerHTML = `<div class="empty-state"><span class="empty-icon">🏦</span>No hay préstamos activos.</div>`;
+      return;
+    }
+
+    container.innerHTML = data.map(loan => {
+      // Barra de avance: cuanto del capital original ya se pago.
+      const inicial = Number(loan.monto_inicial) || 0;
+      const actual  = Number(loan.monto_actual) || 0;
+      const pagadoPct = inicial > 0 ? Math.min(100, Math.round(((inicial - actual) / inicial) * 100)) : 0;
+
+      return `
+      <div style="background:rgba(255,255,255,0.04); padding:16px; border-radius:12px; margin-bottom:12px; border-left:3px solid var(--gold-primary);">
+        <h4 style="color:var(--gold-primary); margin-bottom:10px;">${loan.descripcion}</h4>
+
+        <div style="display:flex; justify-content:space-between; font-size:13px; color:var(--text-secondary); margin-bottom:6px;">
+          <span>Saldo: <b class="money" style="color:var(--text-primary);">${money(actual)}</b> de ${money(inicial)}</span>
+          <span>${pagadoPct}% pagado</span>
+        </div>
+        <div style="height:6px; background:rgba(0,0,0,0.35); border-radius:4px; overflow:hidden; margin-bottom:12px;">
+          <div style="height:100%; width:${pagadoPct}%; background:var(--gold-gradient);"></div>
+        </div>
+
+        <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">
+          Cuota mensual ${money(loan.cuota_mensual)} · vence el día ${loan.dia_pago}
+        </p>
+
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <button onclick="payLoan(${loan.id}, ${loan.cuota_mensual}, false)" class="btn-gold" style="padding:7px 14px; margin-top:0; font-size:12px;">Pagar cuota</button>
+          <button onclick="payLoanExtra(${loan.id})" class="btn-ghost" style="border-color:rgba(78,205,196,0.4); color:#4ecdc4;">Abono extra</button>
+        </div>
+      </div>`;
+    }).join("");
+  } catch (e) {
+    console.error(e);
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">⚠️</span>No se pudieron cargar los préstamos.</div>`;
+  }
 }
 
 async function createLoan() {
-  if (!document.getElementById("loanDesc").value || !document.getElementById("loanMonto").value) {
-    return alert("Por favor llena la descripción y el monto del préstamo.");
+  const descripcion = document.getElementById("loanDesc").value.trim();
+  const monto_inicial = document.getElementById("loanMonto").value;
+
+  if (!descripcion || !monto_inicial) {
+    toast("El préstamo necesita descripción y monto inicial.", "error");
+    return;
   }
+
   const data = {
-    descripcion:       document.getElementById("loanDesc").value,
-    monto_inicial:     document.getElementById("loanMonto").value || 0,
+    descripcion,
+    monto_inicial,
     tasa_interes_anual: document.getElementById("loanTasa").value || 0,
-    plazo_meses:       document.getElementById("loanMeses").value || 0,
-    cuota_mensual:     document.getElementById("loanCuota").value || 0,
-    dia_pago:          document.getElementById("loanDay").value || 1
+    plazo_meses:        document.getElementById("loanMeses").value || 0,
+    cuota_mensual:      document.getElementById("loanCuota").value || 0,
+    dia_pago:           document.getElementById("loanDay").value || 1
   };
+
   try {
     const res = await fetch("/api/finanzas/prestamos", {
       method: "POST", headers: {"Content-Type": "application/json"},
       body: JSON.stringify(data)
     });
-    if (res.ok) {
-      alert("Préstamo registrado exitosamente ✅");
-      ["loanDesc","loanMonto","loanTasa","loanMeses","loanCuota","loanDay"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      loadLoans();
-    } else {
-      alert("Error al registrar el préstamo en la base de datos.");
-    }
+    if (!res.ok) throw new Error("No se pudo guardar el préstamo.");
+
+    toast("Préstamo registrado.", "ok");
+    ["loanDesc","loanMonto","loanTasa","loanMeses","loanCuota","loanDay"].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+    loadLoans();
+    loadERPFinanzas();
   } catch(err) {
-    alert("Error de conexión al guardar el préstamo.");
+    console.error(err);
+    toast(err.message || "Error de conexión al guardar el préstamo.", "error");
   }
 }
 
 async function payLoan(id, cuota, isExtra) {
-  if (!confirm("¿Registrar pago?")) return;
-  await fetch(`/api/finanzas/prestamos/${id}/pagos`, {
-    method: "POST", headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({ monto_pagado: cuota, es_extraordinario: isExtra })
-  });
-  loadLoans();
-  loadLedger();
+  const detalle = isExtra
+    ? `Se registrará un abono extraordinario de ${money(cuota)}, aplicado 100% a capital.`
+    : `Se registrará el pago de la cuota de ${money(cuota)}.`;
+
+  const ok = await askConfirm(detalle, "¿Registrar pago?");
+  if (!ok) return;
+
+  try {
+    const res = await fetch(`/api/finanzas/prestamos/${id}/pagos`, {
+      method: "POST", headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ monto_pagado: cuota, es_extraordinario: isExtra })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    toast("Pago registrado en el libro mayor.", "ok");
+    loadLoans();
+    loadLedger();
+    loadERPFinanzas();
+  } catch (e) {
+    console.error(e);
+    toast("No se pudo registrar el pago.", "error");
+  }
 }
 
 async function payLoanExtra(id) {
-  const monto = prompt("Ingrese el monto del abono EXTRAORDINARIO (100% a Capital):");
-  if (monto && !isNaN(monto) && Number(monto) > 0) {
-    payLoan(id, monto, true);
+  const monto = prompt("Monto del abono extraordinario (se aplica 100% a capital):");
+  if (monto === null) return;
+  if (isNaN(monto) || Number(monto) <= 0) {
+    toast("Ingresá un monto válido mayor a cero.", "error");
+    return;
   }
+  payLoan(id, Number(monto), true);
 }
 
 // ─────────────────────────────────────

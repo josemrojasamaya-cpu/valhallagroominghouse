@@ -70,24 +70,27 @@ router.get(["/prevision", "/runway"], async (req, res) => {
         let message = "";
         let deficitOrSurplus = projectedPostTax - totalMonthlyBurnRate;
 
-        // MOTOR DE ANÁLISIS DE I.A. 
+        // Clasificacion del cierre proyectado contra el punto de equilibrio.
+        // Son tres umbrales fijos sobre una proyeccion lineal, no un modelo predictivo.
+        const money = (n) => `₡${Math.round(n).toLocaleString("es-CR").replace(/\s/g, ".")}`;
+
         if (deficitOrSurplus < 0) {
             status = "red";
-            message = `¡Peligro Estratégico! Al ritmo actual de caja (₡${dailyVelocity.toFixed(0)}/día), no alcanzarás el Punto de Equilibrio Operativo de ₡${totalMonthlyBurnRate}. Déficit proyectado: ₡${Math.abs(deficitOrSurplus).toFixed(0)}. Sugerencia: Lanza ofertas flash hoy mismo para solventar esto.`;
+            message = `Al ritmo actual (${money(dailyVelocity)}/día) el mes cierra por debajo del punto de equilibrio de ${money(totalMonthlyBurnRate)}. Déficit proyectado: ${money(Math.abs(deficitOrSurplus))}.`;
         } else if (deficitOrSurplus < totalMonthlyBurnRate * 0.2) {
             status = "amber";
-            message = `Precaución: Cubrirás la operación, pero el flujo residual (Margen Operativo) es débil (₡${deficitOrSurplus.toFixed(0)}). Aumenta citas cruzadas (Cross-Selling) a clientes agendados.`;
+            message = `El mes cubre los costos fijos, pero el margen residual proyectado es ajustado: ${money(deficitOrSurplus)} (menos del 20% de la operación fija).`;
         } else {
             status = "green";
-            message = `Rumbo Estable: Alcanzaste el Equilibrio Financiero. Se proyecta cancelar Operación Fija con superávit residual de ₡${deficitOrSurplus.toFixed(0)}. El ritmo diario (Velocity) actual es ideal.`;
+            message = `El mes cierra por encima del punto de equilibrio, con un superávit proyectado de ${money(deficitOrSurplus)}.`;
         }
-        
-        // Mensaje de Crecimiento
+
+        // Lectura del patron semanal: que dia concentra mas ingresos segun lo ya registrado.
         let bestDayMsg = "";
         if (busiestDayIndex > -1) {
-            bestDayMsg = `Tu día estrella es ${daysNames[busiestDayIndex]}. Táctica IA sugerida: Potencia Lunes/Martes con promociones, y sube precios premium el ${daysNames[busiestDayIndex]} por alta saturación. Proyección Cuatrimestral (90 días) estima un alcance Bruto Total de ₡${trimestreProyectado.toFixed(0)} a ritmo actual.`;
+            bestDayMsg = `El ${daysNames[busiestDayIndex]} es el día que más ingresos concentra en lo que va del mes (${money(maxEarned)}). A este mismo ritmo diario, 90 días proyectan ${money(trimestreProyectado)} brutos.`;
         } else {
-            bestDayMsg = `Faltan datos de días de citas para hacer un diagnóstico profundo de la semana.`;
+            bestDayMsg = `Todavía no hay suficientes citas registradas este mes para identificar un patrón por día de la semana.`;
         }
 
         res.json({

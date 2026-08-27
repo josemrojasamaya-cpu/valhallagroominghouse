@@ -33,6 +33,16 @@ cp .env.template .env   # completar variables (ver abajo)
 npm start
 ```
 
+### Datos de ejemplo
+
+Para ver el panel con un mes de operacion cargado (citas, metas, gastos, un prestamo con pagos y su libro mayor):
+
+```bash
+npm run seed
+```
+
+Los datos son ficticios y reproducibles. El script limpia las tablas operativas antes de insertar, asi que se puede correr las veces que haga falta; no toca los usuarios ni las credenciales de acceso.
+
 Variables de entorno (`.env`): credenciales de PostgreSQL, JWT secret, y las claves necesarias para Gemini y WhatsApp. Ver `.env.template` para la lista completa. Nunca subir un `.env` real.
 
 ## Licencia

@@ -41,7 +41,7 @@ router.post("/appointments", async (req, res) => {
         if (phone) {
             whatsappService.sendNotification(
                 phone, 
-                `¡Hola ${name}! ⚔️ Este es un mensaje automatizado de Valhalla Grooming House.\n\nQueremos agradecer tu confianza. Tu cita ha sido confirmada para el día ${date} a las ${time}.\n\n*Nota:* Esta inteligencia artificial fue diseñada y programada por José Miguel Rojas Amaya, creador absoluto de todo este sistema tecnológico.\n\n¡Te esperamos en Valhalla!`
+                `¡Hola ${name}! ⚔️ Este es un mensaje automatizado de Valhalla Grooming House.\n\nTu cita quedó confirmada para el ${date} a las ${time}.\n\nSi necesitás cambiarla o cancelarla, respondé a este mismo mensaje.\n\n¡Te esperamos!`
             );
         }
 
