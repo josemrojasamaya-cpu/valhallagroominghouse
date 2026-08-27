@@ -60,17 +60,18 @@ const FONDOS = [
   ["Fondo para Préstamos Extra", 20.0, "prestamos"],
 ];
 
-async function main() {
+async function main({ cerrarPool = true, silencioso = false } = {}) {
+  const log = silencioso ? () => {} : console.log;
   const destino = process.env.DATABASE_URL_CLOUD || process.env.DATABASE_URL
     ? "base remota (variable de entorno)"
     : "base local (localhost)";
-  console.log(`Preparando ${destino}\n`);
+  log(`Preparando ${destino}\n`);
 
   try {
     // ── 1. Esquema ────────────────────────────────────────
     const sql = fs.readFileSync(path.join(__dirname, "schema.sql"), "utf8");
     await pool.query(sql);
-    console.log("  esquema aplicado");
+    log("  esquema aplicado");
 
     // ── 2. Servicios ──────────────────────────────────────
     let nServ = 0;
@@ -86,7 +87,7 @@ async function main() {
       );
       if (r.rowCount) nServ++;
     }
-    console.log(`  servicios: ${nServ} nuevos (de ${SERVICIOS.length})`);
+    log(`  servicios: ${nServ} nuevos (de ${SERVICIOS.length})`);
 
     // ── 3. Equipo ─────────────────────────────────────────
     let nEmp = 0, nAct = 0;
@@ -100,7 +101,7 @@ async function main() {
         nAct++;
       }
     }
-    console.log(`  equipo: ${nEmp} nuevos, ${nAct} con puesto asignado`);
+    log(`  equipo: ${nEmp} nuevos, ${nAct} con puesto asignado`);
 
     // ── 4. Configuración financiera ───────────────────────
     for (const [nombre, pct, tipo] of IMPUESTOS) {
@@ -119,7 +120,7 @@ async function main() {
         [nombre, tasa, tipo]
       );
     }
-    console.log("  impuestos y fondos verificados");
+    log("  impuestos y fondos verificados");
 
     // ── 4b. Vincular cuentas con fichas de empleado ───────
     // Une por nombre de usuario contra el nombre del profesional. Es la
@@ -137,17 +138,17 @@ async function main() {
       RETURNING u.username, e.nombre
     `);
     if (vinculados.rowCount) {
-      console.log(`  cuentas vinculadas a su ficha: ${vinculados.rowCount}`);
-      vinculados.rows.forEach(v => console.log(`    ${v.username} → ${v.nombre}`));
+      log(`  cuentas vinculadas a su ficha: ${vinculados.rowCount}`);
+      vinculados.rows.forEach(v => log(`    ${v.username} → ${v.nombre}`));
     }
 
     const sinVincular = await pool.query(
       "SELECT username FROM users WHERE role = 'employee' AND empleado_id IS NULL"
     );
     if (sinVincular.rowCount) {
-      console.log(`\n  AVISO: ${sinVincular.rowCount} cuenta(s) de empleado sin ficha asociada:`);
-      sinVincular.rows.forEach(u => console.log(`    ${u.username}`));
-      console.log("    Su panel no podrá mostrar citas hasta vincularlas.");
+      log(`\n  AVISO: ${sinVincular.rowCount} cuenta(s) de empleado sin ficha asociada:`);
+      sinVincular.rows.forEach(u => log(`    ${u.username}`));
+      log("    Su panel no podrá mostrar citas hasta vincularlas.");
     }
 
     // ── 5. Protección contra doble reserva ────────────────
@@ -167,24 +168,24 @@ async function main() {
           ON appointments (empleado_id, fecha, hora)
           WHERE empleado_id IS NOT NULL
       `);
-      console.log("  protección contra doble reserva: activa");
+      log("  protección contra doble reserva: activa");
     } else {
-      console.log(`\n  AVISO: hay ${dup.rowCount} horario(s) con citas solapadas.`);
+      log(`\n  AVISO: hay ${dup.rowCount} horario(s) con citas solapadas.`);
       dup.rows.forEach(r => {
         const f = String(r.fecha).slice(0, 15);
-        console.log(`    profesional ${r.empleado_id} · ${f} ${r.hora} → ${r.n} citas (ids ${r.ids.join(", ")})`);
+        log(`    profesional ${r.empleado_id} · ${f} ${r.hora} → ${r.n} citas (ids ${r.ids.join(", ")})`);
       });
-      console.log("    Mientras existan, no se puede activar la protección contra");
-      console.log("    doble reserva. Resolvé esas citas y volvé a correr este script.");
+      log("    Mientras existan, no se puede activar la protección contra");
+      log("    doble reserva. Resolvé esas citas y volvé a correr este script.");
     }
 
     // ── 6. Aviso sobre el acceso ──────────────────────────
     const admin = await pool.query("SELECT COUNT(*) FROM users WHERE role = 'admin'");
     if (Number(admin.rows[0].count) === 0) {
-      console.log("\n  ATENCION: no hay ningun usuario administrador.");
-      console.log("  Crealo con:  node setup_admins.js");
+      log("\n  ATENCION: no hay ningun usuario administrador.");
+      log("  Crealo con:  node setup_admins.js");
     } else {
-      console.log(`  usuarios administradores: ${admin.rows[0].count}`);
+      log(`  usuarios administradores: ${admin.rows[0].count}`);
     }
 
     // ── Resumen ───────────────────────────────────────────
@@ -194,20 +195,25 @@ async function main() {
              (SELECT COUNT(*) FROM employees e WHERE e.puesto = s.categoria) profesionales
       FROM services s GROUP BY s.categoria ORDER BY 1
     `);
-    console.log("\nCatálogo por área:");
-    console.log("  área            servicios  profesionales");
+    log("\nCatálogo por área:");
+    log("  área            servicios  profesionales");
     porArea.rows.forEach(r =>
-      console.log(`  ${String(r.area).padEnd(16)}${String(r.servicios).padEnd(11)}${r.profesionales}`)
+      log(`  ${String(r.area).padEnd(16)}${String(r.servicios).padEnd(11)}${r.profesionales}`)
     );
 
-    console.log("\nBase de datos lista.");
+    log("\nBase de datos lista.");
   } catch (err) {
     console.error("\nError preparando la base:", err.message);
     console.error("\nRevisá que DATABASE_URL apunte a un PostgreSQL accesible.");
     process.exitCode = 1;
   } finally {
-    await pool.end();
+    if (cerrarPool) await pool.end();
   }
 }
 
-main();
+// Ejecutable directo (node db/setup.js) o importable desde el servidor.
+if (require.main === module) {
+  main();
+}
+
+module.exports = { main };

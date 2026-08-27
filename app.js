@@ -181,25 +181,38 @@ poll();
 </html>`);
 });
 
-// Migrar Base de Datos Hosteada
-app.get("/api/install/migrate", (req, res) => {
-    const { exec } = require('child_process');
-    exec('node setup_db.js && node setup_ledger.js', (err, stdout, stderr) => {
-        if (err) {
-            return res.status(500).json({ status: "Error", message: err.message, stderr });
-        }
-        res.json({ status: "Éxito", details: "Base de Datos en Producción migradas a las nuevas tablas de Finanzas/Goals.", logs: stdout });
-    });
-});
-// Migrar Administradores Puros
-app.get("/api/install/admins", (req, res) => {
-    const { exec } = require('child_process');
-    exec('node setup_admins.js', (err, stdout, stderr) => {
-        if (err) {
-            return res.status(500).json({ status: "Error", message: err.message, stderr });
-        }
-        res.json({ status: "Éxito", details: "Administradores sincronizados con bcrypt.", logs: stdout });
-    });
+/**
+ * Tareas de instalación.
+ *
+ * Estas rutas ejecutan scripts en el servidor. Estaban abiertas: cualquiera
+ * que conociera la dirección podía dispararlas desde el navegador. Ahora
+ * exigen INSTALL_TOKEN, y si esa variable no está definida quedan cerradas
+ * por completo en vez de abiertas por omisión.
+ */
+function requiereTokenInstalacion(req, res, next) {
+    const esperado = process.env.INSTALL_TOKEN;
+    if (!esperado) {
+        return res.status(403).json({
+            message: "Tareas de instalación deshabilitadas (falta INSTALL_TOKEN en el servidor)"
+        });
+    }
+    const recibido = req.get("x-install-token") || req.query.token;
+    if (recibido !== esperado) {
+        return res.status(401).json({ message: "No autorizado" });
+    }
+    next();
+}
+
+// Aplica el esquema y el catálogo inicial. Idempotente.
+app.get("/api/install/migrate", requiereTokenInstalacion, async (req, res) => {
+    try {
+        const { main } = require("./db/setup");
+        await main({ cerrarPool: false, silencioso: true });
+        res.json({ status: "ok", detalle: "Esquema y catálogo aplicados." });
+    } catch (err) {
+        console.error("Error en migración:", err);
+        res.status(500).json({ status: "error", message: err.message });
+    }
 });
 
 app.get("/api/test", (req, res) => {
@@ -216,9 +229,43 @@ process.on('unhandledRejection', (reason) => {
     console.error('⚠️ unhandledRejection (servidor continúa):', reason?.message || reason);
 });
 
+/**
+ * Prepara la base al arrancar si todavía no tiene tablas.
+ *
+ * Una instalación nueva -o un despliegue apuntando a una base vacía- queda
+ * lista sin intervención manual. En planes sin acceso a consola, esta es la
+ * única forma de aplicar el esquema.
+ *
+ * Solo actúa cuando la base está vacía: si ya hay tablas no toca nada, así
+ * que no puede pisar datos existentes.
+ */
+async function prepararBaseSiHaceFalta() {
+    const pool = require("./config/db");
+    try {
+        const r = await pool.query(
+            "SELECT COUNT(*)::int n FROM information_schema.tables WHERE table_schema = 'public'"
+        );
+        if (r.rows[0].n > 0) {
+            console.log(`[SETUP] la base ya tiene ${r.rows[0].n} tablas, no se toca`);
+            return;
+        }
+
+        console.log("[SETUP] base vacía: aplicando esquema y catálogo inicial…");
+        const { main } = require("./db/setup");
+        await main({ cerrarPool: false });
+        console.log("[SETUP] base preparada");
+    } catch (err) {
+        // Un fallo acá no debe impedir que el servidor levante: el sitio
+        // estático sigue sirviéndose y /api/salud explica qué pasó.
+        console.error("[SETUP] no se pudo preparar la base:", err.message);
+    }
+}
+
 app.listen(PORT, () => {
     console.log(`✅ Servidor Express corriendo en el puerto ${PORT}`);
-    
+
+    prepararBaseSiHaceFalta();
+
     // Iniciar WhatsApp 5 segundos después del arranque
     setTimeout(() => {
         try {
