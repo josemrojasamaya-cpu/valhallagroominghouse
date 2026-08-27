@@ -28,6 +28,52 @@ app.get("/api", (req, res) => {
     res.json({ message: "API Valhalla funcionando ⚔️" });
 });
 
+/**
+ * Estado del sistema. Permite saber desde fuera si la base responde y si
+ * tiene datos, sin exponer credenciales ni el host completo.
+ * Antes, una base caída se veía igual que una base vacía: todo fallaba con
+ * el mismo mensaje genérico y no había forma de distinguirlos.
+ */
+app.get("/api/salud", async (req, res) => {
+    const pool = require("./config/db");
+    const estado = {
+        servidor: "ok",
+        base_de_datos: "sin verificar",
+        tablas: null,
+        contenido: null
+    };
+
+    try {
+        await pool.query("SELECT 1");
+        estado.base_de_datos = "conectada";
+
+        const t = await pool.query(
+            "SELECT COUNT(*)::int n FROM information_schema.tables WHERE table_schema = 'public'"
+        );
+        estado.tablas = t.rows[0].n;
+
+        if (estado.tablas === 0) {
+            estado.contenido = "sin tablas — falta aplicar el esquema (npm run setup)";
+        } else {
+            const [s, e, u] = await Promise.all([
+                pool.query("SELECT COUNT(*)::int n FROM services").catch(() => ({ rows: [{ n: null }] })),
+                pool.query("SELECT COUNT(*)::int n FROM employees").catch(() => ({ rows: [{ n: null }] })),
+                pool.query("SELECT COUNT(*)::int n FROM users").catch(() => ({ rows: [{ n: null }] }))
+            ]);
+            estado.contenido = {
+                servicios: s.rows[0].n,
+                profesionales: e.rows[0].n,
+                usuarios: u.rows[0].n
+            };
+        }
+        res.json(estado);
+    } catch (err) {
+        estado.base_de_datos = "sin conexión";
+        estado.detalle = err.message;
+        res.status(503).json(estado);
+    }
+});
+
 // ===== WHATSAPP BOT =====
 
 // Endpoint JSON: estado del QR para polling desde el navegador
